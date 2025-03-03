@@ -4,18 +4,16 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!$request->user() || !$request->user()->isAdmin()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. Admin access required.'
-            ], 403);
+        if (Auth::check() && Auth::user()->status === 1) {
+            return $next($request);
         }
 
-        return $next($request);
+        return redirect('/dashboard');
     }
 } 

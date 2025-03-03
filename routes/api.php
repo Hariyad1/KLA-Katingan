@@ -1,9 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProductsController;
-use App\Http\Controllers\authController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AgendaController;
 use App\Http\Controllers\API\ContactController;
 use App\Http\Controllers\API\KategoriController;
@@ -12,46 +10,34 @@ use App\Http\Controllers\API\NewsController;
 use App\Http\Controllers\API\SettingController;
 use App\Http\Controllers\API\StatisticController;
 use App\Http\Controllers\API\VoteController;
-use App\Http\Controllers\API\UserController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// API Routes
 Route::apiResource('products', ProductsController::class);
 
-// auth:user routes
-Route::post('register', [authController::class, 'register']);
-Route::post('login', [authController::class, 'login']);
-Route::post('submit-vote', [VoteController::class, 'store']);
-
-// Public Routes
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
 Route::get('news/public', [NewsController::class, 'index']);
 Route::get('news/kategori/{kategori_id}', [NewsController::class, 'getByKategori']);
 Route::get('news/flag/{flag}', [NewsController::class, 'getByFlag']);
 Route::get('media/slideshow', [MediaController::class, 'getSlideshow']);
 Route::get('vote-statistics', [VoteController::class, 'getStatistics']);
+Route::post('submit-vote', [VoteController::class, 'store']);
 
-// Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('logout', [authController::class, 'logout']);
+    Route::post('logout', [AuthController::class, 'logout']);
     
-    // Admin Only Routes
-    Route::middleware('admin')->group(function () {
-        Route::apiResource('users', UserController::class);
-        Route::put('users/{id}/toggle-status', [UserController::class, 'toggleStatus']);
-    });
-    
-    // Regular Protected Routes
-    Route::apiResources([
-        'agenda' => AgendaController::class,
-        'contact' => ContactController::class,
-        'kategori' => KategoriController::class,
-        'media' => MediaController::class,
-        'news' => NewsController::class,
-        'setting' => SettingController::class,
-        'statistic' => StatisticController::class,
-        'votes' => VoteController::class,
-    ]);
+    // Protected Resources
+    Route::apiResource('agenda', AgendaController::class);
+    Route::apiResource('kategori', KategoriController::class);
+    Route::apiResource('media', MediaController::class);
+    Route::apiResource('news', NewsController::class);
+    Route::apiResource('setting', SettingController::class);
+    Route::apiResource('statistic', StatisticController::class);
+    Route::apiResource('contact', ContactController::class);
+    Route::apiResource('vote', VoteController::class);
 });

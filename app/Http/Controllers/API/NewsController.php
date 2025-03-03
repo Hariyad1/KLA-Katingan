@@ -10,8 +10,58 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
+/**
+ * @OA\Tag(
+ *     name="News",
+ *     description="API Endpoints untuk manajemen berita"
+ * )
+ */
 class NewsController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/news/public",
+     *     tags={"News"},
+     *     summary="Mendapatkan daftar berita",
+     *     description="Menampilkan daftar semua berita dengan kategori dan pembuat",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="kategori_id", type="integer", example=1),
+     *                     @OA\Property(property="title", type="string", example="Judul Berita"),
+     *                     @OA\Property(property="content", type="string", example="Isi berita..."),
+     *                     @OA\Property(property="image", type="string", nullable=true),
+     *                     @OA\Property(property="created_by", type="integer", example=1),
+     *                     @OA\Property(property="counter", type="integer", example=0),
+     *                     @OA\Property(property="flag", type="string", example="kegiatan"),
+     *                     @OA\Property(property="created_at", type="string", format="date-time"),
+     *                     @OA\Property(property="updated_at", type="string", format="date-time"),
+     *                     @OA\Property(
+     *                         property="kategori",
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer"),
+     *                         @OA\Property(property="name", type="string")
+     *                     ),
+     *                     @OA\Property(
+     *                         property="creator",
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer"),
+     *                         @OA\Property(property="name", type="string")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function index()
     {
         $news = News::with(['kategori', 'creator'])
@@ -23,6 +73,29 @@ class NewsController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/news",
+     *     tags={"News"},
+     *     summary="Membuat berita baru",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"kategori_id","title","content"},
+     *             @OA\Property(property="kategori_id", type="integer", example=1),
+     *             @OA\Property(property="title", type="string", example="Judul Berita"),
+     *             @OA\Property(property="content", type="string", example="Isi berita..."),
+     *             @OA\Property(property="image", type="string", format="binary"),
+     *             @OA\Property(property="flag", type="string", example="kegiatan")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Berita berhasil dibuat"
+     *     )
+     * )
+     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -64,6 +137,25 @@ class NewsController extends Controller
         ], 201);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/news/{id}",
+     *     tags={"News"},
+     *     summary="Mendapatkan detail berita",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID berita",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     )
+     * )
+     */
     public function show($id)
     {
         $news = News::with(['kategori', 'creator'])->find($id);
@@ -83,6 +175,35 @@ class NewsController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/news/{id}",
+     *     tags={"News"},
+     *     summary="Mengupdate berita",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"kategori_id","title","content"},
+     *             @OA\Property(property="kategori_id", type="integer"),
+     *             @OA\Property(property="title", type="string"),
+     *             @OA\Property(property="content", type="string"),
+     *             @OA\Property(property="image", type="string", format="binary"),
+     *             @OA\Property(property="flag", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Berita berhasil diupdate"
+     *     )
+     * )
+     */
     public function update(Request $request, $id)
     {
         $news = News::find($id);
@@ -134,6 +255,24 @@ class NewsController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/news/{id}",
+     *     tags={"News"},
+     *     summary="Menghapus berita",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Berita berhasil dihapus"
+     *     )
+     * )
+     */
     public function destroy($id)
     {
         $news = News::find($id);
@@ -156,6 +295,23 @@ class NewsController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/news/kategori/{kategori_id}",
+     *     tags={"News"},
+     *     summary="Mendapatkan berita berdasarkan kategori",
+     *     @OA\Parameter(
+     *         name="kategori_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     )
+     * )
+     */
     public function getByKategori($kategoriId)
     {
         $news = News::with(['kategori', 'creator'])
@@ -168,6 +324,23 @@ class NewsController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/news/flag/{flag}",
+     *     tags={"News"},
+     *     summary="Mendapatkan berita berdasarkan flag",
+     *     @OA\Parameter(
+     *         name="flag",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     )
+     * )
+     */
     public function getByFlag($flag)
     {
         $news = News::with(['kategori', 'creator'])

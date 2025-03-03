@@ -12,7 +12,7 @@ use App\Models\products;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'user';
 
@@ -69,7 +69,7 @@ class User extends Authenticatable
      */
     public function isAdmin()
     {
-        return $this->status === self::STATUS_ADMIN;
+        return $this->status === 1;
     }
 
     /**
