@@ -1,10 +1,24 @@
 <x-app-layout>
-    <div class="ml-60 py-12">
+    <!-- Tambahkan header -->
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Pesan Kontak') }}
+            </h2>
+        </div>
+    </x-slot>
+
+    <!-- Hapus ml-60 -->
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-semibold text-gray-800">Pesan Kontak</h2>
+                    <!-- Alert Messages -->
+                    <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+                        <span id="alertSuccessMessage"></span>
+                    </div>
+                    <div id="alertError" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                        <span id="alertErrorMessage"></span>
                     </div>
 
                     <!-- Tabel Kontak -->
@@ -78,50 +92,96 @@
     </div>
 
     @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         function viewMessage(id) {
-            fetch(`/api/contact/${id}`)
-                .then(response => response.json())
-                .then(data => {
-                    const messageHtml = `
-                        <div class="space-y-3">
-                            <div>
-                                <span class="font-medium">Nama:</span>
-                                <span>${data.nama}</span>
-                            </div>
-                            <div>
-                                <span class="font-medium">Email:</span>
-                                <span>${data.email}</span>
-                            </div>
-                            <div>
-                                <span class="font-medium">Subjek:</span>
-                                <span>${data.subjek}</span>
-                            </div>
-                            <div>
-                                <span class="font-medium">Pesan:</span>
-                                <div class="mt-1">${data.isi}</div>
-                            </div>
+            // Tampilkan loading jika ada
+            document.getElementById('loadingIndicator')?.classList.remove('hidden');
+
+            axios.get(`/api/contact/${id}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
+                }
+            })
+            .then(response => {
+                const data = response.data;
+                const messageHtml = `
+                    <div class="space-y-3">
+                        <div>
+                            <span class="font-medium">Nama:</span>
+                            <span>${data.nama}</span>
                         </div>
-                    `;
-                    window.dispatchEvent(new CustomEvent('view-message', { detail: messageHtml }));
-                });
+                        <div>
+                            <span class="font-medium">Email:</span>
+                            <span>${data.email}</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Subjek:</span>
+                            <span>${data.subjek}</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Pesan:</span>
+                            <div class="mt-1">${data.isi}</div>
+                        </div>
+                    </div>
+                `;
+                window.dispatchEvent(new CustomEvent('view-message', { detail: messageHtml }));
+            })
+            .catch(error => {
+                showError('Terjadi kesalahan saat mengambil detail pesan');
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                document.getElementById('loadingIndicator')?.classList.add('hidden');
+            });
         }
 
         function deleteMessage(id) {
             if (confirm('Apakah Anda yakin ingin menghapus pesan ini?')) {
-                fetch(`/api/contact/${id}`, {
-                    method: 'DELETE',
+                // Tampilkan loading
+                document.getElementById('loadingIndicator')?.classList.remove('hidden');
+
+                axios.delete(`/api/contact/${id}`, {
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
+                .then(response => {
+                    const data = response.data;
                     if (data.success) {
-                        window.location.reload();
+                        showSuccess('Pesan berhasil dihapus');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showError(data.message || 'Gagal menghapus pesan');
                     }
+                })
+                .catch(error => {
+                    showError('Terjadi kesalahan saat menghapus pesan');
+                    console.error('Error:', error);
+                })
+                .finally(() => {
+                    document.getElementById('loadingIndicator')?.classList.add('hidden');
                 });
             }
+        }
+
+        function showSuccess(message) {
+            const alert = document.getElementById('alertSuccess');
+            const alertMessage = document.getElementById('alertSuccessMessage');
+            alertMessage.textContent = message;
+            alert.classList.remove('hidden');
+            setTimeout(() => alert.classList.add('hidden'), 3000);
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('alertError');
+            const alertMessage = document.getElementById('alertErrorMessage');
+            alertMessage.textContent = message;
+            alert.classList.remove('hidden');
+            setTimeout(() => alert.classList.add('hidden'), 3000);
         }
     </script>
     @endpush
