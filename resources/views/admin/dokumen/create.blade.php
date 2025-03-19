@@ -1,4 +1,6 @@
 <x-app-layout>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <div class="pl-4 py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -11,14 +13,6 @@
                             </svg>
                             <span>Kembali</span>
                         </a>
-                    </div>
-
-                    <!-- Alert Messages -->
-                    <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-                        <span id="alertSuccessMessage"></span>
-                    </div>
-                    <div id="alertError" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                        <span id="alertErrorMessage"></span>
                     </div>
 
                     <!-- Loading Indicator -->
@@ -40,7 +34,11 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">File Dokumen</label>
-                            <input type="file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx" class="mt-1 block w-full" required>
+                            <input type="file" name="file" 
+                                   accept=".pdf,.doc,.docx,.xls,.xlsx" 
+                                   class="mt-1 block w-full" 
+                                   required
+                                   onchange="validateFileType(this)">
                             <p class="mt-1 text-sm text-gray-500">Format yang didukung: PDF, DOC, DOCX, XLS, XLSX</p>
                             <p class="text-red-500 text-xs mt-1" id="fileError"></p>
                         </div>
@@ -56,11 +54,58 @@
         </div>
     </div>
 
+    @push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    @endpush
+
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {x: 'right', y: 'top'},
+            types: [
+                {
+                    type: 'success',
+                    background: '#10B981',
+                    icon: false
+                },
+                {
+                    type: 'error',
+                    background: '#EF4444',
+                    icon: false
+                }
+            ]
+        });
+
+        function validateFileType(input) {
+            const allowedTypes = ['application/pdf', 
+                                'application/msword', 
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'application/vnd.ms-excel',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+            
+            const file = input.files[0];
+            if (file) {
+                if (!allowedTypes.includes(file.type)) {
+                    input.value = ''; // Reset input file
+                    document.getElementById('fileError').textContent = 'Hanya file dokumen (PDF, DOC, DOCX, XLS, XLSX) yang diperbolehkan';
+                    return false;
+                } else {
+                    document.getElementById('fileError').textContent = '';
+                }
+            }
+            return true;
+        }
+        
         document.getElementById('uploadForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            const fileInput = this.querySelector('input[type="file"]');
+            if (!validateFileType(fileInput)) {
+                return;
+            }
             
             // Reset error messages
             document.querySelectorAll('.text-red-500').forEach(el => el.textContent = '');
@@ -82,12 +127,12 @@
                 document.getElementById('loadingIndicator').classList.add('hidden');
                 
                 if (data.success) {
-                    showSuccess('Dokumen berhasil diupload');
+                    notyf.success('Dokumen berhasil diupload');
                     setTimeout(() => {
                         window.location.href = '{{ route("admin.dokumen.index") }}';
-                    }, 1000);
+                    }, 1500);
                 } else {
-                    showError('Gagal mengupload dokumen');
+                    notyf.error('Gagal mengupload dokumen');
                 }
             })
             .catch(({ response }) => {
@@ -102,26 +147,10 @@
                         document.getElementById('fileError').textContent = errors.file[0];
                     }
                 } else {
-                    showError('Terjadi kesalahan saat mengupload dokumen');
+                    notyf.error('Terjadi kesalahan saat mengupload dokumen');
                 }
             });
         });
-
-        function showSuccess(message) {
-            const alert = document.getElementById('alertSuccess');
-            const alertMessage = document.getElementById('alertSuccessMessage');
-            alertMessage.textContent = message;
-            alert.classList.remove('hidden');
-            setTimeout(() => alert.classList.add('hidden'), 3000);
-        }
-
-        function showError(message) {
-            const alert = document.getElementById('alertError');
-            const alertMessage = document.getElementById('alertErrorMessage');
-            alertMessage.textContent = message;
-            alert.classList.remove('hidden');
-            setTimeout(() => alert.classList.add('hidden'), 3000);
-        }
     </script>
     @endpush
 </x-app-layout> 

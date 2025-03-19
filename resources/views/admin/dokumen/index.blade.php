@@ -1,4 +1,6 @@
 <x-app-layout>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <!-- Tambahkan header -->
     <x-slot name="header">
         <div class="flex justify-between items-center">
@@ -19,12 +21,22 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <!-- Alert Messages -->
-                    <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-                        <span id="alertSuccessMessage"></span>
-                    </div>
-                    <div id="alertError" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                        <span id="alertErrorMessage"></span>
+                    <!-- Search dan Show Entries -->
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center space-x-2">
+                            <span>Show</span>
+                            <select id="entriesPerPage" class="border rounded px-2 py-1 w-20" onchange="loadDokumenData()">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span>entries</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="mr-2">Search:</span>
+                            <input type="text" id="searchInput" class="border rounded px-3 py-1" onkeyup="loadDokumenData()" placeholder="Search...">
+                        </div>
                     </div>
 
                     <!-- Tabel Dokumen -->
@@ -32,7 +44,7 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Path</th>
@@ -40,93 +52,273 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($documents as $index => $item)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $index + 1 }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $item->name }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                            @php
-                                                $extension = strtolower(pathinfo($item->file, PATHINFO_EXTENSION));
-                                                $type = match($extension) {
-                                                    'pdf' => 'PDF Document',
-                                                    'doc', 'docx' => 'Word Document',
-                                                    'xls', 'xlsx' => 'Excel Document',
-                                                    default => 'Unknown'
-                                                };
-                                            @endphp
-                                            <span class="px-2 py-1 text-xs rounded-full
-                                                {{ match($extension) {
-                                                    'pdf' => 'bg-red-100 text-red-800',
-                                                    'doc', 'docx' => 'bg-blue-100 text-blue-800',
-                                                    'xls', 'xlsx' => 'bg-green-100 text-green-800',
-                                                    default => 'bg-gray-100 text-gray-800'
-                                                } }}">
-                                                {{ $type }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $item->file }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $item->hits }} kali</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="{{ $item->path }}" target="_blank" class="text-blue-600 hover:text-blue-900 mr-3">Unduh</a>
-                                            <a href="{{ route('admin.dokumen.edit', $item->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Ubah</a>
-                                            <button onclick="deleteDocument({{ $item->id }})" class="text-red-600 hover:text-red-900">Hapus</button>
-                                        </td>
-                                    </tr>
-                                @endforeach
+                            <tbody id="dokumenTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Data akan diisi oleh JavaScript -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex justify-between items-center mt-4">
+                        <div id="tableInfo" class="text-sm text-gray-700">
+                            Showing <span id="startEntry">1</span> to <span id="endEntry">10</span> of <span id="totalEntries">0</span> entries
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                            <div class="flex items-center space-x-1">
+                                <span>Page</span>
+                                <span id="currentPageDisplay">1</span>
+                                <span>of</span>
+                                <span id="totalPagesDisplay">1</span>
+                            </div>
+                            <button id="nextBtn" onclick="nextPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Tambahkan loading indicator -->
+    <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
+    </div>
+
+    @push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-material-ui/material-ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    @endpush
+
     @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
-        function deleteDocument(id) {
-            if (confirm('Apakah Anda yakin ingin menghapus dokumen ini?')) {
-                axios.delete(`/api/media/${id}`, {
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
-                    }
-                })
-                .then(response => {
-                    const data = response.data;
-                    if (data.success) {
-                        showSuccess('Dokumen berhasil dihapus');
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    }
-                })
-                .catch(({ response }) => {
-                    showError('Gagal menghapus dokumen');
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {x: 'right', y: 'top'},
+            types: [
+                {
+                    type: 'success',
+                    background: '#10B981',
+                    icon: false
+                },
+                {
+                    type: 'error',
+                    background: '#EF4444',
+                    icon: false
+                }
+            ]
+        });
+
+        let currentPage = 1;
+        let totalPages = 1;
+        let filteredData = [];
+
+        function loadDokumenData() {
+            showLoading();
+            const perPage = document.getElementById('entriesPerPage').value;
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            
+            axios.get('/api/media', {
+                headers: {
+                    'Authorization': 'Bearer {{ session("api_token") }}'
+                }
+            })
+            .then(response => {
+                const dokumenData = response.data.data || response.data;
+                
+                // Filter hanya untuk dokumen dan berdasarkan pencarian
+                filteredData = dokumenData.filter(item => {
+                    const extension = item.file ? item.file.split('.').pop().toLowerCase() : '';
+                    const isDocument = ['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(extension);
+                    const matchesSearch = item.name.toLowerCase().includes(searchQuery);
+                    return isDocument && matchesSearch;
                 });
+
+                // Hitung total halaman
+                totalPages = Math.ceil(filteredData.length / perPage);
+                
+                // Pastikan halaman saat ini valid
+                if (currentPage > totalPages) {
+                    currentPage = totalPages || 1;
+                }
+
+                // Update tampilan nomor halaman
+                document.getElementById('currentPageDisplay').textContent = currentPage;
+                document.getElementById('totalPagesDisplay').textContent = totalPages;
+
+                // Hitung data untuk halaman saat ini
+                const startIndex = (currentPage - 1) * perPage;
+                const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
+                const currentPageData = filteredData.slice(startIndex, endIndex);
+
+                // Update tampilan tabel
+                updateTable(currentPageData, startIndex);
+                
+                // Update informasi tabel
+                document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
+                document.getElementById('endEntry').textContent = endIndex;
+                document.getElementById('totalEntries').textContent = filteredData.length;
+                
+                // Update status tombol pagination
+                document.getElementById('prevBtn').disabled = currentPage === 1;
+                document.getElementById('nextBtn').disabled = currentPage === totalPages;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                notyf.error('Gagal memuat data dokumen');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+        }
+
+        function updateTable(documents, startIndex) {
+            const dokumenTableBody = document.getElementById('dokumenTableBody');
+            dokumenTableBody.innerHTML = '';
+            
+            if (documents.length === 0) {
+                dokumenTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                            Tidak ada dokumen yang tersedia
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            documents.forEach((item, index) => {
+                const extension = item.file ? item.file.split('.').pop().toLowerCase() : '';
+                const type = (() => {
+                    switch(extension) {
+                        case 'pdf': return 'PDF Document';
+                        case 'doc':
+                        case 'docx': return 'Word Document';
+                        case 'xls':
+                        case 'xlsx': return 'Excel Document';
+                        default: return 'Unknown';
+                    }
+                })();
+
+                const typeClass = (() => {
+                    switch(extension) {
+                        case 'pdf': return 'bg-red-100 text-red-800';
+                        case 'doc':
+                        case 'docx': return 'bg-blue-100 text-blue-800';
+                        case 'xls':
+                        case 'xlsx': return 'bg-green-100 text-green-800';
+                        default: return 'bg-gray-100 text-gray-800';
+                    }
+                })();
+
+                const row = `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">${index + 1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">${item.name || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2 py-1 text-xs rounded-full ${typeClass}">
+                                ${type}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">${item.file || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">${item.hits || 0} kali</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-3">
+                            <a href="${item.path}" target="_blank" class="text-blue-600 hover:text-blue-900">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                            </a>
+                            <a href="{{ route('admin.dokumen.index') }}/${item.id}/edit" class="text-indigo-600 hover:text-indigo-900">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </a>
+                            <button onclick="deleteDokumen(${item.id})" class="text-red-600 hover:text-red-900">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                dokumenTableBody.innerHTML += row;
+            });
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadDokumenData();
             }
         }
 
-        function showSuccess(message) {
-            const alert = document.getElementById('alertSuccess');
-            const alertMessage = document.getElementById('alertSuccessMessage');
-            alertMessage.textContent = message;
-            alert.classList.remove('hidden');
-            setTimeout(() => {
-                alert.classList.add('hidden');
-            }, 3000);
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadDokumenData();
+            }
         }
 
-        function showError(message) {
-            const alert = document.getElementById('alertError');
-            const alertMessage = document.getElementById('alertErrorMessage');
-            alertMessage.textContent = message;
-            alert.classList.remove('hidden');
-            setTimeout(() => {
-                alert.classList.add('hidden');
-            }, 3000);
+        // Load data saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDokumenData();
+        });
+
+        // Update fungsi delete
+        function deleteDokumen(id) {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Dokumen yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoading();
+                    axios.delete(`/api/media/${id}`, {
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
+                        }
+                    })
+                    .then(response => {
+                        if (response.data.success) {
+                            notyf.success('Dokumen berhasil dihapus');
+                            loadDokumenData(); // Reload data setelah hapus
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        notyf.error('Gagal menghapus dokumen');
+                    })
+                    .finally(() => {
+                        hideLoading();
+                    });
+                }
+            });
         }
+
+        function showLoading() {
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingIndicator').classList.add('hidden');
+        }
+
+        // Tampilkan notifikasi jika ada session flash
+        @if(session('success'))
+            notyf.success("{{ session('success') }}");
+        @endif
+
+        @if(session('error'))
+            notyf.error("{{ session('error') }}");
+        @endif
 
         function openUploadModal() {
             window.location.href = "{{ route('admin.dokumen.create') }}";
