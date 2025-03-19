@@ -1,4 +1,6 @@
 <x-app-layout>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -13,24 +15,31 @@
         </div>
     </x-slot>
 
+        <!-- Tambahkan loading indicator di bagian atas konten -->
+        <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <!-- Alert untuk menampilkan pesan sukses/error -->
-                    <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-                        <span id="alertSuccessMessage"></span>
-                    </div>
-                    <div id="alertError" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                        <span id="alertErrorMessage"></span>
-                    </div>
-
-                    <!-- Loading indicator -->
-                    <div id="loadingIndicator" class="flex justify-center items-center py-8 hidden">
-                        <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
+                    <!-- Search dan Show Entries -->
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center space-x-2">
+                            <span>Show</span>
+                            <select id="entriesPerPage" class="border rounded px-2 py-1 w-20" onchange="loadAgendaData()">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span>entries</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="mr-2">Search:</span>
+                            <input type="text" id="searchInput" class="border rounded px-3 py-1" onkeyup="loadAgendaData()" placeholder="Search...">
+                        </div>
                     </div>
 
                     <!-- Tabel Agenda -->
@@ -38,16 +47,34 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="agendaTableBody">
-                                <!-- Data akan diisi oleh JavaScript -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex justify-between items-center mt-4">
+                        <div id="tableInfo" class="text-sm text-gray-700">
+                            Showing <span id="startEntry">1</span> to <span id="endEntry">10</span> of <span id="totalEntries">0</span> entries
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                            <div class="flex items-center space-x-1">
+                                <span>Page</span>
+                                <span id="currentPageDisplay">1</span>
+                                <span>of</span>
+                                <span id="totalPagesDisplay">1</span>
+                            </div>
+                            <button id="nextBtn" onclick="nextPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -133,65 +160,133 @@
         </div>
     </div>
 
+    @push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-material-ui/material-ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    @endpush
+
     @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             loadAgendaData();
         });
 
-        function loadAgendaData() {
-            // Tampilkan loading
+        function showLoading() {
             document.getElementById('loadingIndicator').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingIndicator').classList.add('hidden');
+        }
+
+        let currentPage = 1;
+        let totalPages = 1;
+        let filteredData = [];
+
+        function loadAgendaData() {
+            showLoading();
+            const perPage = document.getElementById('entriesPerPage').value;
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             
-            // Konfigurasi axios
-            const config = {
+            axios.get('/api/agenda', {
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
                     'Authorization': 'Bearer {{ session("api_token") }}'
                 }
-            };
-            
-            // Ambil data agenda dari API
-            axios.get('/api/agenda', config)
-                .then(function(response) {
-                    // Sembunyikan loading
-                    document.getElementById('loadingIndicator').classList.add('hidden');
+            })
+            .then(function(response) {
+                hideLoading();
+                
+                if (response.data.success) {
+                    const allAgendas = response.data.data;
                     
-                    if (response.data.success) {
-                        const agendas = response.data.data;
-                        const tableBody = document.getElementById('agendaTableBody');
-                        
-                        // Kosongkan tabel
-                        tableBody.innerHTML = '';
-                        
-                        // Isi tabel dengan data
-                        agendas.forEach(function(agenda) {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">${agenda.title || '-'}</td>
-                                <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">${formatDate(agenda.tanggal) || '-'}</td>
-                                <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">${agenda.keterangan || '-'}</td>
-                                <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                                    <button onclick="editAgenda(${agenda.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                                    <button onclick="deleteAgenda(${agenda.id})" class="text-red-600 hover:text-red-900">Hapus</button>
-                                </td>
-                            `;
-                            tableBody.appendChild(row);
-                        });
-                    } else {
-                        showError('Gagal memuat data agenda');
+                    // Filter data hanya berdasarkan judul
+                    filteredData = allAgendas.filter(agenda => 
+                        agenda.title.toLowerCase().includes(searchQuery)
+                    );
+
+                    // Hitung total halaman
+                    totalPages = Math.ceil(filteredData.length / perPage);
+                    
+                    // Pastikan halaman saat ini valid
+                    if (currentPage > totalPages) {
+                        currentPage = totalPages || 1;
                     }
-                })
-                .catch(function(error) {
-                    // Sembunyikan loading
-                    document.getElementById('loadingIndicator').classList.add('hidden');
+
+                    // Update tampilan nomor halaman
+                    document.getElementById('currentPageDisplay').textContent = currentPage;
+                    document.getElementById('totalPagesDisplay').textContent = totalPages;
+
+                    // Hitung data untuk halaman saat ini
+                    const startIndex = (currentPage - 1) * perPage;
+                    const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
+                    const currentPageData = filteredData.slice(startIndex, endIndex);
+
+                    // Update tampilan tabel
+                    updateTable(currentPageData, startIndex);
                     
-                    console.error('Error:', error);
-                    showError('Terjadi kesalahan saat memuat data agenda');
-                });
+                    // Update informasi tabel
+                    document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
+                    document.getElementById('endEntry').textContent = endIndex;
+                    document.getElementById('totalEntries').textContent = filteredData.length;
+                    
+                    // Update status tombol pagination
+                    document.getElementById('prevBtn').disabled = currentPage === 1;
+                    document.getElementById('nextBtn').disabled = currentPage === totalPages;
+                } else {
+                    showError('Gagal memuat data agenda');
+                }
+            })
+            .catch(function(error) {
+                hideLoading();
+                console.error('Error:', error);
+                showError('Terjadi kesalahan saat memuat data agenda');
+            });
+        }
+
+        function updateTable(agendas, startIndex) {
+            const tableBody = document.getElementById('agendaTableBody');
+            tableBody.innerHTML = '';
+            
+            agendas.forEach(function(agenda, index) {
+                const agendaDate = new Date(agenda.tanggal);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const isActive = agendaDate >= today;
+                
+                const row = document.createElement('tr');
+                row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4">${startIndex + index + 1}</td>
+                    <td class="px-6 py-4">${agenda.title || '-'}</td>
+                    <td class="px-6 py-4">${formatDate(agenda.tanggal) || '-'}</td>
+                    <td class="px-6 py-4">${agenda.keterangan || '-'}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            isActive 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }">
+                            ${isActive ? 'Aktif' : 'Nonaktif'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-3">
+                        <a href="/manage/agenda/${agenda.id}/edit" class="text-blue-600 hover:text-blue-900">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </a>
+                        <button onclick="deleteAgenda(${agenda.id})" class="text-red-600 hover:text-red-900">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
         }
 
         function formatDate(dateString) {
@@ -213,112 +308,105 @@
         }
 
         function submitForm() {
-            // Tampilkan loading
-            document.getElementById('loadingIndicator').classList.remove('hidden');
-            
+            showLoading();
             // Reset error messages
             document.querySelectorAll('.text-red-500').forEach(el => {
                 el.textContent = '';
                 el.classList.add('hidden');
             });
             
-            // Ambil data form
             const formData = {
                 title: document.getElementById('title').value,
                 tanggal: document.getElementById('tanggal').value,
                 keterangan: document.getElementById('keterangan').value
             };
             
-            // Konfigurasi axios
-            const config = {
+            axios.post('/api/agenda', formData, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json',
                     'Authorization': 'Bearer {{ session("api_token") }}'
                 }
-            };
-            
-            // Kirim data ke API
-            axios.post('/api/agenda', formData, config)
-                .then(function(response) {
-                    // Sembunyikan loading
-                    document.getElementById('loadingIndicator').classList.add('hidden');
+            })
+            .then(function(response) {
+                hideLoading();
+                
+                if (response.data.success) {
+                    // Tutup modal
+                    closeCreateModal();
                     
-                    if (response.data.success) {
-                        // Tutup modal
-                        closeCreateModal();
-                        
-                        // Tampilkan pesan sukses
-                        showSuccess('Agenda berhasil ditambahkan');
-                        
-                        // Reload data
-                        loadAgendaData();
-                    } else {
-                        showError('Gagal menambahkan agenda');
-                    }
-                })
-                .catch(function(error) {
-                    // Sembunyikan loading
-                    document.getElementById('loadingIndicator').classList.add('hidden');
+                    // Tampilkan pesan sukses
+                    showSuccess('Agenda berhasil ditambahkan');
                     
-                    console.error('Error:', error);
-                    
-                    // Tampilkan error validasi
-                    if (error.response && error.response.data && error.response.data.errors) {
-                        const errors = error.response.data.errors;
-                        Object.keys(errors).forEach(field => {
-                            const errorElement = document.getElementById(`${field}Error`);
-                            if (errorElement) {
-                                errorElement.textContent = errors[field][0];
-                                errorElement.classList.remove('hidden');
-                            }
-                        });
-                    } else {
-                        showError('Terjadi kesalahan saat menambahkan agenda');
-                    }
-                });
+                    // Reload data
+                    loadAgendaData();
+                } else {
+                    showError('Gagal menambahkan agenda');
+                }
+            })
+            .catch(function(error) {
+                hideLoading();
+                
+                console.error('Error:', error);
+                
+                // Tampilkan error validasi
+                if (error.response && error.response.data && error.response.data.errors) {
+                    const errors = error.response.data.errors;
+                    Object.keys(errors).forEach(field => {
+                        const errorElement = document.getElementById(`${field}Error`);
+                        if (errorElement) {
+                            errorElement.textContent = errors[field][0];
+                            errorElement.classList.remove('hidden');
+                        }
+                    });
+                } else {
+                    showError('Terjadi kesalahan saat menambahkan agenda');
+                }
+            });
         }
 
         function deleteAgenda(id) {
-            if (confirm('Apakah Anda yakin ingin menghapus agenda ini?')) {
-                // Tampilkan loading
-                document.getElementById('loadingIndicator').classList.remove('hidden');
-                
-                // Konfigurasi axios
-                const config = {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Authorization': 'Bearer {{ session("api_token") }}'
-                    }
-                };
-                
-                // Kirim request delete
-                axios.delete(`/api/agenda/${id}`, config)
-                    .then(function(response) {
-                        // Sembunyikan loading
-                        document.getElementById('loadingIndicator').classList.add('hidden');
-                        
-                        if (response.data.success) {
-                            // Tampilkan pesan sukses
-                            showSuccess('Agenda berhasil dihapus');
-                            
-                            // Reload data
-                            loadAgendaData();
-                        } else {
-                            showError('Gagal menghapus agenda');
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data pengaturan yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '<span style="color: white;">Ya, hapus!</span>',
+                cancelButtonText: '<span style="color: white;">Batal</span>',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoading();
+                    axios.delete(`/api/agenda/${id}`, {
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
                         }
                     })
-                    .catch(function(error) {
-                        // Sembunyikan loading
-                        document.getElementById('loadingIndicator').classList.add('hidden');
-                        
+                    .then(response => {
+                        hideLoading();
+                        if (response.data.success) {
+                            notyf.success({
+                                message: 'Agenda berhasil dihapus',
+                                duration: 2000,
+                                dismissible: true
+                            });
+                            loadAgendaData();
+                        }
+                    })
+                    .catch(error => {
+                        hideLoading();
                         console.error('Error:', error);
-                        showError('Terjadi kesalahan saat menghapus agenda');
+                        notyf.error({
+                            message: 'Gagal menghapus agenda',
+                            duration: 2000,
+                            dismissible: true
+                        });
                     });
-            }
+                }
+            });
         }
 
         function editAgenda(id) {
@@ -326,9 +414,7 @@
         }
 
         function updateAgenda() {
-            // Tampilkan loading
-            document.getElementById('loadingIndicator').classList.remove('hidden');
-            
+            showLoading();
             // Reset error messages
             document.querySelectorAll('.text-red-500').forEach(el => {
                 el.textContent = '';
@@ -342,51 +428,48 @@
                 keterangan: document.getElementById('editKeterangan').value
             };
             
-            // Konfigurasi axios
-            const config = {
+            axios.put(`/api/agenda/${id}`, formData, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'Authorization': 'Bearer {{ session("api_token") }}'
                 }
-            };
-            
-            // Kirim request update
-            axios.put(`/api/agenda/${id}`, formData, config)
-                .then(function(response) {
-                    if (response.data.success) {
-                        // Tutup modal
-                        closeEditModal();
-                        
-                        // Tampilkan pesan sukses
-                        showSuccess('Agenda berhasil diperbarui');
-                        
-                        // Reload data
-                        loadAgendaData();
-                    } else {
-                        showError('Gagal memperbarui agenda');
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Error:', error);
+            })
+            .then(function(response) {
+                hideLoading();
+                
+                if (response.data.success) {
+                    // Tutup modal
+                    closeEditModal();
                     
-                    // Tampilkan error validasi
-                    if (error.response && error.response.data && error.response.data.errors) {
-                        const errors = error.response.data.errors;
-                        Object.keys(errors).forEach(field => {
-                            const errorElement = document.getElementById(`edit${field.charAt(0).toUpperCase() + field.slice(1)}Error`);
-                            if (errorElement) {
-                                errorElement.textContent = errors[field][0];
-                                errorElement.classList.remove('hidden');
-                            }
-                        });
-                    } else {
-                        showError('Terjadi kesalahan saat memperbarui agenda');
-                    }
-                })
-                .finally(function() {
-                    document.getElementById('loadingIndicator').classList.add('hidden');
-                });
+                    // Tampilkan pesan sukses
+                    showSuccess('Agenda berhasil diperbarui');
+                    
+                    // Reload data
+                    loadAgendaData();
+                } else {
+                    showError('Gagal memperbarui agenda');
+                }
+            })
+            .catch(function(error) {
+                hideLoading();
+                
+                console.error('Error:', error);
+                
+                // Tampilkan error validasi
+                if (error.response && error.response.data && error.response.data.errors) {
+                    const errors = error.response.data.errors;
+                    Object.keys(errors).forEach(field => {
+                        const errorElement = document.getElementById(`edit${field.charAt(0).toUpperCase() + field.slice(1)}Error`);
+                        if (errorElement) {
+                            errorElement.textContent = errors[field][0];
+                            errorElement.classList.remove('hidden');
+                        }
+                    });
+                } else {
+                    showError('Terjadi kesalahan saat memperbarui agenda');
+                }
+            });
         }
 
         function closeEditModal() {
@@ -394,28 +477,62 @@
             document.getElementById('editForm').reset();
         }
 
+        // Inisialisasi Notyf
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {
+                x: 'right',
+                y: 'top',
+            },
+            types: [
+                {
+                    type: 'success',
+                    background: '#10B981',
+                    icon: false
+                },
+                {
+                    type: 'error',
+                    background: '#EF4444',
+                    icon: false
+                }
+            ]
+        });
+
         function showSuccess(message) {
-            const alert = document.getElementById('alertSuccess');
-            const alertMessage = document.getElementById('alertSuccessMessage');
-            alertMessage.textContent = message;
-            alert.classList.remove('hidden');
-            
-            // Sembunyikan pesan setelah 3 detik
-            setTimeout(function() {
-                alert.classList.add('hidden');
-            }, 3000);
+            notyf.success({
+                message: message,
+                dismissible: true
+            });
         }
-        
+
         function showError(message) {
-            const alert = document.getElementById('alertError');
-            const alertMessage = document.getElementById('alertErrorMessage');
-            alertMessage.textContent = message;
-            alert.classList.remove('hidden');
-            
-            // Sembunyikan pesan setelah 3 detik
-            setTimeout(function() {
-                alert.classList.add('hidden');
-            }, 3000);
+            notyf.error({
+                message: message,
+                dismissible: true
+            });
+        }
+
+        // Tampilkan notifikasi jika ada session flash
+        @if(session('success'))
+            notyf.success("{{ session('success') }}");
+        @endif
+
+        @if(session('error'))
+            notyf.error("{{ session('error') }}");
+        @endif
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadAgendaData();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadAgendaData();
+            }
         }
     </script>
     @endpush

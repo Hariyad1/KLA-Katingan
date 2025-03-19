@@ -17,14 +17,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <!-- Alert Messages -->
-                    <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-                        <span id="alertSuccessMessage"></span>
-                    </div>
-                    <div id="alertError" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                        <span id="alertErrorMessage"></span>
-                    </div>
-
                     <!-- Loading indicator -->
                     <div id="loadingIndicator" class="hidden flex justify-center items-center py-4">
                         <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -63,9 +55,44 @@
         </div>
     </div>
 
+    <!-- Tambahkan di bagian head atau sebelum </head> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+        // Inisialisasi Notyf
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {
+                x: 'right',
+                y: 'top',
+            },
+            types: [
+                {
+                    type: 'success',
+                    background: '#10B981',
+                    icon: {
+                        className: 'fas fa-check-circle',
+                        tagName: 'span',
+                        color: '#fff'
+                    },
+                    dismissible: true
+                },
+                {
+                    type: 'error',
+                    background: '#EF4444',
+                    icon: {
+                        className: 'fas fa-times-circle',
+                        tagName: 'span',
+                        color: '#fff'
+                    },
+                    dismissible: true
+                }
+            ]
+        });
+
         function submitForm() {
             // Reset error messages
             document.querySelectorAll('.text-red-500').forEach(el => {
@@ -121,19 +148,17 @@
         }
 
         function showSuccess(message) {
-            const alert = document.getElementById('alertSuccess');
-            const alertMessage = document.getElementById('alertSuccessMessage');
-            alertMessage.textContent = message;
-            alert.classList.remove('hidden');
-            setTimeout(() => alert.classList.add('hidden'), 3000);
+            notyf.success({
+                message: message,
+                dismissible: true
+            });
         }
 
         function showError(message) {
-            const alert = document.getElementById('alertError');
-            const alertMessage = document.getElementById('alertErrorMessage');
-            alertMessage.textContent = message;
-            alert.classList.remove('hidden');
-            setTimeout(() => alert.classList.add('hidden'), 3000);
+            notyf.error({
+                message: message,
+                dismissible: true
+            });
         }
     </script>
     @endpush
