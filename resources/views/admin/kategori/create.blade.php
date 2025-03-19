@@ -1,4 +1,6 @@
 <x-app-layout>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <div class="pl-4 py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -44,17 +46,36 @@
         </div>
     </div>
 
+    @push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    @endpush
+
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {x: 'right', y: 'top'},
+            types: [
+                {
+                    type: 'success',
+                    background: '#10B981',
+                    icon: false
+                },
+                {
+                    type: 'error',
+                    background: '#EF4444',
+                    icon: false
+                }
+            ]
+        });
+
         document.getElementById('createForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Reset error messages
             document.querySelectorAll('.text-red-500').forEach(el => el.textContent = '');
-            
-            // Tampilkan loading jika ada
-            document.getElementById('loadingIndicator')?.classList.remove('hidden');
             
             const formData = {
                 name: document.getElementById('name').value
@@ -64,49 +85,29 @@
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
                     'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
                 }
             })
             .then(response => {
                 const data = response.data;
                 if (data.success) {
-                    showSuccess('Kategori berhasil ditambahkan');
+                    notyf.success('Kategori berhasil ditambahkan');
                     setTimeout(() => {
                         window.location.href = '{{ route("admin.kategori.index") }}';
-                    }, 1000);
-                } else {
-                    showError(data.message || 'Gagal menambahkan kategori');
+                    }, 1500);
                 }
             })
             .catch(error => {
                 if (error.response?.data?.errors) {
                     const errors = error.response.data.errors;
-                    if (errors.name) document.getElementById('nameError').textContent = errors.name[0];
+                    Object.keys(errors).forEach(key => {
+                        notyf.error(errors[key][0]);
+                    });
                 } else {
-                    showError('Terjadi kesalahan saat menyimpan kategori');
+                    notyf.error('Terjadi kesalahan saat menyimpan kategori');
                 }
-            })
-            .finally(() => {
-                document.getElementById('loadingIndicator')?.classList.add('hidden');
             });
         });
-
-        function showSuccess(message) {
-            const alert = document.getElementById('alertSuccess');
-            const alertMessage = document.getElementById('alertSuccessMessage');
-            alertMessage.textContent = message;
-            alert.classList.remove('hidden');
-            setTimeout(() => alert.classList.add('hidden'), 3000);
-        }
-
-        function showError(message) {
-            const alert = document.getElementById('alertError');
-            const alertMessage = document.getElementById('alertErrorMessage');
-            alertMessage.textContent = message;
-            alert.classList.remove('hidden');
-            setTimeout(() => alert.classList.add('hidden'), 3000);
-        }
     </script>
     @endpush
 </x-app-layout> 
