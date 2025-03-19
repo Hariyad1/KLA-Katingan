@@ -1,4 +1,6 @@
 <x-app-layout>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <div class="pl-4 py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -38,7 +40,10 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Ganti Gambar (Opsional)</label>
-                            <input type="file" name="file" accept="image/*" class="mt-1 block w-full">
+                            <input type="file" name="file" 
+                                   accept="image/jpeg,image/png,image/gif" 
+                                   class="mt-1 block w-full"
+                                   onchange="validateImageType(this)">
                             <p class="mt-1 text-sm text-gray-500">Format yang didukung: JPG, JPEG, PNG, GIF</p>
                             <p class="text-red-500 text-xs mt-1" id="fileError"></p>
                         </div>
@@ -62,17 +67,36 @@
         </div>
     </div>
 
+    @push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    @endpush
+
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {x: 'right', y: 'top'},
+            types: [
+                {
+                    type: 'success',
+                    background: '#10B981',
+                    icon: false
+                },
+                {
+                    type: 'error',
+                    background: '#EF4444',
+                    icon: false
+                }
+            ]
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             const slideShowCheckbox = document.getElementById('slide_show');
             const editForm = document.getElementById('editForm');
             
-            // Simpan nilai awal slide_show dari database sebagai konstanta
             const ORIGINAL_SLIDE_SHOW_STATE = {{ $media->slide_show ? 'true' : 'false' }};
-            
-            // Set checkbox ke nilai awal dari database
             slideShowCheckbox.checked = ORIGINAL_SLIDE_SHOW_STATE;
             
             editForm && editForm.addEventListener('submit', function(e) {
@@ -81,11 +105,15 @@
                 const formData = new FormData(this);
                 formData.append('_method', 'PUT');
                 
-                // Gunakan nilai awal jika checkbox tidak diubah
                 const slideShowValue = slideShowCheckbox.checked === ORIGINAL_SLIDE_SHOW_STATE 
                     ? (ORIGINAL_SLIDE_SHOW_STATE ? '1' : '0')
                     : (slideShowCheckbox.checked ? '1' : '0');
                 formData.append('slide_show', slideShowValue);
+                
+                const fileInput = this.querySelector('input[type="file"]');
+                if (fileInput.files.length > 0 && !validateImageType(fileInput)) {
+                    return;
+                }
                 
                 axios.post('/api/media/{{ $media->id }}', formData, {
                     headers: {
@@ -97,57 +125,38 @@
                 .then(response => {
                     const data = response.data;
                     if (data.success) {
-                        showSuccess('Media berhasil diperbarui');
+                        notyf.success('Media berhasil diperbarui');
                         setTimeout(() => {
                             window.location.href = '{{ route("admin.media.index") }}';
-                        }, 1000);
+                        }, 1500);
                     }
                 })
-                .catch(({ response }) => {
-                    if (response && response.data && response.data.errors) {
-                        const errors = response.data.errors;
+                .catch(error => {
+                    if (error.response?.data?.errors) {
+                        const errors = error.response.data.errors;
                         Object.keys(errors).forEach(key => {
-                            const errorElement = document.getElementById(`${key}Error`);
-                            if (errorElement) {
-                                errorElement.textContent = errors[key][0];
-                            }
+                            notyf.error(errors[key][0]);
                         });
                     } else {
-                        showError('Terjadi kesalahan saat menyimpan media');
+                        notyf.error('Terjadi kesalahan saat memperbarui media');
                     }
-                    // Kembalikan ke nilai awal jika terjadi error
                     slideShowCheckbox.checked = ORIGINAL_SLIDE_SHOW_STATE;
                 });
             });
-
-            // Reset handler untuk mengembalikan ke nilai awal
-            editForm.addEventListener('reset', function() {
-                slideShowCheckbox.checked = ORIGINAL_SLIDE_SHOW_STATE;
-            });
         });
 
-        function showSuccess(message) {
-            const alert = document.getElementById('alertSuccess');
-            const alertMessage = document.getElementById('alertSuccessMessage');
-            if (alert && alertMessage) {
-                alertMessage.textContent = message;
-                alert.classList.remove('hidden');
-                setTimeout(() => {
-                    alert.classList.add('hidden');
-                }, 3000);
+        function validateImageType(input) {
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            
+            const file = input.files[0];
+            if (file) {
+                if (!allowedTypes.includes(file.type)) {
+                    input.value = '';
+                    notyf.error('Hanya file gambar (JPG, JPEG, PNG, GIF) yang diperbolehkan');
+                    return false;
+                }
             }
-        }
-
-        function showError(message) {
-            const alert = document.getElementById('alertError');
-            const alertMessage = document.getElementById('alertErrorMessage');
-            if (alert && alertMessage) {
-                alertMessage.textContent = message;
-                alert.classList.remove('hidden');
-                setTimeout(() => {
-                    alert.classList.add('hidden');
-                }, 3000);
-            }
+            return true;
         }
     </script>
     @endpush
