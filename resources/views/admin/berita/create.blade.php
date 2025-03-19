@@ -1,4 +1,6 @@
 <x-app-layout>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <div class="pl-4 py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -11,14 +13,6 @@
                             </svg>
                             <span>Kembali</span>
                         </a>
-                    </div>
-
-                    <!-- Alert Messages -->
-                    <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-                        <span id="alertSuccessMessage"></span>
-                    </div>
-                    <div id="alertError" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                        <span id="alertErrorMessage"></span>
                     </div>
 
                     <!-- Form Tambah Berita -->
@@ -43,7 +37,7 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Konten</label>
-                            <textarea id="editor" name="content" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="10"></textarea>
+                            <textarea id="content" name="content" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="10"></textarea>
                             <p class="text-red-500 text-xs mt-1" id="contentError"></p>
                         </div>
 
@@ -67,87 +61,137 @@
 
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.ckeditor.com/ckeditor5/27.1.0/classic/ckeditor.js"></script>
+    <script src="{{ asset('ckeditor/ckeditor.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            ClassicEditor
-                .create(document.querySelector('#editor'))
-                .then(newEditor => {
-                    editor = newEditor;
+            // Inisialisasi CKEditor
+            CKEDITOR.replace('content', {
+                height: 400,
+                removeButtons: 'PasteFromWord',
+                toolbar: [
+                    { name: 'document', items: [ 'Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates' ] },
+                    { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo' ] },
+                    { name: 'editing', items: [ 'Find', 'Replace', '-', 'SelectAll', '-', 'Scayt' ] },
+                    { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'CopyFormatting', 'RemoveFormat' ] },
+                    '/',
+                    { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl' ] },
+                    { name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
+                    { name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'SpecialChar' ] },
+                    '/',
+                    { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+                    { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
+                    { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
+                ],
+                filebrowserUploadMethod: 'form',
+                filebrowserUploadUrl: '{{ route("upload.image") }}',
+                allowedContent: true,
+                extraPlugins: 'wysiwygarea',
+                enterMode: CKEDITOR.ENTER_P,
+                shiftEnterMode: CKEDITOR.ENTER_BR,
+                autoParagraph: false,
+                fillEmptyBlocks: false,
+                entities: false,
+                basicEntities: false,
+                entities_latin: false,
+                entities_greek: false,
+                entities_additional: '',
+                htmlEncodeOutput: false,
+                forceSimpleAmpersand: true
+            });
+
+            document.getElementById('createForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Reset error messages
+                document.querySelectorAll('.text-red-500').forEach(el => el.textContent = '');
+                
+                // Buat FormData untuk mengirim file
+                const formData = new FormData(this);
+                
+                // Update content dengan data dari CKEditor
+                formData.set('content', CKEDITOR.instances.content.getData());
+                
+                // Tampilkan loading
+                document.getElementById('loadingIndicator')?.classList.remove('hidden');
+                
+                axios.post('/api/news', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
+                    }
+                })
+                .then(response => {
+                    if (response.data.success) {
+                        showSuccess('Berita berhasil ditambahkan');
+                        setTimeout(() => {
+                            window.location.href = '{{ route("admin.news.index") }}';
+                        }, 1000);
+                    }
                 })
                 .catch(error => {
-                    console.error(error);
+                    if (error.response?.data?.errors) {
+                        const errors = error.response.data.errors;
+                        Object.keys(errors).forEach(field => {
+                            const errorElement = document.getElementById(`${field}Error`);
+                            if (errorElement) {
+                                errorElement.textContent = errors[field][0];
+                            }
+                        });
+                    } else {
+                        showError('Terjadi kesalahan saat menyimpan berita');
+                    }
+                })
+                .finally(() => {
+                    document.getElementById('loadingIndicator')?.classList.add('hidden');
                 });
-        });
-
-        document.getElementById('createForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Reset error messages
-            document.querySelectorAll('.text-red-500').forEach(el => el.textContent = '');
-            
-            // Validate content
-            const content = editor.getData();
-            if (!content.trim()) {
-                document.getElementById('contentError').textContent = 'Konten berita wajib diisi';
-                return;
-            }
-            
-            document.querySelector('textarea[name="content"]').value = content;
-            const formData = new FormData(this);
-            
-            // Tampilkan loading
-            document.getElementById('loadingIndicator')?.classList.remove('hidden');
-            
-            axios.post('/api/news', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                    'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
-                }
-            })
-            .then(response => {
-                const data = response.data;
-                if (data.success) {
-                    showSuccess('Berita berhasil ditambahkan');
-                    setTimeout(() => {
-                        window.location.href = '{{ route("admin.news.index") }}';
-                    }, 1000);
-                } else {
-                    showError(data.message || 'Gagal menambahkan berita');
-                }
-            })
-            .catch(error => {
-                if (error.response?.data?.errors) {
-                    const errors = error.response.data.errors;
-                    if (errors.title) document.getElementById('titleError').textContent = errors.title[0];
-                    if (errors.kategori_id) document.getElementById('kategoriError').textContent = errors.kategori_id[0];
-                    if (errors.content) document.getElementById('contentError').textContent = errors.content[0];
-                    if (errors.image) document.getElementById('imageError').textContent = errors.image[0];
-                } else {
-                    showError('Terjadi kesalahan saat menyimpan berita');
-                }
-            })
-            .finally(() => {
-                document.getElementById('loadingIndicator')?.classList.add('hidden');
             });
         });
 
+        // Inisialisasi Notyf
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {
+                x: 'right',
+                y: 'top',
+            },
+            types: [
+                {
+                    type: 'success',
+                    background: '#10B981',
+                    icon: {
+                        className: 'fas fa-check-circle',
+                        tagName: 'span',
+                        color: '#fff'
+                    },
+                    dismissible: true
+                },
+                {
+                    type: 'error',
+                    background: '#EF4444',
+                    icon: {
+                        className: 'fas fa-times-circle',
+                        tagName: 'span',
+                        color: '#fff'
+                    },
+                    dismissible: true
+                }
+            ]
+        });
+
         function showSuccess(message) {
-            const alert = document.getElementById('alertSuccess');
-            const alertMessage = document.getElementById('alertSuccessMessage');
-            alertMessage.textContent = message;
-            alert.classList.remove('hidden');
-            setTimeout(() => alert.classList.add('hidden'), 3000);
+            notyf.success({
+                message: message,
+                dismissible: true
+            });
         }
 
         function showError(message) {
-            const alert = document.getElementById('alertError');
-            const alertMessage = document.getElementById('alertErrorMessage');
-            alertMessage.textContent = message;
-            alert.classList.remove('hidden');
-            setTimeout(() => alert.classList.add('hidden'), 3000);
+            notyf.error({
+                message: message,
+                dismissible: true
+            });
         }
     </script>
     @endpush
