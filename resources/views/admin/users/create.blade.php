@@ -1,4 +1,6 @@
 <x-app-layout>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <div class="pl-4 py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -54,23 +56,41 @@
         </div>
     </div>
 
+    @push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    @endpush
+
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {x: 'right', y: 'top'},
+            types: [
+                {
+                    type: 'success',
+                    background: '#10B981',
+                    icon: false
+                },
+                {
+                    type: 'error',
+                    background: '#EF4444',
+                    icon: false
+                }
+            ]
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Pastikan token API tersedia
             @if(!session('api_token'))
-                console.error('API Token tidak tersedia');
-                alert('Sesi login Anda mungkin telah berakhir. Silakan login kembali.');
+                notyf.error('Sesi login Anda mungkin telah berakhir. Silakan login kembali.');
             @endif
             
             document.getElementById('createUserForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Reset error messages
                 document.querySelectorAll('.text-red-500').forEach(el => el.textContent = '');
                 
-                // Get form data
                 const formData = {
                     name: document.getElementById('name').value,
                     email: document.getElementById('email').value,
@@ -79,10 +99,6 @@
                     status: document.getElementById('status').value
                 };
                 
-                // Debug: Tampilkan token yang digunakan
-                console.log('Using token:', '{{ session("api_token") }}');
-                
-                // Konfigurasi axios
                 const config = {
                     headers: {
                         'Content-Type': 'application/json',
@@ -92,33 +108,23 @@
                     }
                 };
                 
-                // Send API request dengan axios
                 axios.post('/api/users', formData, config)
                     .then(response => {
-                        const data = response.data;
-                        if (data.success) {
-                            window.location.href = "{{ route('admin.users.index') }}";
-                        } else {
-                            alert('Terjadi kesalahan saat menyimpan data: ' + (data.message || 'Unknown error'));
+                        if (response.data.success) {
+                            notyf.success('Pengguna berhasil ditambahkan');
+                            setTimeout(() => {
+                                window.location.href = "{{ route('admin.users.index') }}";
+                            }, 1500);
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        
-                        if (error.response && error.response.data && error.response.data.errors) {
-                            // Display validation errors
+                        if (error.response?.data?.errors) {
                             const errors = error.response.data.errors;
                             Object.keys(errors).forEach(key => {
-                                const errorElement = document.querySelector(`.error-${key}`);
-                                if (errorElement) {
-                                    errorElement.textContent = errors[key][0];
-                                }
+                                notyf.error(errors[key][0]);
                             });
                         } else {
-                            alert('Terjadi kesalahan saat menyimpan data: ' + 
-                                (error.response && error.response.data && error.response.data.message 
-                                    ? error.response.data.message 
-                                    : error.message || 'Unknown error'));
+                            notyf.error('Terjadi kesalahan saat menyimpan data');
                         }
                     });
             });
