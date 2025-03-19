@@ -15,7 +15,6 @@
                     <circle cx="40" cy="40" r="40" fill="currentColor"/>
                 </svg>
             </div>
-            
             <!-- Stars -->
             <div class="absolute right-32 top-16">
                 <svg width="24" height="24" viewBox="0 0 24 24" class="text-yellow-300 opacity-80">
@@ -55,7 +54,7 @@
     <!-- Main Content -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Konten Statis -->
+            {{-- <!-- Konten Statis -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
                 <div class="p-6">
                     <div class="prose max-w-none">
@@ -103,7 +102,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Konten Dinamis -->
             @if(isset($settings) && $settings->isNotEmpty())
@@ -122,7 +121,7 @@
 
                                     <div class="bg-white rounded-lg p-6 shadow-sm">
                                         <div class="space-y-4">
-                                            {!! nl2br($setting->content) !!}
+                                            {!! $setting->content !!}
                                         </div>
                                     </div>
                                 </div>
