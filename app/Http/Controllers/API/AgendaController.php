@@ -202,32 +202,35 @@ class AgendaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $agenda = Agenda::find($id);
-        if (!$agenda) {
+        try {
+            $agenda = Agenda::findOrFail($id);
+            
+            $validator = Validator::make($request->all(), [
+                'title' => 'required|string|max:100',
+                'tanggal' => 'required|date',
+                'keterangan' => 'required|string'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $agenda->update($request->all());
+            
+            return response()->json([
+                'success' => true,
+                'data' => $agenda,
+                'message' => 'Agenda berhasil diperbarui'
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Agenda not found'
-            ], 404);
+                'message' => 'Gagal memperbarui agenda'
+            ], 500);
         }
-
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:100',
-            'tanggal' => 'required|date',
-            'keterangan' => 'required|string|max:100'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $agenda->update($request->all());
-        return response()->json([
-            'success' => true,
-            'data' => $agenda
-        ]);
     }
 
     /**
@@ -268,18 +271,19 @@ class AgendaController extends Controller
      */
     public function destroy($id)
     {
-        $agenda = Agenda::find($id);
-        if (!$agenda) {
+        try {
+            $agenda = Agenda::findOrFail($id);
+            $agenda->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Agenda berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Agenda not found'
-            ], 404);
+                'message' => 'Gagal menghapus agenda'
+            ], 500);
         }
-
-        $agenda->delete();
-        return response()->json([
-            'success' => true,
-            'message' => 'Agenda deleted successfully'
-        ]);
     }
 } 

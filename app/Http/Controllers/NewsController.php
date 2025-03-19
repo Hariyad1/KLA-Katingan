@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\News;
 use App\Models\Agenda;
+use Illuminate\Support\Str;
 
 class NewsController extends Controller
 {
@@ -12,20 +13,27 @@ class NewsController extends Controller
     {
         $news = News::with(['kategori', 'creator'])
                     ->latest()
-                    ->take(5)  // Ambil 5 berita terbaru
+                    ->take(3)
                     ->get();
 
-        $agenda = Agenda::latest()->get(); // Fetch agenda items
+        $agenda = Agenda::latest()->get();
 
         return view('news.latest', compact('news', 'agenda'));
     }
 
-    public function show($id)
+    public function show($title)
     {
+
         $news = News::with(['kategori', 'creator'])
-                    ->findOrFail($id);
-                    
-        // Increment counter
+                    ->get()
+                    ->first(function($item) use ($title) {
+                        return Str::slug($item->title) === $title;
+                    });
+
+        if (!$news) {
+            abort(404);
+        }
+                
         $news->increment('counter');
 
         return view('news.show', compact('news'));

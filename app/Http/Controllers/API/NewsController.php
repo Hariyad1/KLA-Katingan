@@ -20,7 +20,7 @@ class NewsController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/news/public",
+     *     path="/api/news",
      *     tags={"News"},
      *     summary="Mendapatkan daftar berita",
      *     description="Menampilkan daftar semua berita dengan kategori dan pembuat",
@@ -294,62 +294,4 @@ class NewsController extends Controller
             'message' => 'News deleted successfully'
         ]);
     }
-
-    /**
-     * @OA\Get(
-     *     path="/api/news/kategori/{kategori_id}",
-     *     tags={"News"},
-     *     summary="Mendapatkan berita berdasarkan kategori",
-     *     @OA\Parameter(
-     *         name="kategori_id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation"
-     *     )
-     * )
-     */
-    public function getByKategori($kategoriId)
-    {
-        $news = News::with(['kategori', 'creator'])
-                    ->where('kategori_id', $kategoriId)
-                    ->latest()
-                    ->get();
-        return response()->json([
-            'success' => true,
-            'data' => $news
-        ]);
-    }
-
-    /**
-     * @OA\Get(
-     *     path="/api/news/flag/{flag}",
-     *     tags={"News"},
-     *     summary="Mendapatkan berita berdasarkan flag",
-     *     @OA\Parameter(
-     *         name="flag",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation"
-     *     )
-     * )
-     */
-    public function getByFlag($flag)
-    {
-        $news = News::with(['kategori', 'creator'])
-                    ->where('flag', $flag)
-                    ->latest()
-                    ->get();
-        return response()->json([
-            'success' => true,
-            'data' => $news
-        ]);
-    }
-} 
+}

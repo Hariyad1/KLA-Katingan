@@ -20,18 +20,15 @@ class AuthenticatedSessionController extends Controller
     // TODO: Handle an incoming authentication request.
     public function store(LoginRequest $request): RedirectResponse
     {
-        // Authenticate the user
         $request->authenticate();
-
-        // Regenerate the session ID to prevent fixation attacks
         $request->session()->regenerate();
 
-        // Create a new token for the authenticated user
-        $user = Auth::user();
-        $token = $user->createToken($user->name);
-
-        // Save the token in the session
-        $request->session()->put('auth_token', $token->plainTextToken);
+        $user = $request->user();
+        // Hapus token lama jika ada
+        $user->tokens()->delete();
+        // Buat token baru hanya saat login
+        $token = $user->createToken('api_token')->plainTextToken;
+        session(['api_token' => $token]);
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
@@ -39,10 +36,14 @@ class AuthenticatedSessionController extends Controller
     // TODO: Destroy an authenticated session.
     public function destroy(Request $request): RedirectResponse
     {
+        if ($request->user()) {
+            // Hapus token saat logout
+            $request->user()->tokens()->delete();
+            session()->forget('api_token');
+        }
+        
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

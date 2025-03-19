@@ -13,6 +13,17 @@ use Illuminate\Support\Facades\Validator;
  *     description="API Endpoints untuk manajemen kategori"
  * )
  */
+
+/**
+ * @OA\Schema(
+ *     schema="Kategori",
+ *     required={"name"},
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="name", type="string", example="Kategori Berita"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
 class KategoriController extends Controller
 {
     /**

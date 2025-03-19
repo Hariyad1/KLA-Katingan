@@ -9,11 +9,6 @@ namespace App\Http\Controllers;
  *     description="API Documentation for KLA Katingan"
  * )
  * 
- * @OA\Server(
- *     description="Local Environment",
- *     url="http://localhost:8000"
- * )
- * 
  * @OA\SecurityScheme(
  *     securityScheme="bearerAuth",
  *     type="http",

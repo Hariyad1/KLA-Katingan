@@ -257,7 +257,7 @@ class MediaController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100',
-            'file' => 'nullable|file|max:10240', // max 10MB
+            'file' => 'nullable|file|max:10240',
             'slide_show' => 'nullable|boolean'
         ]);
 
@@ -282,18 +282,18 @@ class MediaController extends Controller
                 'name' => $request->name,
                 'file' => $fileName,
                 'path' => Storage::url($path),
-                'slide_show' => $request->slide_show ?? $media->slide_show
+                'slide_show' => $request->boolean('slide_show')
             ]);
         } else {
             $media->update([
                 'name' => $request->name,
-                'slide_show' => $request->slide_show ?? $media->slide_show
+                'slide_show' => $request->boolean('slide_show')
             ]);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $media
+            'data' => $media->fresh()  // Refresh data dari database
         ]);
     }
 

@@ -10,8 +10,8 @@ class ContactUsController extends Controller
 {
     public function index()
     {
-        $contacts = Contact::latest()->get(); // Fetch all contacts
-        return view('kontak.index', compact('contacts')); // Pass data to the view
+        $contacts = Contact::latest()->get();
+        return view('kontak.index', compact('contacts'));
     }
 
     public function store(Request $request)

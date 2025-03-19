@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Schema(
@@ -105,7 +106,7 @@ class SettingController extends Controller
             'name' => 'required|string|max:100',
             'page' => 'required|string|max:100',
             'url' => 'required|string|max:100',
-            'image' => 'nullable|image|max:2048', // max 2MB
+            'image' => 'nullable|image|max:2048',
             'content' => 'nullable|string',
             'type' => 'required|string|max:500'
         ]);
@@ -115,6 +116,15 @@ class SettingController extends Controller
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
+        }
+
+        // Log data yang diterima
+        Log::info('Data setting yang akan disimpan:', $request->all());
+
+        if ($request->type === 'statis') {
+            $url = trim($request->url, '/');
+            Log::info('URL yang akan disimpan:', ['url' => $url]);
+            $request->merge(['url' => $url]);
         }
 
         $imagePath = null;
