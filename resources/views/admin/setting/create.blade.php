@@ -1,4 +1,6 @@
 <x-app-layout>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -88,9 +90,32 @@
         </div>
     </div>
 
+    @push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    @endpush
+
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script src="{{ asset('ckeditor/ckeditor.js') }}"></script>
     <script>
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {x: 'right', y: 'top'},
+            types: [
+                {
+                    type: 'success',
+                    background: '#10B981',
+                    icon: false
+                },
+                {
+                    type: 'error',
+                    background: '#EF4444',
+                    icon: false
+                }
+            ]
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             // Atur tampilan field berdasarkan tipe default
             toggleFields();
@@ -99,105 +124,41 @@
             document.getElementById('createSettingForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Reset error messages
-                document.querySelectorAll('.text-red-500').forEach(el => el.textContent = '');
+                document.getElementById('loadingIndicator')?.classList.remove('hidden');
                 
-                // Tampilkan loading
-                document.getElementById('loadingIndicator').classList.remove('hidden');
-                
-                // Buat FormData untuk mengirim file
                 const formData = new FormData(this);
+                formData.set('content', CKEDITOR.instances.content.getData());
                 
-                // Konfigurasi axios untuk form data
-                const formConfig = {
+                axios.post('/api/setting', formData, {
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Authorization': 'Bearer {{ session("api_token") }}'
                     }
-                };
-                
-                // Kirim request ke API
-                axios.post('/api/setting', formData, formConfig)
-                    .then(function(response) {
-                        // Sembunyikan loading
-                        document.getElementById('loadingIndicator').classList.add('hidden');
-                        
-                        if (response.data.success) {
-                            showSuccess('Pengaturan berhasil ditambahkan');
-                            
-                            // Redirect ke halaman index setelah 1 detik
-                            setTimeout(function() {
-                                window.location.href = '{{ route("admin.setting.index") }}';
-                            }, 1000);
-                        } else {
-                            showError('Gagal menambahkan pengaturan');
-                        }
-                    })
-                    .catch(function(error) {
-                        // Sembunyikan loading
-                        document.getElementById('loadingIndicator').classList.add('hidden');
-                        
-                        console.error('Error:', error);
-                        
-                        if (error.response && error.response.data && error.response.data.errors) {
-                            // Tampilkan error validasi
-                            const errors = error.response.data.errors;
-                            
-                            if (errors.name) {
-                                document.getElementById('nameError').textContent = errors.name[0];
-                            }
-                            
-                            if (errors.page) {
-                                document.getElementById('pageError').textContent = errors.page[0];
-                            }
-                            
-                            if (errors.url) {
-                                document.getElementById('urlError').textContent = errors.url[0];
-                            }
-                            
-                            if (errors.type) {
-                                document.getElementById('typeError').textContent = errors.type[0];
-                            }
-                            
-                            if (errors.content) {
-                                document.getElementById('contentError').textContent = errors.content[0];
-                            }
-                            
-                            if (errors.image) {
-                                document.getElementById('imageError').textContent = errors.image[0];
-                            }
-                        } else {
-                            showError('Terjadi kesalahan saat menambahkan pengaturan');
-                        }
-                    });
+                })
+                .then(function(response) {
+                    document.getElementById('loadingIndicator')?.classList.add('hidden');
+                    
+                    if (response.data.success) {
+                        notyf.success('Pengaturan berhasil ditambahkan');
+                        setTimeout(() => {
+                            window.location.href = '{{ route("admin.setting.index") }}';
+                        }, 1500);
+                    }
+                })
+                .catch(function(error) {
+                    document.getElementById('loadingIndicator')?.classList.add('hidden');
+                    
+                    if (error.response?.data?.errors) {
+                        const errors = error.response.data.errors;
+                        Object.keys(errors).forEach(key => {
+                            notyf.error(errors[key][0]);
+                        });
+                    } else {
+                        notyf.error('Terjadi kesalahan saat menambahkan pengaturan');
+                    }
+                });
             });
-            
-            // Fungsi untuk menampilkan pesan sukses
-            function showSuccess(message) {
-                const alert = document.getElementById('alertSuccess');
-                const alertMessage = document.getElementById('alertSuccessMessage');
-                alertMessage.textContent = message;
-                alert.classList.remove('hidden');
-                
-                // Sembunyikan pesan setelah 3 detik
-                setTimeout(function() {
-                    alert.classList.add('hidden');
-                }, 3000);
-            }
-            
-            // Fungsi untuk menampilkan pesan error
-            function showError(message) {
-                const alert = document.getElementById('alertError');
-                const alertMessage = document.getElementById('alertErrorMessage');
-                alertMessage.textContent = message;
-                alert.classList.remove('hidden');
-                
-                // Sembunyikan pesan setelah 3 detik
-                setTimeout(function() {
-                    alert.classList.add('hidden');
-                }, 3000);
-            }
         });
         
         // Fungsi untuk menampilkan/menyembunyikan field berdasarkan tipe
@@ -214,6 +175,46 @@
                 document.getElementById('urlField').style.display = 'block';
             }
         }
+
+        // Update konfigurasi CKEditor
+        CKEDITOR.replace('content', {
+            height: 400,
+            removeButtons: 'PasteFromWord',
+            toolbar: [
+                { name: 'document', items: [ 'Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates' ] },
+                { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo' ] },
+                { name: 'editing', items: [ 'Find', 'Replace', '-', 'SelectAll', '-', 'Scayt' ] },
+                { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'CopyFormatting', 'RemoveFormat' ] },
+                '/',
+                { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl' ] },
+                { name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
+                { name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'SpecialChar' ] },
+                '/',
+                { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+                { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
+                { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
+            ],
+            // Konfigurasi upload
+            filebrowserUploadMethod: 'form',
+            filebrowserUploadUrl: '{{ route("upload.image") }}',
+            // Konfigurasi untuk menangani tag HTML
+            allowedContent: true,
+            extraPlugins: 'wysiwygarea',
+            enterMode: CKEDITOR.ENTER_P,
+            shiftEnterMode: CKEDITOR.ENTER_BR,
+            // Konfigurasi untuk mencegah tag p muncul
+            autoParagraph: false,
+            fillEmptyBlocks: false,
+            // Konfigurasi entities
+            entities: false,
+            basicEntities: false,
+            entities_latin: false,
+            entities_greek: false,
+            entities_additional: '',
+            // Format output
+            htmlEncodeOutput: false,
+            forceSimpleAmpersand: true
+        });
     </script>
     @endpush
 </x-app-layout> 

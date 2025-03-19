@@ -1,11 +1,13 @@
 <x-app-layout>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Edit Pengaturan') }}
             </h2>
             <a href="{{ route('admin.setting.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg class="w-4 h mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
                 <span>Kembali</span>
@@ -17,14 +19,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <!-- Alert untuk menampilkan pesan sukses/error -->
-                    <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-                        <span id="alertSuccessMessage"></span>
-                    </div>
-                    <div id="alertError" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                        <span id="alertErrorMessage"></span>
-                    </div>
-
                     <!-- Loading indicator -->
                     <div id="loadingIndicator" class="flex justify-center items-center py-8 hidden">
                         <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -89,21 +83,83 @@
         </div>
     </div>
 
+    @push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    @endpush
+
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script src="{{ asset('ckeditor/ckeditor.js') }}"></script>
     <script>
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {x: 'right', y: 'top'},
+            types: [
+                {
+                    type: 'success',
+                    background: '#10B981',
+                    icon: false
+                },
+                {
+                    type: 'error',
+                    background: '#EF4444',
+                    icon: false
+                }
+            ]
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             const settingId = '{{ $setting->id }}';
+            
+            // Inisialisasi CKEditor
+            CKEDITOR.replace('content', {
+                height: 400,
+                removeButtons: 'PasteFromWord',
+                toolbar: [
+                    { name: 'document', items: [ 'Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates' ] },
+                    { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo' ] },
+                    { name: 'editing', items: [ 'Find', 'Replace', '-', 'SelectAll', '-', 'Scayt' ] },
+                    { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'CopyFormatting', 'RemoveFormat' ] },
+                    '/',
+                    { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl' ] },
+                    { name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
+                    { name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'SpecialChar' ] },
+                    '/',
+                    { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+                    { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
+                    { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
+                ],
+                // Konfigurasi upload
+                filebrowserUploadMethod: 'form',
+                filebrowserUploadUrl: '{{ route("upload.image") }}',
+                // Konfigurasi untuk menangani tag HTML
+                allowedContent: true,
+                extraPlugins: 'wysiwygarea',
+                enterMode: CKEDITOR.ENTER_P,
+                shiftEnterMode: CKEDITOR.ENTER_BR,
+                // Konfigurasi untuk mencegah tag p muncul
+                autoParagraph: false,
+                fillEmptyBlocks: false,
+                // Konfigurasi entities
+                entities: false,
+                basicEntities: false,
+                entities_latin: false,
+                entities_greek: false,
+                entities_additional: '',
+                // Format output
+                htmlEncodeOutput: false,
+                forceSimpleAmpersand: true
+            });
             
             // Tampilkan loading
             document.getElementById('loadingIndicator').classList.remove('hidden');
             
-            // Konfigurasi axios
+            // Konfigurasi axios untuk GET request
             const config = {
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Authorization': 'Bearer {{ session("api_token") }}'
                 }
             };
@@ -121,7 +177,7 @@
                         document.getElementById('name').value = setting.name || '';
                         document.getElementById('page').value = setting.page || '';
                         document.getElementById('url').value = setting.url || '';
-                        document.getElementById('content').value = setting.content || '';
+                        CKEDITOR.instances.content.setData(setting.content || '');
                         document.getElementById('type').value = setting.type || 'statis';
                         
                         // Tampilkan gambar jika ada
@@ -133,7 +189,7 @@
                         // Atur tampilan field berdasarkan tipe
                         toggleFields();
                     } else {
-                        showError('Gagal memuat data pengaturan');
+                        notyf.error('Gagal memuat data pengaturan');
                     }
                 })
                 .catch(function(error) {
@@ -141,7 +197,7 @@
                     document.getElementById('loadingIndicator').classList.add('hidden');
                     
                     console.error('Error:', error);
-                    showError('Terjadi kesalahan saat memuat data pengaturan');
+                    notyf.error('Terjadi kesalahan saat memuat data pengaturan');
                 });
             
             // Handle form submit
@@ -157,113 +213,85 @@
                 // Buat FormData untuk mengirim file
                 const formData = new FormData(this);
                 formData.append('_method', 'PUT');
+                formData.set('content', CKEDITOR.instances.content.getData());
                 
-                // Konfigurasi axios untuk form data
-                const formConfig = {
+                // Kirim request ke API dengan FormData
+                axios.post(`/api/setting/${settingId}?_method=PUT`, formData, {
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Authorization': 'Bearer {{ session("api_token") }}'
                     }
-                };
-                
-                // Kirim request ke API
-                axios.post(`/api/setting/${settingId}?_method=PUT`, formData, formConfig)
-                    .then(function(response) {
-                        // Sembunyikan loading
-                        document.getElementById('loadingIndicator').classList.add('hidden');
+                })
+                .then(function(response) {
+                    // Sembunyikan loading
+                    document.getElementById('loadingIndicator').classList.add('hidden');
+                    
+                    if (response.data.success) {
+                        notyf.success('Pengaturan berhasil diperbarui');
                         
-                        if (response.data.success) {
-                            showSuccess('Pengaturan berhasil diperbarui');
-                            
-                            // Redirect ke halaman index setelah 1 detik
-                            setTimeout(function() {
-                                window.location.href = '{{ route("admin.setting.index") }}';
-                            }, 1000);
-                        } else {
-                            showError('Gagal memperbarui pengaturan');
+                        // Redirect ke halaman index setelah 1 detik
+                        setTimeout(function() {
+                            window.location.href = '{{ route("admin.setting.index") }}';
+                        }, 1500);
+                    } else {
+                        notyf.error('Gagal memperbarui pengaturan');
+                    }
+                })
+                .catch(function(error) {
+                    // Sembunyikan loading
+                    document.getElementById('loadingIndicator').classList.add('hidden');
+                    
+                    console.error('Error:', error);
+                    
+                    if (error.response && error.response.data && error.response.data.errors) {
+                        // Tampilkan error validasi
+                        const errors = error.response.data.errors;
+                        
+                        if (errors.name) {
+                            document.getElementById('nameError').textContent = errors.name[0];
                         }
-                    })
-                    .catch(function(error) {
-                        // Sembunyikan loading
-                        document.getElementById('loadingIndicator').classList.add('hidden');
                         
-                        console.error('Error:', error);
-                        
-                        if (error.response && error.response.data && error.response.data.errors) {
-                            // Tampilkan error validasi
-                            const errors = error.response.data.errors;
-                            
-                            if (errors.name) {
-                                document.getElementById('nameError').textContent = errors.name[0];
-                            }
-                            
-                            if (errors.page) {
-                                document.getElementById('pageError').textContent = errors.page[0];
-                            }
-                            
-                            if (errors.url) {
-                                document.getElementById('urlError').textContent = errors.url[0];
-                            }
-                            
-                            if (errors.type) {
-                                document.getElementById('typeError').textContent = errors.type[0];
-                            }
-                            
-                            if (errors.content) {
-                                document.getElementById('contentError').textContent = errors.content[0];
-                            }
-                            
-                            if (errors.image) {
-                                document.getElementById('imageError').textContent = errors.image[0];
-                            }
-                        } else {
-                            showError('Terjadi kesalahan saat memperbarui pengaturan');
+                        if (errors.page) {
+                            document.getElementById('pageError').textContent = errors.page[0];
                         }
-                    });
+                        
+                        if (errors.url) {
+                            document.getElementById('urlError').textContent = errors.url[0];
+                        }
+                        
+                        if (errors.type) {
+                            document.getElementById('typeError').textContent = errors.type[0];
+                        }
+                        
+                        if (errors.content) {
+                            document.getElementById('contentError').textContent = errors.content[0];
+                        }
+                        
+                        if (errors.image) {
+                            document.getElementById('imageError').textContent = errors.image[0];
+                        }
+                    } else {
+                        notyf.error('Terjadi kesalahan saat memperbarui pengaturan');
+                    }
+                });
             });
             
-            // Fungsi untuk menampilkan pesan sukses
-            function showSuccess(message) {
-                const alert = document.getElementById('alertSuccess');
-                const alertMessage = document.getElementById('alertSuccessMessage');
-                alertMessage.textContent = message;
-                alert.classList.remove('hidden');
+            // Fungsi untuk menampilkan/menyembunyikan field berdasarkan tipe
+            function toggleFields() {
+                const type = document.getElementById('type').value;
                 
-                // Sembunyikan pesan setelah 3 detik
-                setTimeout(function() {
-                    alert.classList.add('hidden');
-                }, 3000);
-            }
-            
-            // Fungsi untuk menampilkan pesan error
-            function showError(message) {
-                const alert = document.getElementById('alertError');
-                const alertMessage = document.getElementById('alertErrorMessage');
-                alertMessage.textContent = message;
-                alert.classList.remove('hidden');
-                
-                // Sembunyikan pesan setelah 3 detik
-                setTimeout(function() {
-                    alert.classList.add('hidden');
-                }, 3000);
+                if (type === 'statis') {
+                    document.getElementById('imageField').style.display = 'block';
+                    document.getElementById('contentField').style.display = 'block';
+                    document.getElementById('urlField').style.display = 'block';
+                } else if (type === 'video') {
+                    document.getElementById('imageField').style.display = 'none';
+                    document.getElementById('contentField').style.display = 'block';
+                    document.getElementById('urlField').style.display = 'block';
+                }
             }
         });
-        
-        // Fungsi untuk menampilkan/menyembunyikan field berdasarkan tipe
-        function toggleFields() {
-            const type = document.getElementById('type').value;
-            
-            if (type === 'statis') {
-                document.getElementById('imageField').style.display = 'block';
-                document.getElementById('contentField').style.display = 'block';
-                document.getElementById('urlField').style.display = 'block';
-            } else if (type === 'video') {
-                document.getElementById('imageField').style.display = 'none';
-                document.getElementById('contentField').style.display = 'block';
-                document.getElementById('urlField').style.display = 'block';
-            }
-        }
     </script>
     @endpush
 </x-app-layout> 
