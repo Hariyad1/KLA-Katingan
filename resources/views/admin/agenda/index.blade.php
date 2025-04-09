@@ -15,17 +15,15 @@
         </div>
     </x-slot>
 
-        <!-- Tambahkan loading indicator di bagian atas konten -->
-        <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-            <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
-        </div>
+    <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
+    </div>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <!-- Search dan Show Entries -->
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 space-y-4 md:space-y-0">
                         <div class="flex items-center space-x-2">
                             <span>Show</span>
                             <select id="entriesPerPage" class="border rounded px-2 py-1 w-20" onchange="loadAgendaData()">
@@ -36,13 +34,12 @@
                             </select>
                             <span>entries</span>
                         </div>
-                        <div class="flex items-center">
+                        <div class="flex items-center w-full md:w-auto">
                             <span class="mr-2">Search:</span>
-                            <input type="text" id="searchInput" class="border rounded px-3 py-1" onkeyup="loadAgendaData()" placeholder="Search...">
+                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" onkeyup="handleSearch()" placeholder="Search...">
                         </div>
                     </div>
 
-                    <!-- Tabel Agenda -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -60,13 +57,12 @@
                         </table>
                     </div>
 
-                    <!-- Pagination -->
                     <div class="flex justify-between items-center mt-4">
                         <div id="tableInfo" class="text-sm text-gray-700">
                             Showing <span id="startEntry">1</span> to <span id="endEntry">10</span> of <span id="totalEntries">0</span> entries
                         </div>
                         <div class="flex items-center space-x-2">
-                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Prev</button>
                             <div class="flex items-center space-x-1">
                                 <span>Page</span>
                                 <span id="currentPageDisplay">1</span>
@@ -81,7 +77,6 @@
         </div>
     </div>
 
-    <!-- Modal untuk tambah agenda -->
     <div id="createModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -120,7 +115,6 @@
         </div>
     </div>
 
-    <!-- Tambahkan modal edit setelah modal create -->
     <div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -172,7 +166,25 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             loadAgendaData();
+            
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', handleSearch);
         });
+
+        function handleSearch() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const perPage = document.getElementById('entriesPerPage').value;
+            
+            filteredData = window.allAgendas.filter(agenda => 
+                agenda.title.toLowerCase().includes(searchQuery)
+            );
+
+            totalPages = Math.ceil(filteredData.length / perPage);
+            
+            currentPage = 1;
+            
+            updateTableDisplay();
+        }
 
         function showLoading() {
             document.getElementById('loadingIndicator').classList.remove('hidden');
@@ -188,8 +200,6 @@
 
         function loadAgendaData() {
             showLoading();
-            const perPage = document.getElementById('entriesPerPage').value;
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             
             axios.get('/api/agenda', {
                 headers: {
@@ -200,41 +210,9 @@
                 hideLoading();
                 
                 if (response.data.success) {
-                    const allAgendas = response.data.data;
-                    
-                    // Filter data hanya berdasarkan judul
-                    filteredData = allAgendas.filter(agenda => 
-                        agenda.title.toLowerCase().includes(searchQuery)
-                    );
-
-                    // Hitung total halaman
-                    totalPages = Math.ceil(filteredData.length / perPage);
-                    
-                    // Pastikan halaman saat ini valid
-                    if (currentPage > totalPages) {
-                        currentPage = totalPages || 1;
-                    }
-
-                    // Update tampilan nomor halaman
-                    document.getElementById('currentPageDisplay').textContent = currentPage;
-                    document.getElementById('totalPagesDisplay').textContent = totalPages;
-
-                    // Hitung data untuk halaman saat ini
-                    const startIndex = (currentPage - 1) * perPage;
-                    const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
-                    const currentPageData = filteredData.slice(startIndex, endIndex);
-
-                    // Update tampilan tabel
-                    updateTable(currentPageData, startIndex);
-                    
-                    // Update informasi tabel
-                    document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
-                    document.getElementById('endEntry').textContent = endIndex;
-                    document.getElementById('totalEntries').textContent = filteredData.length;
-                    
-                    // Update status tombol pagination
-                    document.getElementById('prevBtn').disabled = currentPage === 1;
-                    document.getElementById('nextBtn').disabled = currentPage === totalPages;
+                    window.allAgendas = response.data.data;
+                    filteredData = window.allAgendas;
+                    updateTableDisplay();
                 } else {
                     showError('Gagal memuat data agenda');
                 }
@@ -244,6 +222,32 @@
                 console.error('Error:', error);
                 showError('Terjadi kesalahan saat memuat data agenda');
             });
+        }
+
+        function updateTableDisplay() {
+            const perPage = document.getElementById('entriesPerPage').value;
+            
+            totalPages = Math.ceil(filteredData.length / perPage);
+            
+            if (currentPage > totalPages) {
+                currentPage = totalPages || 1;
+            }
+
+            document.getElementById('currentPageDisplay').textContent = currentPage;
+            document.getElementById('totalPagesDisplay').textContent = totalPages;
+
+            const startIndex = (currentPage - 1) * perPage;
+            const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
+            const currentPageData = filteredData.slice(startIndex, endIndex);
+
+            updateTable(currentPageData, startIndex);
+            
+            document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
+            document.getElementById('endEntry').textContent = endIndex;
+            document.getElementById('totalEntries').textContent = filteredData.length;
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
         }
 
         function updateTable(agendas, startIndex) {
@@ -297,9 +301,7 @@
 
         function openCreateModal() {
             document.getElementById('createModal').classList.remove('hidden');
-            // Reset form
             document.getElementById('createForm').reset();
-            // Reset error messages
             document.querySelectorAll('.text-red-500').forEach(el => el.classList.add('hidden'));
         }
 
@@ -309,7 +311,6 @@
 
         function submitForm() {
             showLoading();
-            // Reset error messages
             document.querySelectorAll('.text-red-500').forEach(el => {
                 el.textContent = '';
                 el.classList.add('hidden');
@@ -332,13 +333,10 @@
                 hideLoading();
                 
                 if (response.data.success) {
-                    // Tutup modal
                     closeCreateModal();
                     
-                    // Tampilkan pesan sukses
                     showSuccess('Agenda berhasil ditambahkan');
                     
-                    // Reload data
                     loadAgendaData();
                 } else {
                     showError('Gagal menambahkan agenda');
@@ -349,7 +347,6 @@
                 
                 console.error('Error:', error);
                 
-                // Tampilkan error validasi
                 if (error.response && error.response.data && error.response.data.errors) {
                     const errors = error.response.data.errors;
                     Object.keys(errors).forEach(field => {
@@ -415,7 +412,6 @@
 
         function updateAgenda() {
             showLoading();
-            // Reset error messages
             document.querySelectorAll('.text-red-500').forEach(el => {
                 el.textContent = '';
                 el.classList.add('hidden');
@@ -439,13 +435,10 @@
                 hideLoading();
                 
                 if (response.data.success) {
-                    // Tutup modal
                     closeEditModal();
                     
-                    // Tampilkan pesan sukses
                     showSuccess('Agenda berhasil diperbarui');
                     
-                    // Reload data
                     loadAgendaData();
                 } else {
                     showError('Gagal memperbarui agenda');
@@ -456,7 +449,6 @@
                 
                 console.error('Error:', error);
                 
-                // Tampilkan error validasi
                 if (error.response && error.response.data && error.response.data.errors) {
                     const errors = error.response.data.errors;
                     Object.keys(errors).forEach(field => {
@@ -477,7 +469,6 @@
             document.getElementById('editForm').reset();
         }
 
-        // Inisialisasi Notyf
         const notyf = new Notyf({
             duration: 3000,
             position: {
@@ -512,7 +503,6 @@
             });
         }
 
-        // Tampilkan notifikasi jika ada session flash
         @if(session('success'))
             notyf.success("{{ session('success') }}");
         @endif

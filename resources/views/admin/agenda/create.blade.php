@@ -17,7 +17,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <!-- Loading indicator -->
                     <div id="loadingIndicator" class="hidden flex justify-center items-center py-4">
                         <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -25,7 +24,6 @@
                         </svg>
                     </div>
 
-                    <!-- Form Create -->
                     <form id="createForm" class="space-y-6">
                         <div>
                             <label for="title" class="block text-sm font-medium text-gray-700">Judul</label>
@@ -55,14 +53,12 @@
         </div>
     </div>
 
-    <!-- Tambahkan di bagian head atau sebelum </head> -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // Inisialisasi Notyf
         const notyf = new Notyf({
             duration: 3000,
             position: {
@@ -94,13 +90,11 @@
         });
 
         function submitForm() {
-            // Reset error messages
             document.querySelectorAll('.text-red-500').forEach(el => {
                 el.textContent = '';
                 el.classList.add('hidden');
             });
             
-            // Show loading
             document.getElementById('loadingIndicator').classList.remove('hidden');
             
             const formData = {

@@ -17,7 +17,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <!-- Loading indicator -->
                     <div id="loadingIndicator" class="flex justify-center items-center py-8 hidden">
                         <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -25,7 +24,6 @@
                         </svg>
                     </div>
 
-                    <!-- Form Edit -->
                     <form id="editForm">
                         <input type="hidden" id="agendaId" value="{{ $id }}">
                         
@@ -57,7 +55,6 @@
         </div>
     </div>
 
-    <!-- Tambahkan di bagian head atau sebelum </head> -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 
@@ -70,10 +67,8 @@
         function loadAgendaData() {
             const id = document.getElementById('agendaId').value;
             
-            // Tampilkan loading
             document.getElementById('loadingIndicator').classList.remove('hidden');
             
-            // Konfigurasi axios
             const config = {
                 headers: {
                     'Content-Type': 'application/json',
@@ -82,20 +77,15 @@
                 }
             };
             
-            // Ambil data agenda
             axios.get(`/api/agenda/${id}`, config)
                 .then(function(response) {
                     if (response.data.success) {
                         const agenda = response.data.data;
-                        console.log('Data agenda:', agenda); // Tambahkan log untuk debugging
                         
-                        // Isi form dengan data agenda
                         document.getElementById('title').value = agenda.title || '';
                         
-                        // Format tanggal
                         if (agenda.tanggal) {
                             let tanggal = agenda.tanggal;
-                            // Konversi ISO date string ke format YYYY-MM-DD
                             try {
                                 const date = new Date(tanggal);
                                 const year = date.getFullYear();
@@ -126,10 +116,8 @@
         function updateAgenda() {
             const id = document.getElementById('agendaId').value;
             
-            // Tampilkan loading
             document.getElementById('loadingIndicator').classList.remove('hidden');
             
-            // Reset error messages
             document.querySelectorAll('.text-red-500').forEach(el => {
                 el.textContent = '';
                 el.classList.add('hidden');
@@ -141,7 +129,6 @@
                 keterangan: document.getElementById('keterangan').value
             };
             
-            // Konfigurasi axios
             const config = {
                 headers: {
                     'Content-Type': 'application/json',
@@ -150,12 +137,10 @@
                 }
             };
             
-            // Kirim request update
             axios.put(`/api/agenda/${id}`, formData, config)
                 .then(function(response) {
                     if (response.data.success) {
                         showSuccess('Agenda berhasil diperbarui');
-                        // Redirect ke halaman index setelah 1 detik
                         setTimeout(() => {
                             window.location.href = '{{ route("admin.agenda.index") }}';
                         }, 1000);
@@ -166,7 +151,6 @@
                 .catch(function(error) {
                     console.error('Error:', error);
                     
-                    // Tampilkan error validasi
                     if (error.response && error.response.data && error.response.data.errors) {
                         const errors = error.response.data.errors;
                         Object.keys(errors).forEach(field => {
@@ -185,7 +169,6 @@
                 });
         }
 
-        // Inisialisasi Notyf
         const notyf = new Notyf({
             duration: 3000,
             position: {
