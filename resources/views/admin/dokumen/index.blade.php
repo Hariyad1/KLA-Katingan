@@ -1,7 +1,6 @@
 <x-app-layout>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    <!-- Tambahkan header -->
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -16,13 +15,11 @@
         </div>
     </x-slot>
 
-    <!-- Hapus ml-60 -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <!-- Search dan Show Entries -->
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 space-y-4 md:space-y-0">
                         <div class="flex items-center space-x-2">
                             <span>Show</span>
                             <select id="entriesPerPage" class="border rounded px-2 py-1 w-20" onchange="loadDokumenData()">
@@ -33,13 +30,12 @@
                             </select>
                             <span>entries</span>
                         </div>
-                        <div class="flex items-center">
+                        <div class="flex items-center w-full md:w-auto">
                             <span class="mr-2">Search:</span>
-                            <input type="text" id="searchInput" class="border rounded px-3 py-1" onkeyup="loadDokumenData()" placeholder="Search...">
+                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" placeholder="Search...">
                         </div>
                     </div>
 
-                    <!-- Tabel Dokumen -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -53,18 +49,16 @@
                                 </tr>
                             </thead>
                             <tbody id="dokumenTableBody" class="bg-white divide-y divide-gray-200">
-                                <!-- Data akan diisi oleh JavaScript -->
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Pagination -->
                     <div class="flex justify-between items-center mt-4">
                         <div id="tableInfo" class="text-sm text-gray-700">
                             Showing <span id="startEntry">1</span> to <span id="endEntry">10</span> of <span id="totalEntries">0</span> entries
                         </div>
                         <div class="flex items-center space-x-2">
-                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Prev</button>
                             <div class="flex items-center space-x-1">
                                 <span>Page</span>
                                 <span id="currentPageDisplay">1</span>
@@ -79,7 +73,6 @@
         </div>
     </div>
 
-    <!-- Tambahkan loading indicator -->
     <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
     </div>
@@ -115,63 +108,80 @@
         let totalPages = 1;
         let filteredData = [];
 
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDokumenData();
+            
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', handleSearch);
+        });
+
+        function handleSearch() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const perPage = document.getElementById('entriesPerPage').value;
+            
+            filteredData = window.allDokumen.filter(dokumen => {
+                const extension = dokumen.file ? dokumen.file.split('.').pop().toLowerCase() : '';
+                const isDocument = ['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(extension);
+                const matchesSearch = dokumen.name.toLowerCase().includes(searchQuery);
+                return isDocument && matchesSearch;
+            });
+
+            totalPages = Math.ceil(filteredData.length / perPage);
+            
+            currentPage = 1;
+            
+            updateTableDisplay();
+        }
+
         function loadDokumenData() {
             showLoading();
-            const perPage = document.getElementById('entriesPerPage').value;
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             
             axios.get('/api/media', {
                 headers: {
                     'Authorization': 'Bearer {{ session("api_token") }}'
                 }
             })
-            .then(response => {
-                const dokumenData = response.data.data || response.data;
+            .then(function(response) {
+                hideLoading();
                 
-                // Filter hanya untuk dokumen dan berdasarkan pencarian
-                filteredData = dokumenData.filter(item => {
+                window.allDokumen = response.data.data || response.data;
+                filteredData = window.allDokumen.filter(item => {
                     const extension = item.file ? item.file.split('.').pop().toLowerCase() : '';
-                    const isDocument = ['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(extension);
-                    const matchesSearch = item.name.toLowerCase().includes(searchQuery);
-                    return isDocument && matchesSearch;
+                    return ['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(extension);
                 });
-
-                // Hitung total halaman
-                totalPages = Math.ceil(filteredData.length / perPage);
-                
-                // Pastikan halaman saat ini valid
-                if (currentPage > totalPages) {
-                    currentPage = totalPages || 1;
-                }
-
-                // Update tampilan nomor halaman
-                document.getElementById('currentPageDisplay').textContent = currentPage;
-                document.getElementById('totalPagesDisplay').textContent = totalPages;
-
-                // Hitung data untuk halaman saat ini
-                const startIndex = (currentPage - 1) * perPage;
-                const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
-                const currentPageData = filteredData.slice(startIndex, endIndex);
-
-                // Update tampilan tabel
-                updateTable(currentPageData, startIndex);
-                
-                // Update informasi tabel
-                document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
-                document.getElementById('endEntry').textContent = endIndex;
-                document.getElementById('totalEntries').textContent = filteredData.length;
-                
-                // Update status tombol pagination
-                document.getElementById('prevBtn').disabled = currentPage === 1;
-                document.getElementById('nextBtn').disabled = currentPage === totalPages;
+                updateTableDisplay();
             })
-            .catch(error => {
+            .catch(function(error) {
+                hideLoading();
                 console.error('Error:', error);
                 notyf.error('Gagal memuat data dokumen');
-            })
-            .finally(() => {
-                hideLoading();
             });
+        }
+
+        function updateTableDisplay() {
+            const perPage = document.getElementById('entriesPerPage').value;
+            
+            totalPages = Math.ceil(filteredData.length / perPage);
+                
+            if (currentPage > totalPages) {
+                currentPage = totalPages || 1;
+            }
+
+            document.getElementById('currentPageDisplay').textContent = currentPage;
+            document.getElementById('totalPagesDisplay').textContent = totalPages;
+
+            const startIndex = (currentPage - 1) * perPage;
+            const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
+            const currentPageData = filteredData.slice(startIndex, endIndex);
+
+            updateTable(currentPageData, startIndex);
+            
+            document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
+            document.getElementById('endEntry').textContent = endIndex;
+            document.getElementById('totalEntries').textContent = filteredData.length;
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
         }
 
         function updateTable(documents, startIndex) {
@@ -261,12 +271,6 @@
             }
         }
 
-        // Load data saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            loadDokumenData();
-        });
-
-        // Update fungsi delete
         function deleteDokumen(id) {
             Swal.fire({
                 title: 'Apakah Anda yakin?',
@@ -289,7 +293,7 @@
                     .then(response => {
                         if (response.data.success) {
                             notyf.success('Dokumen berhasil dihapus');
-                            loadDokumenData(); // Reload data setelah hapus
+                            loadDokumenData();
                         }
                     })
                     .catch(error => {
@@ -311,7 +315,6 @@
             document.getElementById('loadingIndicator').classList.add('hidden');
         }
 
-        // Tampilkan notifikasi jika ada session flash
         @if(session('success'))
             notyf.success("{{ session('success') }}");
         @endif
