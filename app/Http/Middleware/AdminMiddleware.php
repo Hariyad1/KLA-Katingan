@@ -20,7 +20,6 @@ class AdminMiddleware
             return $next($request);
         }
         
-        // Jika request adalah API, kembalikan response JSON
         if ($request->expectsJson() || $request->is('api/*')) {
             return response()->json([
                 'success' => false,
@@ -28,7 +27,6 @@ class AdminMiddleware
             ], 403);
         }
         
-        // Jika request adalah web, redirect ke dashboard
         return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
     }
 } 

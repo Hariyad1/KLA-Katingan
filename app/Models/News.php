@@ -18,13 +18,15 @@ class News extends Model
         'image',
         'created_by',
         'counter',
-        'flag'
+        'flag',
+        'status'
     ];
 
     protected $casts = [
         'kategori_id' => 'integer',
         'created_by' => 'integer',
-        'counter' => 'integer'
+        'counter' => 'integer',
+        'status' => 'integer'
     ];
 
     /**
@@ -49,10 +51,5 @@ class News extends Model
     protected static function boot()
     {
         parent::boot();
-        
-        // Indeks sudah dibuat di migrasi/database, 
-        // tapi kita dokumentasikan di model
-        // news_created_by_index
-        // news_kategori_id_index
     }
 } 

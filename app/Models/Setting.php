@@ -45,18 +45,15 @@ class Setting extends Model
             return null;
         }
         
-        // Jika sudah dalam format embed, kembalikan apa adanya
         if (strpos($this->url, 'youtube.com/embed/') !== false) {
             return $this->url;
         }
         
-        // Jika format URL biasa, ubah menjadi format embed
         $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i';
         if (preg_match($pattern, $this->url, $matches)) {
             return 'https://www.youtube.com/embed/' . $matches[1];
         }
         
-        // Jika bukan URL YouTube, kembalikan apa adanya
         return $this->url;
     }
 } 

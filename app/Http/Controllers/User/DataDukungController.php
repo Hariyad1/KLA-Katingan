@@ -183,4 +183,33 @@ class DataDukungController extends Controller
 
         return back()->with('success', 'File berhasil dihapus');
     }
+
+    public function list(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        $search = $request->input('search', '');
+
+        $query = DataDukung::with(['opd', 'indikator.klaster', 'files'])
+            ->where('created_by', Auth::id());
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->whereHas('opd', function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('indikator', function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('indikator.klaster', function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $dataDukung = $query->latest()->paginate($perPage);
+
+        return response()->json([
+            'data' => $dataDukung
+        ]);
+    }
 } 

@@ -21,19 +21,10 @@ class Vote extends Model
         'data_pengguna' => 'array'
     ];
 
-    /**
-     * Vote value constants
-     * 1 = Biasa saja
-     * 2 = Bagus
-     * 3 = Sangat Bagus
-     */
     const BIASA_SAJA = 1;
     const BAGUS = 2;
     const SANGAT_BAGUS = 3;
 
-    /**
-     * Get vote label
-     */
     public function getVoteLabel()
     {
         return match ($this->nilai_vote) {
@@ -44,9 +35,6 @@ class Vote extends Model
         };
     }
 
-    /**
-     * Get vote statistics
-     */
     public static function getVoteStats()
     {
         return self::selectRaw('nilai_vote, COUNT(*) as total')
