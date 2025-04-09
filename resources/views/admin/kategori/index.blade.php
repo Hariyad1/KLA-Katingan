@@ -16,18 +16,15 @@
         </div>
     </x-slot>
 
-        <!-- Tambahkan loading indicator di bagian atas konten -->
         <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
             <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
         </div>
 
-    <!-- Hapus ml-60 -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <!-- Search dan Show Entries -->
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 space-y-4 md:space-y-0">
                         <div class="flex items-center space-x-2">
                             <span>Show</span>
                             <select id="entriesPerPage" class="border rounded px-2 py-1 w-20" onchange="loadCategoryData()">
@@ -38,13 +35,12 @@
                             </select>
                             <span>entries</span>
                         </div>
-                        <div class="flex items-center">
+                        <div class="flex items-center w-full md:w-auto">
                             <span class="mr-2">Search:</span>
-                            <input type="text" id="searchInput" class="border rounded px-3 py-1" onkeyup="loadCategoryData()" placeholder="Search...">
+                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" placeholder="Search...">
                         </div>
                     </div>
 
-                    <!-- Alert Messages -->
                     <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
                         <span id="alertSuccessMessage"></span>
                     </div>
@@ -52,7 +48,6 @@
                         <span id="alertErrorMessage"></span>
                     </div>
 
-                    <!-- Tabel Kategori -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -65,18 +60,16 @@
                                 </tr>
                             </thead>
                             <tbody id="categoryTableBody" class="bg-white divide-y divide-gray-200">
-                                <!-- Data akan diisi oleh JavaScript -->
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Pagination -->
                     <div class="flex justify-between items-center mt-4">
                         <div id="tableInfo" class="text-sm text-gray-700">
                             Showing <span id="startEntry">1</span> to <span id="endEntry">10</span> of <span id="totalEntries">0</span> entries
                         </div>
                         <div class="flex items-center space-x-2">
-                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Prev</button>
                             <div class="flex items-center space-x-1">
                                 <span>Page</span>
                                 <span id="currentPageDisplay">1</span>
@@ -122,60 +115,74 @@
         let totalPages = 1;
         let filteredData = [];
 
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategoryData();
+            
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', handleSearch);
+        });
+
+        function handleSearch() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const perPage = document.getElementById('entriesPerPage').value;
+            
+            filteredData = window.allCategories.filter(category => 
+                category.name.toLowerCase().includes(searchQuery)
+            );
+
+            totalPages = Math.ceil(filteredData.length / perPage);
+            
+            currentPage = 1;
+            
+            updateTableDisplay();
+        }
+
         function loadCategoryData() {
             showLoading();
-            const perPage = document.getElementById('entriesPerPage').value;
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             
             axios.get('/api/kategori', {
                 headers: {
                     'Authorization': 'Bearer {{ session("api_token") }}'
                 }
             })
-            .then(response => {
-                const categoryData = response.data.data || response.data;
+            .then(function(response) {
+                hideLoading();
                 
-                // Filter data berdasarkan pencarian
-                filteredData = categoryData.filter(category => 
-                    category.name.toLowerCase().includes(searchQuery)
-                );
-
-                // Hitung total halaman
-                totalPages = Math.ceil(filteredData.length / perPage);
-                
-                // Pastikan halaman saat ini valid
-                if (currentPage > totalPages) {
-                    currentPage = totalPages || 1;
-                }
-
-                // Update tampilan nomor halaman
-                document.getElementById('currentPageDisplay').textContent = currentPage;
-                document.getElementById('totalPagesDisplay').textContent = totalPages;
-
-                // Hitung data untuk halaman saat ini
-                const startIndex = (currentPage - 1) * perPage;
-                const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
-                const currentPageData = filteredData.slice(startIndex, endIndex);
-
-                // Update tampilan tabel
-                updateTable(currentPageData, startIndex);
-                
-                // Update informasi tabel
-                document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
-                document.getElementById('endEntry').textContent = endIndex;
-                document.getElementById('totalEntries').textContent = filteredData.length;
-                
-                // Update status tombol pagination
-                document.getElementById('prevBtn').disabled = currentPage === 1;
-                document.getElementById('nextBtn').disabled = currentPage === totalPages;
+                window.allCategories = response.data.data || response.data;
+                filteredData = window.allCategories;
+                updateTableDisplay();
             })
-            .catch(error => {
+            .catch(function(error) {
+                hideLoading();
                 console.error('Error:', error);
                 notyf.error('Gagal memuat data kategori');
-            })
-            .finally(() => {
-                hideLoading();
             });
+        }
+
+        function updateTableDisplay() {
+            const perPage = document.getElementById('entriesPerPage').value;
+            
+            totalPages = Math.ceil(filteredData.length / perPage);
+            
+            if (currentPage > totalPages) {
+                currentPage = totalPages || 1;
+            }
+
+            document.getElementById('currentPageDisplay').textContent = currentPage;
+            document.getElementById('totalPagesDisplay').textContent = totalPages;
+
+            const startIndex = (currentPage - 1) * perPage;
+            const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
+            const currentPageData = filteredData.slice(startIndex, endIndex);
+
+            updateTable(currentPageData, startIndex);
+            
+            document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
+            document.getElementById('endEntry').textContent = endIndex;
+            document.getElementById('totalEntries').textContent = filteredData.length;
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
         }
 
         function updateTable(categories, startIndex) {
@@ -245,11 +252,10 @@
             }
         }
 
-        // Update fungsi delete untuk memanggil loadCategoryData setelah berhasil
         function deleteCategory(id) {
             Swal.fire({
                 title: 'Apakah Anda yakin?',
-                text: "Data kategori yang dihapus tidak dapat dikembalikan!",
+                text: "Kategori yang dihapus tidak dapat dikembalikan!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -258,25 +264,25 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    showLoading();
                     axios.delete(`/api/kategori/${id}`, {
                         headers: {
+                            'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Authorization': 'Bearer {{ session("api_token") }}'
+                            'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
                         }
                     })
                     .then(response => {
                         if (response.data.success) {
                             notyf.success('Kategori berhasil dihapus');
-                            loadCategoryData(); // Reload data setelah hapus
+                            loadCategoryData();
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        notyf.error('Gagal menghapus kategori');
-                    })
-                    .finally(() => {
-                        hideLoading();
+                        if (error.response?.data?.message) {
+                            notyf.error(error.response.data.message);
+                        } else {
+                            notyf.error('Terjadi kesalahan saat menghapus kategori');
+                        }
                     });
                 }
             });
@@ -289,11 +295,6 @@
         function hideLoading() {
             document.getElementById('loadingIndicator').classList.add('hidden');
         }
-
-        // Load data saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCategoryData();
-        });
     </script>
     @endpush
 </x-app-layout> 

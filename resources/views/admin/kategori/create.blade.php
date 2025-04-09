@@ -15,7 +15,6 @@
                         </a>
                     </div>
 
-                    <!-- Alert Messages -->
                     <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
                         <span id="alertSuccessMessage"></span>
                     </div>
@@ -23,7 +22,6 @@
                         <span id="alertErrorMessage"></span>
                     </div>
 
-                    <!-- Form Create -->
                     <form id="createForm" class="space-y-6">
                         @csrf
                         <div>
@@ -39,7 +37,6 @@
                     </form>
 
                     <div id="loadingIndicator" class="hidden">
-                        <!-- Loading spinner atau teks loading -->
                     </div>
                 </div>
             </div>
@@ -74,7 +71,6 @@
         document.getElementById('createForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Reset error messages
             document.querySelectorAll('.text-red-500').forEach(el => el.textContent = '');
             
             const formData = {
