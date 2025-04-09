@@ -43,14 +43,14 @@
                 </div>
             </div>
 
-            <!-- Monthly Chart -->
+            {{-- <!-- Monthly Chart -->
             <div class="bg-white rounded-xl shadow p-6">
                 <h3 class="text-xl font-semibold mb-6">Statistik Bulanan</h3>
                 <div class="h-80">
                     <!-- Di sini Anda bisa menambahkan chart menggunakan library seperti Chart.js -->
                     <div class="text-gray-500">Chart akan ditampilkan di sini</div>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </x-app-layout>
