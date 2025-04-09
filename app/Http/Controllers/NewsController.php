@@ -23,8 +23,8 @@ class NewsController extends Controller
 
     public function show($title)
     {
-
         $news = News::with(['kategori', 'creator'])
+                    ->where('status', 1)
                     ->get()
                     ->first(function($item) use ($title) {
                         return Str::slug($item->title) === $title;

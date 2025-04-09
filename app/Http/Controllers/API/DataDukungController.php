@@ -49,29 +49,75 @@ class DataDukungController extends Controller
      */
     public function index(Request $request)
     {
-        $query = DataDukung::with(['opd', 'indikator.klaster', 'files'])
-            ->where('created_by', Auth::id());
-
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->whereHas('opd', function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            })
-            ->orWhereHas('indikator', function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            })
-            ->orWhereHas('indikator.klaster', function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
-        }
-
         $perPage = $request->input('per_page', 10);
-        $dataDukungs = $query->latest()->paginate($perPage);
+        $search = $request->input('search');
+        
+        $query = DataDukung::with(['opd', 'indikator.klaster', 'files'])
+            ->when($search, function ($query) use ($search) {
+                $query->whereHas('opd', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                })->orWhereHas('indikator', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                })->orWhereHas('indikator.klaster', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            });
 
-        return response()->json([
-            'success' => true,
-            'data' => $dataDukungs
-        ]);
+        $dataDukung = $query->latest()->paginate($perPage);
+
+        // Tambahkan informasi ukuran file
+        $dataDukung->through(function ($item) {
+            $item->files->transform(function ($file) {
+                try {
+                    // Coba beberapa kemungkinan lokasi file
+                    $possiblePaths = [
+                        $file->file,
+                        'public/' . $file->file,
+                        'data-dukung-files/' . basename($file->file),
+                        'public/data-dukung-files/' . basename($file->file)
+                    ];
+
+                    $fileFound = false;
+                    foreach ($possiblePaths as $path) {
+                        try {
+                            if (Storage::exists($path)) {
+                                $file->size = Storage::size($path);
+                                $fileFound = true;
+                                break;
+                            }
+                        } catch (\Exception $e) {
+                            continue;
+                        }
+                    }
+
+                    if (!$fileFound) {
+                        // Jika file tidak ditemukan, set ukuran 0
+                        $file->size = 0;
+                        \Log::warning("File not found in any location: " . $file->file);
+                    }
+
+                } catch (\Exception $e) {
+                    \Log::error('Error getting file size: ' . $e->getMessage());
+                    $file->size = 0;
+                }
+
+                // Tambahkan URL yang valid untuk file
+                try {
+                    if (Storage::exists($file->file)) {
+                        $file->url = Storage::url($file->file);
+                    } else {
+                        $file->url = url('storage/' . $file->file);
+                    }
+                } catch (\Exception $e) {
+                    $file->url = url('storage/' . $file->file);
+                }
+
+                return $file;
+            });
+            return $item;
+        });
+
+        return response()->json($dataDukung);
     }
 
     /**
@@ -118,28 +164,43 @@ class DataDukungController extends Controller
             // Handle file uploads
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
-                    $fileName = time() . '_' . Str::slug($file->getClientOriginalName()) . '.' . $file->getClientOriginalExtension();
-                    $path = $file->storeAs('public/data-dukung', $fileName);
-                    
-                    $dataDukung->files()->create([
-                        'file' => $path,
-                        'original_name' => $file->getClientOriginalName(),
-                        'mime_type' => $file->getMimeType(),
-                        'size' => $file->getSize()
-                    ]);
+                    try {
+                        $fileName = Str::random(40) . '.' . $file->getClientOriginalExtension();
+                        // Simpan file ke storage publik
+                        $path = Storage::disk('public')->putFileAs(
+                            'data-dukung-files',
+                            $file,
+                            $fileName
+                        );
+
+                        // Simpan informasi file ke database
+                        $dataDukung->files()->create([
+                            'file' => $path,
+                            'original_name' => $file->getClientOriginalName(),
+                            'mime_type' => $file->getMimeType(),
+                            'size' => $file->getSize()
+                        ]);
+                    } catch (\Exception $e) {
+                        \Log::error('Error uploading file: ' . $e->getMessage());
+                        throw new \Exception('Gagal mengupload file: ' . $file->getClientOriginalName());
+                    }
                 }
             }
 
             DB::commit();
 
+            // Load ulang data dengan file yang baru
+            $dataDukung->load(['opd', 'indikator.klaster', 'files']);
+
             return response()->json([
                 'success' => true,
-                'data' => $dataDukung->load(['opd', 'indikator.klaster', 'files']),
+                'data' => $dataDukung,
                 'message' => 'Data dukung berhasil diperbarui'
             ]);
 
         } catch (\Exception $e) {
             DB::rollback();
+            \Log::error('Error updating data dukung: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
@@ -152,21 +213,43 @@ class DataDukungController extends Controller
         try {
             $file = DataDukungFile::findOrFail($id);
             
-            // Hapus file dari storage
-            if (Storage::exists($file->file)) {
-                Storage::delete($file->file);
+            // Coba beberapa kemungkinan lokasi file
+            $possiblePaths = [
+                $file->file,
+                'public/' . $file->file,
+                'data-dukung-files/' . basename($file->file),
+                'public/data-dukung-files/' . basename($file->file)
+            ];
+
+            $fileDeleted = false;
+            foreach ($possiblePaths as $path) {
+                try {
+                    if (Storage::exists($path)) {
+                        Storage::delete($path);
+                        $fileDeleted = true;
+                        break;
+                    }
+                } catch (\Exception $e) {
+                    continue;
+                }
+            }
+
+            if (!$fileDeleted) {
+                \Log::warning("File not found for deletion: " . $file->file);
             }
             
             // Hapus record dari database
             $file->delete();
             
             return response()->json([
+                'success' => true,
                 'message' => 'File berhasil dihapus'
             ]);
         } catch (\Exception $e) {
+            \Log::error('Error deleting file: ' . $e->getMessage());
             return response()->json([
-                'message' => 'Gagal menghapus file',
-                'error' => $e->getMessage()
+                'success' => false,
+                'message' => 'Gagal menghapus file: ' . $e->getMessage()
             ], 500);
         }
     }

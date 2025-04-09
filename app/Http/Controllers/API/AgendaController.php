@@ -60,6 +60,7 @@ class AgendaController extends Controller
      *     path="/api/agenda",
      *     tags={"Agenda"},
      *     summary="Membuat agenda baru",
+     *     security={{"bearerAuth":{}}},
      *     description="Membuat dan menyimpan agenda baru",
      *     @OA\RequestBody(
      *         required=true,
@@ -120,6 +121,7 @@ class AgendaController extends Controller
      *     path="/api/agenda/{id}",
      *     tags={"Agenda"},
      *     summary="Mendapatkan detail agenda",
+     *     security={{"bearerAuth":{}}},
      *     description="Mengembalikan data agenda berdasarkan ID",
      *     @OA\Parameter(
      *         name="id",

@@ -12,13 +12,10 @@ class DynamicPageController extends Controller
 {
     public function show($url)
     {
-        // Log URL yang diterima
         Log::info('URL yang diakses:', ['url' => $url]);
         
-        // Bersihkan URL dari slash di awal dan akhir
         $cleanUrl = trim($url, '/');
         
-        // Cari semua setting dengan URL yang sama
         $settings = Setting::where('type', 'statis')
                          ->where(function($query) use ($cleanUrl) {
                              $query->where('url', $cleanUrl)
@@ -30,7 +27,6 @@ class DynamicPageController extends Controller
         
         Log::info('Settings yang ditemukan dengan URL yang sama:', ['settings' => $settings->toArray()]);
         
-        // Jika tidak ada setting dengan URL yang sama persis, coba cari parent URL
         if ($settings->isEmpty() && str_contains($cleanUrl, '/')) {
             $parentUrl = substr($cleanUrl, 0, strrpos($cleanUrl, '/'));
             $parentSettings = Setting::where('type', 'statis')
@@ -44,7 +40,6 @@ class DynamicPageController extends Controller
             
             Log::info('Parent settings yang ditemukan:', ['parent_settings' => $parentSettings->toArray()]);
             
-            // Gabungkan parent settings dengan settings yang ada
             $settings = $parentSettings->concat($settings);
         }
         
@@ -52,7 +47,6 @@ class DynamicPageController extends Controller
             return response()->view('errors.404', [], 404);
         }
 
-        // Gabungkan konten dari semua setting
         $combinedContent = $settings->map(function($setting) {
             return [
                 'name' => $setting->name,
@@ -61,14 +55,12 @@ class DynamicPageController extends Controller
             ];
         })->toArray();
 
-        // Sebelum return view, tambahkan log untuk debugging
         Log::info('Data yang dikirim ke view:', [
             'setting' => $settings->first(),
             'allSettings' => $combinedContent,
             'url' => $cleanUrl
         ]);
 
-        // Kirim data ke view
         return view('dynamic.index', [
             'setting' => $settings->first(),
             'allSettings' => $combinedContent

@@ -7,7 +7,7 @@ use App\Models\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-/**
+/*
  * @OA\Schema(
  *     schema="Vote",
  *     required={"nilai_vote"},
@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class VoteController extends Controller
 {
-    /**
+    /*
      * @OA\Get(
      *     path="/api/votes",
      *     tags={"Votes"},
@@ -60,7 +60,7 @@ class VoteController extends Controller
         ]);
     }
 
-    /**
+    /*
      * @OA\Post(
      *     path="/api/votes",
      *     tags={"Votes"},
@@ -122,7 +122,7 @@ class VoteController extends Controller
         ], 201);
     }
 
-    /**
+    /*
      * @OA\Get(
      *     path="/api/votes/{id}",
      *     tags={"Votes"},
@@ -164,8 +164,7 @@ class VoteController extends Controller
         ]);
     }
 
-
-    /**
+    /*
      * @OA\Delete(
      *     path="/api/votes/{id}",
      *     tags={"Votes"},

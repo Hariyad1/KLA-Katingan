@@ -35,6 +35,7 @@ class MediaController extends Controller
      *     path="/api/media",
      *     tags={"Media"},
      *     summary="Mendapatkan daftar media",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
@@ -98,7 +99,7 @@ class MediaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100',
-            'file' => 'required|file|max:10240', // max 10MB
+            'file' => 'required|file|max:10240',
             'slide_show' => 'nullable|boolean'
         ]);
 
@@ -159,6 +160,7 @@ class MediaController extends Controller
      *     path="/api/media/{id}",
      *     tags={"Media"},
      *     summary="Mendapatkan detail media",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",

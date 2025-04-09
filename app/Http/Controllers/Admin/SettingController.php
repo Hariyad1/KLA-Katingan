@@ -61,4 +61,40 @@ class SettingController extends Controller
             ->route('admin.setting.index')
             ->with('success', 'Setting berhasil ditambahkan');
     }
+
+    public function indexStatis()
+    {
+        return view('admin.setting.statis.index');
+    }
+
+    public function createStatis()
+    {
+        return view('admin.setting.statis.create');
+    }
+
+    public function editStatis(Setting $setting)
+    {
+        if ($setting->type !== 'statis') {
+            abort(404);
+        }
+        return view('admin.setting.statis.edit', compact('setting'));
+    }
+
+    public function indexVideo()
+    {
+        return view('admin.setting.video.index');
+    }
+
+    public function createVideo()
+    {
+        return view('admin.setting.video.create');
+    }
+
+    public function editVideo(Setting $setting)
+    {
+        if ($setting->type !== 'video') {
+            abort(404);
+        }
+        return view('admin.setting.video.edit', compact('setting'));
+    }
 } 

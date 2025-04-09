@@ -90,7 +90,7 @@ class AuthController extends Controller
             'status' => $request->has('is_admin') ? 1 : 0
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('api_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
@@ -157,7 +157,7 @@ class AuthController extends Controller
         $user->tokens()->delete();
 
         // Buat token baru
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $token = $user->createToken('api_token')->plainTextToken;
 
         return response()->json([
             'success' => true,

@@ -74,30 +74,28 @@ class StatisticController extends Controller
     public function store(Request $request)
     {
         $agent = new Agent();
+        $ip = $request->ip();
         
-        // Cek apakah IP sudah tercatat hari ini
-        $existingVisit = Statistic::where('ip', $request->ip())
+        // Cek apakah sudah ada record untuk IP ini hari ini
+        $existingRecord = Statistic::where('ip', $ip)
             ->whereDate('created_at', today())
             ->first();
             
-        if (!$existingVisit) {
-            $statistic = Statistic::create([
-                'ip' => $request->ip(),
-                'os' => $agent->platform(),
-                'browser' => $agent->browser()
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'data' => $statistic,
-                'message' => 'Pengunjung baru tercatat'
-            ], 201);
+        if (!$existingRecord) {
+            // Jika belum ada, buat record baru
+            $statistic = new Statistic();
+            $statistic->ip = $ip;
+            $statistic->browser = $agent->browser();
+            $statistic->os = $agent->platform();
+            $statistic->last_activity = now(); // Set last_activity saat pertama kali
+            $statistic->save();
+        } else {
+            // Jika sudah ada, update last_activity
+            $existingRecord->last_activity = now();
+            $existingRecord->save();
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Pengunjung sudah tercatat hari ini'
-        ], 200);
+        return response()->json(['status' => 'success']);
     }
 
     /**
@@ -200,5 +198,20 @@ class StatisticController extends Controller
             'browser_stats' => $browserStats,
             'os_stats' => $osStats
         ]);
+    }
+
+    public function updateActivity(Request $request)
+    {
+        $ip = $request->ip();
+        $record = Statistic::where('ip', $ip)
+            ->whereDate('created_at', today())
+            ->first();
+        
+        if ($record) {
+            $record->last_activity = now();
+            $record->save();
+        }
+        
+        return response()->json(['status' => 'success']);
     }
 } 

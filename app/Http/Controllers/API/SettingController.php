@@ -341,7 +341,7 @@ class SettingController extends Controller
         ]);
     }
 
-    /**
+    /*
      * @OA\Get(
      *     path="/api/setting/type/{type}",
      *     tags={"Settings"},
@@ -376,7 +376,7 @@ class SettingController extends Controller
         ]);
     }
 
-    /**
+    /*
      * @OA\Get(
      *     path="/api/setting/page/{page}",
      *     tags={"Settings"},

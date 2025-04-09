@@ -31,6 +31,7 @@ class KategoriController extends Controller
      *     path="/api/kategori",
      *     tags={"Kategori"},
      *     summary="Mendapatkan semua data kategori",
+     *     security={{"bearerAuth":{}}},
      *     description="Menampilkan daftar semua kategori beserta berita terkait",
      *     @OA\Response(
      *         response=200,
@@ -125,6 +126,7 @@ class KategoriController extends Controller
      *     path="/api/kategori/{id}",
      *     tags={"Kategori"},
      *     summary="Mendapatkan detail kategori",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
