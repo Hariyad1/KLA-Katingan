@@ -19,7 +19,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <!-- Loading indicator -->
                     <div id="loadingIndicator" class="flex justify-center items-center py-8 hidden">
                         <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -27,7 +26,6 @@
                         </svg>
                     </div>
 
-                    <!-- Form Edit Setting -->
                     <form id="editSettingForm" class="space-y-6" enctype="multipart/form-data">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700">Nama</label>
@@ -112,7 +110,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             const settingId = '{{ $setting->id }}';
             
-            // Inisialisasi CKEditor
             CKEDITOR.replace('content', {
                 height: 400,
                 removeButtons: 'PasteFromWord',
@@ -130,32 +127,25 @@
                     { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
                     { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
                 ],
-                // Konfigurasi upload
                 filebrowserUploadMethod: 'form',
                 filebrowserUploadUrl: '{{ route("upload.image") }}',
-                // Konfigurasi untuk menangani tag HTML
                 allowedContent: true,
                 extraPlugins: 'wysiwygarea',
                 enterMode: CKEDITOR.ENTER_P,
                 shiftEnterMode: CKEDITOR.ENTER_BR,
-                // Konfigurasi untuk mencegah tag p muncul
                 autoParagraph: false,
                 fillEmptyBlocks: false,
-                // Konfigurasi entities
                 entities: false,
                 basicEntities: false,
                 entities_latin: false,
                 entities_greek: false,
                 entities_additional: '',
-                // Format output
                 htmlEncodeOutput: false,
                 forceSimpleAmpersand: true
             });
             
-            // Tampilkan loading
             document.getElementById('loadingIndicator').classList.remove('hidden');
             
-            // Konfigurasi axios untuk GET request
             const config = {
                 headers: {
                     'Accept': 'application/json',
@@ -164,10 +154,8 @@
                 }
             };
             
-            // Ambil data setting dari API
             axios.get(`/api/setting/${settingId}`, config)
                 .then(function(response) {
-                    // Sembunyikan loading
                     document.getElementById('loadingIndicator').classList.add('hidden');
                     
                     if (response.data.success) {
@@ -180,42 +168,34 @@
                         CKEDITOR.instances.content.setData(setting.content || '');
                         document.getElementById('type').value = setting.type || 'statis';
                         
-                        // Tampilkan gambar jika ada
                         if (setting.image) {
                             document.getElementById('currentImage').classList.remove('hidden');
                             document.getElementById('previewImage').src = setting.image;
                         }
                         
-                        // Atur tampilan field berdasarkan tipe
                         toggleFields();
                     } else {
                         notyf.error('Gagal memuat data pengaturan');
                     }
                 })
                 .catch(function(error) {
-                    // Sembunyikan loading
                     document.getElementById('loadingIndicator').classList.add('hidden');
                     
                     console.error('Error:', error);
                     notyf.error('Terjadi kesalahan saat memuat data pengaturan');
                 });
             
-            // Handle form submit
             document.getElementById('editSettingForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Reset error messages
                 document.querySelectorAll('.text-red-500').forEach(el => el.textContent = '');
                 
-                // Tampilkan loading
                 document.getElementById('loadingIndicator').classList.remove('hidden');
                 
-                // Buat FormData untuk mengirim file
                 const formData = new FormData(this);
                 formData.append('_method', 'PUT');
                 formData.set('content', CKEDITOR.instances.content.getData());
                 
-                // Kirim request ke API dengan FormData
                 axios.post(`/api/setting/${settingId}?_method=PUT`, formData, {
                     headers: {
                         'Accept': 'application/json',
@@ -224,13 +204,11 @@
                     }
                 })
                 .then(function(response) {
-                    // Sembunyikan loading
                     document.getElementById('loadingIndicator').classList.add('hidden');
                     
                     if (response.data.success) {
                         notyf.success('Pengaturan berhasil diperbarui');
                         
-                        // Redirect ke halaman index setelah 1 detik
                         setTimeout(function() {
                             window.location.href = '{{ route("admin.setting.index") }}';
                         }, 1500);
@@ -239,13 +217,11 @@
                     }
                 })
                 .catch(function(error) {
-                    // Sembunyikan loading
                     document.getElementById('loadingIndicator').classList.add('hidden');
                     
                     console.error('Error:', error);
                     
                     if (error.response && error.response.data && error.response.data.errors) {
-                        // Tampilkan error validasi
                         const errors = error.response.data.errors;
                         
                         if (errors.name) {
@@ -277,7 +253,6 @@
                 });
             });
             
-            // Fungsi untuk menampilkan/menyembunyikan field berdasarkan tipe
             function toggleFields() {
                 const type = document.getElementById('type').value;
                 

@@ -16,7 +16,6 @@
         </div>
     </x-slot>
 
-        <!-- Tambahkan loading indicator di bagian atas konten -->
         <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
             <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
         </div>
@@ -25,8 +24,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <!-- Search dan Show Entries -->
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 space-y-4 md:space-y-0">
                         <div class="flex items-center space-x-2">
                             <span>Show</span>
                             <select id="entriesPerPage" class="border rounded px-2 py-1 w-20" onchange="loadSettingsData()">
@@ -37,13 +35,12 @@
                             </select>
                             <span>entries</span>
                         </div>
-                        <div class="flex items-center">
+                        <div class="flex items-center w-full md:w-auto">
                             <span class="mr-2">Search:</span>
-                            <input type="text" id="searchInput" class="border rounded px-3 py-1" onkeyup="loadSettingsData()" placeholder="Search...">
+                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" placeholder="Search...">
                         </div>
                     </div>
 
-                    <!-- Tabel Setting -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -59,12 +56,10 @@
                                 </tr>
                             </thead>
                             <tbody id="settingsTableBody" class="bg-white divide-y divide-gray-200">
-                                <!-- Data akan diisi oleh JavaScript -->
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Pagination -->
                     <div class="flex justify-between items-center mt-4">
                         <div id="tableInfo" class="text-sm text-gray-700">
                             Showing <span id="startEntry">1</span> to <span id="endEntry">10</span> of <span id="totalEntries">0</span> entries
@@ -112,7 +107,6 @@
             ]
         });
 
-        // Tampilkan notifikasi jika ada session flash
         @if(session('success'))
             notyf.success("{{ session('success') }}");
         @endif
@@ -124,76 +118,73 @@
         let currentPage = 1;
         let totalPages = 1;
         let filteredData = [];
+        let allSettings = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettingsData();
+            
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', handleSearch);
+        });
+
+        function handleSearch() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredData = allSettings.filter(setting => 
+                setting.name.toLowerCase().includes(searchQuery) ||
+                setting.page.toLowerCase().includes(searchQuery) ||
+                setting.type.toLowerCase().includes(searchQuery)
+            );
+
+            currentPage = 1;
+            
+            updateTableDisplay();
+        }
 
         function loadSettingsData() {
-            // Tampilkan loading
-            document.getElementById('loadingIndicator').classList.remove('hidden');
+            showLoading();
             
-            const perPage = document.getElementById('entriesPerPage').value;
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-
-            // Konfigurasi axios
-            const config = {
+            axios.get('/api/setting', {
                 headers: {
-                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json',
                     'Authorization': 'Bearer {{ session("api_token") }}'
                 }
-            };
+            })
+            .then(function(response) {
+                if (response.data.success) {
+                    allSettings = response.data.data;
+                    filteredData = allSettings;
+                    updateTableDisplay();
+                } else {
+                    notyf.error('Gagal memuat data pengaturan');
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                notyf.error('Terjadi kesalahan saat memuat data pengaturan');
+            })
+            .finally(function() {
+                hideLoading();
+            });
+        }
+
+        function updateTableDisplay() {
+            const perPage = parseInt(document.getElementById('entriesPerPage').value);
             
-            // Ambil data setting dari API
-            axios.get('/api/setting', config)
-                .then(function(response) {
-                    if (response.data.success) {
-                        const settings = response.data.data;
-                        
-                        // Filter data berdasarkan pencarian
-                        filteredData = settings.filter(setting => 
-                            setting.name.toLowerCase().includes(searchQuery) ||
-                            setting.page.toLowerCase().includes(searchQuery)
-                        );
+            totalPages = Math.ceil(filteredData.length / perPage);
+            
+            if (currentPage > totalPages) {
+                currentPage = totalPages || 1;
+            }
 
-                        // Hitung total halaman
-                        totalPages = Math.ceil(filteredData.length / perPage);
-                        
-                        // Pastikan halaman saat ini valid
-                        if (currentPage > totalPages) {
-                            currentPage = totalPages || 1;
-                        }
+            const startIndex = (currentPage - 1) * perPage;
+            const endIndex = Math.min(startIndex + perPage, filteredData.length);
+            const currentPageData = filteredData.slice(startIndex, endIndex);
 
-                        // Update tampilan nomor halaman
-                        document.getElementById('currentPageDisplay').textContent = currentPage;
-                        document.getElementById('totalPagesDisplay').textContent = totalPages;
-
-                        // Hitung data untuk halaman saat ini
-                        const startIndex = (currentPage - 1) * perPage;
-                        const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
-                        const currentPageData = filteredData.slice(startIndex, endIndex);
-
-                        // Update tampilan tabel
-                        updateTable(currentPageData, startIndex);
-                        
-                        // Update informasi tabel
-                        document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
-                        document.getElementById('endEntry').textContent = endIndex;
-                        document.getElementById('totalEntries').textContent = filteredData.length;
-                        
-                        // Update status tombol pagination
-                        document.getElementById('prevBtn').disabled = currentPage === 1;
-                        document.getElementById('nextBtn').disabled = currentPage === totalPages;
-                    } else {
-                        notyf.error('Gagal memuat data pengaturan');
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Error:', error);
-                    notyf.error('Terjadi kesalahan saat memuat data pengaturan');
-                })
-                .finally(function() {
-                    // Sembunyikan loading
-                    document.getElementById('loadingIndicator').classList.add('hidden');
-                });
+            updateTable(currentPageData, startIndex);
+            
+            updateTableInfo(startIndex, endIndex, filteredData.length);
         }
 
         function updateTable(settings, startIndex) {
@@ -244,6 +235,25 @@
             });
         }
 
+        function updateTableInfo(startIndex, endIndex, total) {
+            document.getElementById('startEntry').textContent = total ? startIndex + 1 : 0;
+            document.getElementById('endEntry').textContent = endIndex;
+            document.getElementById('totalEntries').textContent = total;
+            document.getElementById('currentPageDisplay').textContent = currentPage;
+            document.getElementById('totalPagesDisplay').textContent = totalPages;
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+
+        function showLoading() {
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingIndicator').classList.add('hidden');
+        }
+
         function previousPage() {
             if (currentPage > 1) {
                 currentPage--;
@@ -258,13 +268,7 @@
             }
         }
 
-        // Load data saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            loadSettingsData();
-        });
-
         function deleteSetting(id) {
-            // Gunakan SweetAlert2 untuk konfirmasi hapus
             Swal.fire({
                 title: 'Apakah Anda yakin?',
                 text: "Data pengaturan yang dihapus tidak dapat dikembalikan!",

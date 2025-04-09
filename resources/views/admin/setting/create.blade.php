@@ -19,7 +19,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <!-- Alert untuk menampilkan pesan sukses/error -->
                     <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
                         <span id="alertSuccessMessage"></span>
                     </div>
@@ -27,7 +26,6 @@
                         <span id="alertErrorMessage"></span>
                     </div>
 
-                    <!-- Loading indicator -->
                     <div id="loadingIndicator" class="flex justify-center items-center py-8 hidden">
                         <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -35,7 +33,6 @@
                         </svg>
                     </div>
 
-                    <!-- Form Create Setting -->
                     <form id="createSettingForm" class="space-y-6" enctype="multipart/form-data">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700">Nama</label>
@@ -117,10 +114,8 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Atur tampilan field berdasarkan tipe default
             toggleFields();
             
-            // Handle form submit
             document.getElementById('createSettingForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
@@ -161,7 +156,6 @@
             });
         });
         
-        // Fungsi untuk menampilkan/menyembunyikan field berdasarkan tipe
         function toggleFields() {
             const type = document.getElementById('type').value;
             
@@ -176,7 +170,6 @@
             }
         }
 
-        // Update konfigurasi CKEditor
         CKEDITOR.replace('content', {
             height: 400,
             removeButtons: 'PasteFromWord',
@@ -194,24 +187,19 @@
                 { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
                 { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
             ],
-            // Konfigurasi upload
             filebrowserUploadMethod: 'form',
             filebrowserUploadUrl: '{{ route("upload.image") }}',
-            // Konfigurasi untuk menangani tag HTML
             allowedContent: true,
             extraPlugins: 'wysiwygarea',
             enterMode: CKEDITOR.ENTER_P,
             shiftEnterMode: CKEDITOR.ENTER_BR,
-            // Konfigurasi untuk mencegah tag p muncul
             autoParagraph: false,
             fillEmptyBlocks: false,
-            // Konfigurasi entities
             entities: false,
             basicEntities: false,
             entities_latin: false,
             entities_greek: false,
             entities_additional: '',
-            // Format output
             htmlEncodeOutput: false,
             forceSimpleAmpersand: true
         });
