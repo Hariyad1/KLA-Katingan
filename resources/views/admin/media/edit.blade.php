@@ -15,7 +15,6 @@
                         </a>
                     </div>
 
-                    <!-- Alert Messages -->
                     <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
                         <span id="alertSuccessMessage"></span>
                     </div>
@@ -23,8 +22,7 @@
                         <span id="alertErrorMessage"></span>
                     </div>
 
-                    <!-- Form Edit Media -->
-                    <form id="editForm" class="space-y-6">
+                    <form id="editForm" class="space-y-6" action="{{ route('media.update', $media->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div>
@@ -127,7 +125,7 @@
                     if (data.success) {
                         notyf.success('Media berhasil diperbarui');
                         setTimeout(() => {
-                            window.location.href = '{{ route("admin.media.index") }}';
+                            window.location.href = '{{ route("media.index") }}';
                         }, 1500);
                     }
                 })

@@ -7,7 +7,7 @@
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-semibold text-gray-800">Upload Media Baru</h2>
-                        <a href="{{ route('admin.media.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
+                        <a href="{{ route('media.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                             </svg>
@@ -15,7 +15,6 @@
                         </a>
                     </div>
 
-                    <!-- Alert Messages -->
                     <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
                         <span id="alertSuccessMessage"></span>
                     </div>
@@ -23,8 +22,7 @@
                         <span id="alertErrorMessage"></span>
                     </div>
 
-                    <!-- Form Upload -->
-                    <form id="uploadForm" class="space-y-6">
+                    <form id="uploadForm" class="space-y-6" action="{{ route('media.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Nama</label>
@@ -51,13 +49,12 @@
                         </div>
 
                         <div class="flex justify-end">
-                            <a href="{{ route('admin.media.index') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded mr-2">Batal</a>
+                            <a href="{{ route('media.index') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded mr-2">Batal</a>
                             <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Upload</button>
                         </div>
                     </form>
 
                     <div id="loadingIndicator" class="hidden">
-                        <!-- Loading spinner atau teks loading -->
                     </div>
                 </div>
             </div>
@@ -128,7 +125,7 @@
                 if (data.success) {
                     notyf.success('Media berhasil diupload');
                     setTimeout(() => {
-                        window.location.href = '{{ route("admin.media.index") }}';
+                        window.location.href = '{{ route("media.index") }}';
                     }, 1500);
                 } else {
                     notyf.error(data.message || 'Gagal mengupload media');

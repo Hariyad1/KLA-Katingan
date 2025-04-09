@@ -1,33 +1,29 @@
 <x-app-layout>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    <!-- Tambahkan header -->
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Media Gambar') }}
             </h2>
-            <a href="{{ route('admin.media.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+            <a href="{{ route('media.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
-                <span>Upload Gambar</span>
+                <span>Tambah Media</span>
             </a>
         </div>
     </x-slot>
 
-    <!-- Tambahkan loading indicator di bagian atas konten -->
     <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
     </div>
 
-    <!-- Hapus ml-60 -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <!-- Search dan Show Entries -->
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 space-y-4 md:space-y-0">
                         <div class="flex items-center space-x-2">
                             <span>Show</span>
                             <select id="entriesPerPage" class="border rounded px-2 py-1 w-20" onchange="loadMediaData()">
@@ -38,13 +34,12 @@
                             </select>
                             <span>entries</span>
                         </div>
-                        <div class="flex items-center">
+                        <div class="flex items-center w-full md:w-auto">
                             <span class="mr-2">Search:</span>
-                            <input type="text" id="searchInput" class="border rounded px-3 py-1" onkeyup="loadMediaData()" placeholder="Search...">
+                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" placeholder="Search...">
                         </div>
                     </div>
 
-                    <!-- Alert Messages -->
                     <div id="alertSuccess" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
                         <span id="alertSuccessMessage"></span>
                     </div>
@@ -52,7 +47,6 @@
                         <span id="alertErrorMessage"></span>
                     </div>
 
-                    <!-- Tabel Media -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -66,18 +60,16 @@
                                 </tr>
                             </thead>
                             <tbody id="mediaTableBody" class="bg-white divide-y divide-gray-200">
-                                <!-- Data akan dirender melalui JavaScript -->
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Pagination -->
                     <div class="flex justify-between items-center mt-4">
                         <div id="tableInfo" class="text-sm text-gray-700">
                             Showing <span id="startEntry">1</span> to <span id="endEntry">10</span> of <span id="totalEntries">0</span> entries
                         </div>
                         <div class="flex items-center space-x-2">
-                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Prev</button>
                             <div class="flex items-center space-x-1">
                                 <span>Page</span>
                                 <span id="currentPageDisplay">1</span>
@@ -92,7 +84,6 @@
         </div>
     </div>
 
-    <!-- Upload Modal -->
     <div x-data="{ open: false }" x-show="open" @open-upload-modal.window="open = true" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
         <div class="flex items-center justify-center min-h-screen px-4">
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
@@ -163,7 +154,6 @@
             ]
         });
 
-        // Fungsi untuk menampilkan/menyembunyikan loading
         function showLoading() {
             document.getElementById('loadingIndicator').classList.remove('hidden');
         }
@@ -195,7 +185,7 @@
                     .then(response => {
                         if (response.data.success) {
                             notyf.success('Media berhasil dihapus');
-                            loadMediaData(); // Reload data setelah hapus
+                            loadMediaData();
                         }
                     })
                     .catch(() => {
@@ -208,7 +198,6 @@
             });
         }
 
-        // Tampilkan notifikasi jika ada session flash
         @if(session('success'))
             notyf.success("{{ session('success') }}");
         @endif
@@ -217,7 +206,6 @@
             notyf.error("{{ session('error') }}");
         @endif
 
-        // Update form upload dengan loading indicator
         document.getElementById('uploadForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
             showLoading();
@@ -251,63 +239,73 @@
         let totalPages = 1;
         let filteredData = [];
 
+        function handleSearch() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const perPage = document.getElementById('entriesPerPage').value;
+            
+            filteredData = window.allMedia.filter(media => {
+                const extension = media.file.split('.').pop().toLowerCase();
+                const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(extension);
+                const matchesSearch = media.name.toLowerCase().includes(searchQuery);
+                return isImage && matchesSearch;
+            });
+
+            totalPages = Math.ceil(filteredData.length / perPage);
+            
+            currentPage = 1;
+            
+            updateTableDisplay();
+        }
+
         function loadMediaData() {
             showLoading();
-            const perPage = document.getElementById('entriesPerPage').value;
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             
             axios.get('/api/media', {
                 headers: {
-                    'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
+                    'Authorization': 'Bearer {{ session("api_token") }}'
                 }
             })
-            .then(response => {
-                const mediaItems = Array.isArray(response.data) ? response.data : response.data.data;
-
-                // Filter hanya file gambar dan berdasarkan pencarian
-                filteredData = mediaItems.filter(item => {
+            .then(function(response) {
+                hideLoading();
+                
+                window.allMedia = response.data.data || response.data;
+                filteredData = window.allMedia.filter(item => {
                     const extension = item.file.split('.').pop().toLowerCase();
-                    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(extension);
-                    const matchesSearch = item.name.toLowerCase().includes(searchQuery);
-                    return isImage && matchesSearch;
+                    return ['jpg', 'jpeg', 'png', 'gif'].includes(extension);
                 });
-
-                // Hitung total halaman
-                totalPages = Math.ceil(filteredData.length / perPage);
-                
-                // Pastikan halaman saat ini valid
-                if (currentPage > totalPages) {
-                    currentPage = totalPages || 1;
-                }
-
-                // Update tampilan nomor halaman
-                document.getElementById('currentPageDisplay').textContent = currentPage;
-                document.getElementById('totalPagesDisplay').textContent = totalPages;
-
-                // Hitung data untuk halaman saat ini
-                const startIndex = (currentPage - 1) * perPage;
-                const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
-                const currentPageData = filteredData.slice(startIndex, endIndex);
-
-                // Update tampilan tabel
-                updateTable(currentPageData, startIndex);
-                
-                // Update informasi tabel
-                document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
-                document.getElementById('endEntry').textContent = endIndex;
-                document.getElementById('totalEntries').textContent = filteredData.length;
-                
-                // Update status tombol pagination
-                document.getElementById('prevBtn').disabled = currentPage === 1;
-                document.getElementById('nextBtn').disabled = currentPage === totalPages;
+                updateTableDisplay();
             })
-            .catch(error => {
+            .catch(function(error) {
+                hideLoading();
                 console.error('Error:', error);
                 notyf.error('Gagal memuat data media');
-            })
-            .finally(() => {
-                hideLoading();
             });
+        }
+
+        function updateTableDisplay() {
+            const perPage = document.getElementById('entriesPerPage').value;
+            
+            totalPages = Math.ceil(filteredData.length / perPage);
+            
+            if (currentPage > totalPages) {
+                currentPage = totalPages || 1;
+            }
+
+            document.getElementById('currentPageDisplay').textContent = currentPage;
+            document.getElementById('totalPagesDisplay').textContent = totalPages;
+
+            const startIndex = (currentPage - 1) * perPage;
+            const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
+            const currentPageData = filteredData.slice(startIndex, endIndex);
+
+            updateTable(currentPageData, startIndex);
+            
+            document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
+            document.getElementById('endEntry').textContent = endIndex;
+            document.getElementById('totalEntries').textContent = filteredData.length;
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
         }
 
         function updateTable(mediaItems, startIndex) {
@@ -359,7 +357,6 @@
         }
 
         function getFileType(extension) {
-            // Sederhanakan fungsi getFileType untuk hanya menangani gambar
             const types = {
                 'jpg': 'Image/JPG',
                 'jpeg': 'Image/JPEG',
@@ -383,8 +380,12 @@
             }
         }
 
-        // Load data saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', loadMediaData);
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMediaData();
+            
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', handleSearch);
+        });
     </script>
     @endpush
 </x-app-layout> 
