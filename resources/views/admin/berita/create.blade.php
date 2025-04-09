@@ -15,7 +15,6 @@
                         </a>
                     </div>
 
-                    <!-- Form Tambah Berita -->
                     <form id="createForm" class="space-y-6">
                         @csrf
                         <div>
@@ -64,7 +63,6 @@
     <script src="{{ asset('ckeditor/ckeditor.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Inisialisasi CKEditor
             CKEDITOR.replace('content', {
                 height: 400,
                 removeButtons: 'PasteFromWord',
@@ -102,16 +100,12 @@
             document.getElementById('createForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Reset error messages
                 document.querySelectorAll('.text-red-500').forEach(el => el.textContent = '');
                 
-                // Buat FormData untuk mengirim file
                 const formData = new FormData(this);
                 
-                // Update content dengan data dari CKEditor
                 formData.set('content', CKEDITOR.instances.content.getData());
                 
-                // Tampilkan loading
                 document.getElementById('loadingIndicator')?.classList.remove('hidden');
                 
                 axios.post('/api/news', formData, {
@@ -149,7 +143,6 @@
             });
         });
 
-        // Inisialisasi Notyf
         const notyf = new Notyf({
             duration: 3000,
             position: {

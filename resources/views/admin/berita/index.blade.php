@@ -1,33 +1,29 @@
 <x-app-layout>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    <!-- Tambahkan header seperti di agenda -->
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Manajemen Berita') }}
             </h2>
-            <a href="{{ route('admin.news.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+            {{-- <a href="{{ route('admin.news.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
                 <span>Tambah Berita</span>
-            </a>
+            </a> --}}
         </div>
     </x-slot>
 
-    <!-- Tambahkan loading indicator di bagian atas konten -->
     <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
     </div>
 
-    <!-- Hapus ml-60 dan sesuaikan struktur -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <!-- Search dan Show Entries -->
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 space-y-4 md:space-y-0">
                         <div class="flex items-center space-x-2">
                             <span>Show</span>
                             <select id="entriesPerPage" class="border rounded px-2 py-1 w-20" onchange="loadNewsData()">
@@ -38,38 +34,84 @@
                             </select>
                             <span>entries</span>
                         </div>
-                        <div class="flex items-center">
+                        <div class="flex items-center w-full md:w-auto">
                             <span class="mr-2">Search:</span>
-                            <input type="text" id="searchInput" class="border rounded px-3 py-1" onkeyup="loadNewsData()" placeholder="Search...">
+                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" placeholder="Search...">
                         </div>
                     </div>
 
-                    <!-- Tabel Berita -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penulis</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">No</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Judul</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Kategori</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Penulis</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Tanggal</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="newsTableBody">
-                                <!-- Data akan diisi oleh JavaScript -->
+                            <tbody id="newsTableBody" class="bg-white divide-y divide-gray-200">
+                                @foreach($news as $item)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-b">{{ $loop->iteration }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900 border-b">{{ $item->title }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900 border-b">{{ $item->kategori->name }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900 border-b">{{ $item->creator->name }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-b">{{ $item->created_at->format('d M Y') }}</td>
+                                        <td class="px-6 py-4 border-b">
+                                            @if($item->status == 0)
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    Menunggu Persetujuan
+                                                </span>
+                                                <div class="mt-2 space-x-2">
+                                                    <button onclick="approveNews({{ $item->id }})" class="px-3 py-1 text-xs font-semibold text-white bg-green-600 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                                                        Setujui
+                                                    </button>
+                                                    <button onclick="rejectNews({{ $item->id }})" class="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                                        Tolak
+                                                    </button>
+                                                </div>
+                                            @elseif($item->status == 1)
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                                    Disetujui
+                                                </span>
+                                            @elseif($item->status == 2)
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                                    Ditolak
+                                                </span>
+                                            @else
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                    Status Tidak Diketahui
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border-b flex space-x-2">
+                                            <a href="{{ route('admin.news.edit', $item->id) }}" class="text-blue-600 hover:text-blue-900">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                </svg>
+                                            </a>
+                                            <button onclick="deleteNews({{ $item->id }})" class="text-red-600 hover:text-red-900">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Pagination -->
                     <div class="flex justify-between items-center mt-4">
                         <div id="tableInfo" class="text-sm text-gray-700">
                             Showing <span id="startEntry">1</span> to <span id="endEntry">10</span> of <span id="totalEntries">0</span> entries
                         </div>
                         <div class="flex items-center space-x-2">
-                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Prev</button>
                             <div class="flex items-center space-x-1">
                                 <span>Page</span>
                                 <span id="currentPageDisplay">1</span>
@@ -84,7 +126,6 @@
         </div>
     </div>
 
-    <!-- Modal untuk preview gambar -->
     <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white p-4 rounded-lg max-w-2xl">
             <div class="flex justify-between items-center mb-4">
@@ -130,7 +171,6 @@
         let totalPages = 1;
         let filteredData = [];
 
-        // Fungsi untuk menampilkan/menyembunyikan loading
         function showLoading() {
             document.getElementById('loadingIndicator').classList.remove('hidden');
         }
@@ -139,61 +179,74 @@
             document.getElementById('loadingIndicator').classList.add('hidden');
         }
 
-        // Fungsi untuk memuat data berita
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNewsData();
+            
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', handleSearch);
+        });
+
+        function handleSearch() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const perPage = document.getElementById('entriesPerPage').value;
+            
+            filteredData = window.allNews.filter(news => 
+                news.title.toLowerCase().includes(searchQuery)
+            );
+
+            totalPages = Math.ceil(filteredData.length / perPage);
+            
+            currentPage = 1;
+            
+            updateTableDisplay();
+        }
+
         function loadNewsData() {
             showLoading();
-            const perPage = document.getElementById('entriesPerPage').value;
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             
             axios.get('/api/news', {
                 headers: {
                     'Authorization': 'Bearer {{ session("api_token") }}'
                 }
             })
-            .then(response => {
-                const newsData = response.data.data || response.data;
+            .then(function(response) {
+                hideLoading();
                 
-                // Filter data berdasarkan pencarian
-                filteredData = newsData.filter(item => 
-                    item.title.toLowerCase().includes(searchQuery)
-                );
-
-                // Hitung total halaman
-                totalPages = Math.ceil(filteredData.length / perPage);
-                
-                // Pastikan halaman saat ini valid
-                if (currentPage > totalPages) {
-                    currentPage = totalPages || 1;
-                }
-
-                // Update tampilan nomor halaman
-                document.getElementById('currentPageDisplay').textContent = currentPage;
-                document.getElementById('totalPagesDisplay').textContent = totalPages;
-
-                // Hitung data untuk halaman saat ini
-                const startIndex = (currentPage - 1) * perPage;
-                const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
-                const currentPageData = filteredData.slice(startIndex, endIndex);
-
-                // Update tampilan tabel
-                updateTable(currentPageData, startIndex);
-                
-                // Update informasi tabel
-                document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
-                document.getElementById('endEntry').textContent = endIndex;
-                document.getElementById('totalEntries').textContent = filteredData.length;
-                
-                // Update status tombol pagination
-                document.getElementById('prevBtn').disabled = currentPage === 1;
-                document.getElementById('nextBtn').disabled = currentPage === totalPages;
+                window.allNews = response.data.data || response.data;
+                filteredData = window.allNews;
+                updateTableDisplay();
             })
-            .catch(error => {
+            .catch(function(error) {
+                hideLoading();
                 console.error('Error:', error);
                 notyf.error('Gagal memuat data berita');
-            })
-            .finally(() => {
-                hideLoading();
             });
+        }
+
+        function updateTableDisplay() {
+            const perPage = document.getElementById('entriesPerPage').value;
+            
+            totalPages = Math.ceil(filteredData.length / perPage);
+            
+            if (currentPage > totalPages) {
+                currentPage = totalPages || 1;
+            }
+
+            document.getElementById('currentPageDisplay').textContent = currentPage;
+            document.getElementById('totalPagesDisplay').textContent = totalPages;
+
+            const startIndex = (currentPage - 1) * perPage;
+            const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
+            const currentPageData = filteredData.slice(startIndex, endIndex);
+
+            updateTable(currentPageData, startIndex);
+            
+            document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
+            document.getElementById('endEntry').textContent = endIndex;
+            document.getElementById('totalEntries').textContent = filteredData.length;
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
         }
 
         function updateTable(news, startIndex) {
@@ -203,7 +256,7 @@
             if (news.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
                             Tidak ada berita yang tersedia
                         </td>
                     </tr>
@@ -212,29 +265,46 @@
             }
 
             news.forEach((item, index) => {
+                const statusBadge = item.status === 0 ? 
+                    `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                        Menunggu Persetujuan
+                    </span>
+                    <div class="mt-2 space-x-2">
+                        <button onclick="approveNews(${item.id})" class="px-3 py-1 text-xs font-semibold text-white bg-green-600 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                            Setujui
+                        </button>
+                        <button onclick="rejectNews(${item.id})" class="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                            Tolak
+                        </button>
+                    </div>` : 
+                    item.status === 1 ? 
+                    `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        Disetujui
+                    </span>` :
+                    item.status === 2 ?
+                    `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                        Ditolak
+                    </span>` :
+                    `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                        Status Tidak Diketahui
+                    </span>`;
+
                 const row = `
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">${startIndex + index + 1}</div>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-b">${startIndex + index + 1}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900 border-b">${item.title}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900 border-b">${item.kategori?.name || '-'}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900 border-b">${item.creator?.name || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-b">${new Date(item.created_at).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                        })}</td>
+                        <td class="px-6 py-4 border-b">
+                            ${statusBadge}
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm font-medium text-gray-900">${item.title}</div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900">${item.kategori?.name || '-'}</div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900">${item.creator?.name || '-'}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">${new Date(item.created_at).toLocaleDateString('id-ID', {
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric'
-                            })}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-3">
-                            <a href="{{ route('admin.news.index') }}/${item.id}/edit" class="text-indigo-600 hover:text-indigo-900">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border-b flex space-x-2">
+                            <a href="/manage/news/${item.id}/edit" class="text-indigo-600 hover:text-indigo-900">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                 </svg>
@@ -242,12 +312,6 @@
                             <button onclick="deleteNews(${item.id})" class="text-red-600 hover:text-red-900">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                            </button>
-                            <button onclick="showImage('${item.image}', '${item.title}')" class="text-blue-600 hover:text-blue-900">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                 </svg>
                             </button>
                         </td>
@@ -271,23 +335,16 @@
             }
         }
 
-        // Load data saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            loadNewsData();
-        });
-
-        // Update fungsi deleteNews untuk memanggil loadNewsData setelah hapus
         function deleteNews(id) {
             Swal.fire({
                 title: 'Apakah Anda yakin?',
-                text: "Data pengaturan yang dihapus tidak dapat dikembalikan!",
+                text: "Berita yang dihapus tidak dapat dikembalikan!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: '<span style="color: white;">Ya, hapus!</span>',
-                cancelButtonText: '<span style="color: white;">Batal</span>',
-                reverseButtons: true
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
                     showLoading();
@@ -314,7 +371,6 @@
             });
         }
 
-        // Fungsi untuk menampilkan gambar
         function showImage(imageSrc, title) {
             document.getElementById('modalImage').src = imageSrc;
             document.getElementById('modalTitle').textContent = title;
@@ -327,14 +383,12 @@
             document.getElementById('imageModal').classList.remove('flex');
         }
 
-        // Tutup modal saat klik di luar modal
         document.getElementById('imageModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeImageModal();
             }
         });
 
-        // Tampilkan notifikasi jika ada session flash
         @if(session('success'))
             notyf.success("{{ session('success') }}");
         @endif
@@ -342,6 +396,103 @@
         @if(session('error'))
             notyf.error("{{ session('error') }}");
         @endif
+
+        function approveNews(id) {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Berita akan disetujui dan ditampilkan di halaman publik",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, setujui!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoading();
+                    fetch(`/api/news/${id}/approve`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Authorization': 'Bearer {{ session("api_token") }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire(
+                                'Berhasil!',
+                                'Berita berhasil disetujui.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Gagal!',
+                                'Gagal menyetujui berita.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Error!',
+                            'Terjadi kesalahan saat menyetujui berita.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        }
+
+        function rejectNews(id) {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Berita akan ditolak dan tidak akan ditampilkan di halaman publik",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, tolak!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/api/news/${id}/reject`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Authorization': 'Bearer {{ session("api_token") }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire(
+                                'Berhasil!',
+                                'Berita berhasil ditolak.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Gagal!',
+                                'Gagal menolak berita.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Error!',
+                            'Terjadi kesalahan saat menolak berita.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        }
     </script>
     @endpush
 </x-app-layout> 

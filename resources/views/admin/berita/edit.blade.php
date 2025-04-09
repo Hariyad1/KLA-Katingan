@@ -13,7 +13,6 @@
                         </a>
                     </div>
 
-                    <!-- Form Edit Berita -->
                     <form id="editForm" class="space-y-6">
                         @csrf
                         @method('PUT')
@@ -82,11 +81,9 @@
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Show loading initially
             const loadingIndicator = document.getElementById('loadingIndicator');
             loadingIndicator.classList.remove('hidden');
 
-            // Inisialisasi CKEditor
             CKEDITOR.replace('content', {
                 height: 400,
                 removeButtons: 'PasteFromWord',
@@ -121,7 +118,6 @@
                 forceSimpleAmpersand: true
             });
 
-            // Load data berita dengan token yang benar
             const newsId = '{{ $news->id }}';
             axios.get(`/api/news/${newsId}`, {
                 headers: {
@@ -144,11 +140,9 @@
                 showError('Gagal memuat data berita');
             })
             .finally(() => {
-                // Hide loading after data is loaded
                 loadingIndicator.classList.add('hidden');
             });
 
-            // Inisialisasi Notyf
             const notyf = new Notyf({
                 duration: 3000,
                 position: {
@@ -193,7 +187,6 @@
                 });
             }
 
-            // Update existing form submit handler
             document.getElementById('editForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
