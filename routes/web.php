@@ -24,8 +24,6 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use Dompdf\Dompdf;
 use App\Http\Controllers\DokumenController;
 
-
-
 require __DIR__ . '/auth.php';
 
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
@@ -69,7 +67,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Route untuk berita
-Route::prefix('manage/berita')->group(function () {
+Route::middleware(['auth'])->prefix('manage/berita')->group(function () {
     Route::get('/', function() {
         $news = News::with(['kategori', 'creator'])->latest()->get();
         return view('admin.berita.index', compact('news'));
@@ -85,7 +83,7 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     })->name('admin.agenda.index');
 });
 
-// Route untuk kategori berita
+// Route untuk kategori berita admin
 Route::middleware(['auth', 'admin'])->prefix('manage')->group(function () {
     Route::prefix('kategori')->group(function () {
         Route::get('/', function() {
@@ -105,7 +103,7 @@ Route::middleware(['auth', 'admin'])->prefix('manage')->group(function () {
 });
 
 // Route untuk dokumen admin
-Route::prefix('manage/dokumen')->group(function () {
+Route::middleware(['auth'])->prefix('manage/dokumen')->group(function () {
     Route::get('/', function() {
         $documents = Media::where(function($query) {
             $query->where('file', 'like', '%.pdf')
@@ -475,7 +473,7 @@ Route::get('/berita/{kategori?}', function ($kategori = null) {
 Route::post('/upload-image', [App\Http\Controllers\ImageUploadController::class, 'upload'])->name('upload.image');
 
 // Rute untuk menghapus berita
-Route::delete('/admin/news/{id}', [NewsController::class, 'destroy'])->name('admin.news.destroy');
+Route::middleware(['auth'])->delete('/admin/news/{id}', [NewsController::class, 'destroy'])->name('admin.news.destroy');
 
 // Route untuk user berita
 Route::middleware(['auth'])->prefix('my')->name('user.')->group(function () {
@@ -504,8 +502,6 @@ Route::middleware(['auth', 'admin'])->prefix('manage/data-dukung')->name('admin.
     Route::get('/{dataDukung}/edit', [App\Http\Controllers\Admin\DataDukungController::class, 'edit'])->name('edit');
     Route::put('/{dataDukung}', [App\Http\Controllers\Admin\DataDukungController::class, 'update'])->name('update');
     Route::delete('/{dataDukung}', [App\Http\Controllers\Admin\DataDukungController::class, 'destroy'])->name('destroy');
-    Route::post('/{dataDukung}/approve', [App\Http\Controllers\Admin\DataDukungController::class, 'approve'])->name('approve');
-    Route::post('/{dataDukung}/reject', [App\Http\Controllers\Admin\DataDukungController::class, 'reject'])->name('reject');
     Route::delete('/file/{file}', [App\Http\Controllers\Admin\DataDukungController::class, 'destroyFile'])->name('destroy-file');
 });
 

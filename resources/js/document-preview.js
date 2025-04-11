@@ -4,6 +4,11 @@ window.previewDocument = function(url, title) {
     const previewTitle = document.getElementById('previewTitle');
     const previewLoading = document.getElementById('previewLoading');
     
+    if (!previewModal || !documentPreview || !previewTitle || !previewLoading) {
+        console.error('Required elements not found in the DOM');
+        return;
+    }
+    
     previewTitle.textContent = title;
     
     previewLoading.style.display = 'flex';
@@ -24,13 +29,19 @@ window.previewDocument = function(url, title) {
 
 window.hidePreviewLoading = function() {
     const previewLoading = document.getElementById('previewLoading');
-    previewLoading.style.display = 'none';
+    if (previewLoading) {
+        previewLoading.style.display = 'none';
+    }
 };
 
 window.closePreviewModal = function() {
     const previewModal = document.getElementById('previewModal');
     const documentPreview = document.getElementById('documentPreview');
     const previewLoading = document.getElementById('previewLoading');
+    
+    if (!previewModal || !documentPreview || !previewLoading) {
+        return;
+    }
     
     documentPreview.src = '';
     previewModal.classList.add('hidden');
@@ -39,9 +50,12 @@ window.closePreviewModal = function() {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('previewModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            window.closePreviewModal();
-        }
-    });
+    const previewModal = document.getElementById('previewModal');
+    if (previewModal) {
+        previewModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                window.closePreviewModal();
+            }
+        });
+    }
 }); 
