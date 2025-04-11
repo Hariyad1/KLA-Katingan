@@ -37,7 +37,6 @@ class SettingController extends Controller
      *     path="/api/setting",
      *     tags={"Settings"},
      *     summary="Mendapatkan daftar pengaturan",
-     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",

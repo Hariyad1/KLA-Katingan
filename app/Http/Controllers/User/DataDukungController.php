@@ -42,7 +42,7 @@ class DataDukungController extends Controller
             'indikator_id' => 'required|exists:indikators,id',
             'description' => 'nullable|string',
             'files' => 'required|array',
-            'files.*' => 'required|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png'
+            'files.*' => 'required|file|max:25600|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png'
         ]);
 
         $dataDukung = DataDukung::create([
@@ -59,7 +59,7 @@ class DataDukungController extends Controller
                 try {
                     $path = $file->store('data-dukung-files', 'public');
                     
-                    $dataDukungFile = DataDukungFile::create([
+                    DataDukungFile::create([
                         'data_dukung_id' => $dataDukung->id,
                         'file' => $path,
                         'original_name' => $file->getClientOriginalName(),
@@ -110,14 +110,14 @@ class DataDukungController extends Controller
                 'required',
                 'exists:indikators,id',
                 function ($attribute, $value, $fail) use ($request) {
-                    $indikator = \App\Models\Indikator::find($value);
+                    $indikator = Indikator::find($value);
                     if ($indikator && $indikator->klaster_id != $request->klaster_id) {
                         $fail('Indikator yang dipilih tidak sesuai dengan klaster.');
                     }
                 },
             ],
             'description' => 'nullable|string',
-            'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png'
+            'files.*' => 'nullable|file|max:25600|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png'
         ]);
 
         try {
@@ -133,7 +133,7 @@ class DataDukungController extends Controller
                 foreach ($request->file('files') as $file) {
                     $path = $file->store('data-dukung-files', 'public');
                     
-                    \App\Models\DataDukungFile::create([
+                    DataDukungFile::create([
                         'data_dukung_id' => $dataDukung->id,
                         'file' => $path,
                         'original_name' => $file->getClientOriginalName(),

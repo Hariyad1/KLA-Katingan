@@ -23,7 +23,6 @@ class NewsController extends Controller
      *     path="/api/news",
      *     tags={"News"},
      *     summary="Mendapatkan daftar berita",
-     *     security={{"bearerAuth":{}}},
      *     description="Menampilkan daftar semua berita dengan kategori dan pembuat",
      *     @OA\Response(
      *         response=200,

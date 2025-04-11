@@ -60,7 +60,7 @@ class ContactController extends Controller
      * @OA\Post(
      *     path="/api/contact",
      *     tags={"Contact"},
-     *     summary="Membuat kontak baru",
+     *     summary="Mengirimkan pesan kontak",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(

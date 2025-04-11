@@ -29,7 +29,7 @@ use Illuminate\Validation\ValidationException;
  */
 class AuthController extends Controller
 {
-    /**
+    /*
      * @OA\Post(
      *     path="/api/register",
      *     tags={"Authentication"},

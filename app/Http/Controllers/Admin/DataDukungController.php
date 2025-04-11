@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class DataDukungController extends Controller
 {
@@ -33,16 +34,15 @@ class DataDukungController extends Controller
             'opd_id' => 'required|exists:opds,id',
             'indikator_id' => 'required|exists:indikators,id',
             'files' => 'required|array',
-            'files.*' => 'required|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
+            'files.*' => 'required|file|max:25600|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
             'description' => 'nullable|string'
         ]);
 
-        $dataDukung = DataDukung::create([
-            'opd_id' => $request->opd_id,
-            'indikator_id' => $request->indikator_id,
-            'description' => $request->description,
-            'created_by' => auth()->id()
+        $data = array_merge($request->validated(), [
+            'created_by' => Auth::id() ?? 1
         ]);
+
+        $dataDukung = DataDukung::create($data);
 
         $uploadedFiles = [];
         
@@ -88,7 +88,7 @@ class DataDukungController extends Controller
         $request->validate([
             'opd_id' => 'required|exists:opds,id',
             'indikator_id' => 'required|exists:indikators,id',
-            'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
+            'files.*' => 'nullable|file|max:25600|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
             'description' => 'nullable|string'
         ]);
 

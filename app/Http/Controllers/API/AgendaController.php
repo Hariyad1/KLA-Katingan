@@ -31,7 +31,6 @@ class AgendaController extends Controller
      *     path="/api/agenda",
      *     tags={"Agenda"},
      *     summary="Mendapatkan daftar semua agenda",
-     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
