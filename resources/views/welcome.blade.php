@@ -22,41 +22,66 @@
                     x-data="{ 
                         currentIndex: 0,
                         slides: {{ json_encode($slides) }},
-                        autoplayInterval: null,
-                        next() { 
+                        timer: null,
+                        
+                        init() {
+                            this.startTimer();
+                        },
+                        
+                        startTimer() {
+                            this.timer = setInterval(() => {
+                                this.next();
+                            }, 7000);
+                        },
+                        
+                        stopTimer() {
+                            if (this.timer) clearInterval(this.timer);
+                        },
+                        
+                        next() {
                             this.currentIndex = (this.currentIndex + 1) % this.slides.length;
+                            this.resetTimer();
                         },
-                        prev() { 
+                        
+                        prev() {
                             this.currentIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
+                            this.resetTimer();
                         },
-                        startAutoplay() {
-                            if (this.autoplayInterval) clearInterval(this.autoplayInterval);
-                            this.autoplayInterval = setInterval(() => this.next(), 7000);
+                        
+                        goto(index) {
+                            this.currentIndex = index;
+                            this.resetTimer();
                         },
-                        stopAutoplay() {
-                            if (this.autoplayInterval) clearInterval(this.autoplayInterval);
+                        
+                        resetTimer() {
+                            this.stopTimer();
+                            this.startTimer();
                         }
                     }" 
-                    x-init="startAutoplay"
-                    @mouseenter="stopAutoplay"
-                    @mouseleave="startAutoplay">
+                    x-init="init()"
+                    @mouseenter="stopTimer()"
+                    @mouseleave="startTimer()">
                     
                     <!-- Slides -->
                     @foreach($slides as $slide)
-                        <div class="absolute inset-0 w-full h-full transition-opacity duration-1000"
-                             x-show="currentIndex === {{ $loop->index }}"
-                             x-transition:enter="transition ease-in duration-1000"
-                             x-transition:enter-start="opacity-0"
-                             x-transition:enter-end="opacity-100"
-                             x-transition:leave="transition ease-out duration-1000"
-                             x-transition:leave-start="opacity-100"
-                             x-transition:leave-end="opacity-0">
-                            <div class="absolute inset-0 kenburns-{{ $loop->index % 4 }}">
-                                <img src="{{ $slide->path }}" alt="{{ $slide->name }}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 w-full h-full"
+                        x-show="currentIndex === {{ $loop->index }}"
+                        x-transition:enter="transition ease-in duration-1000"
+                        x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition ease-out duration-1000"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0">
+                            <div class="absolute inset-0">
+                                <img src="{{ $slide->path }}" 
+                                     alt="{{ $slide->name }}" 
+                                     class="w-full h-full object-cover animate-kenburns">
                             </div>
                             <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></div>
                             <div class="absolute bottom-0 left-0 right-0 p-6 lg:p-12 text-center">
-                                <h3 class="text-2xl lg:text-4xl font-bold text-white mb-2 lg:mb-4 drop-shadow-lg slide-up">{{ $slide->name }}</h3>
+                                <h3 class="text-2xl lg:text-4xl font-bold text-white mb-2 lg:mb-4 drop-shadow-lg slide-up">
+                                    {{ $slide->name }}
+                                </h3>
                                 @if($slide->description)
                                     <p class="text-white/90 text-sm lg:text-xl max-w-3xl mx-auto lg:leading-relaxed drop-shadow-md slide-up-delayed">
                                         {{ $slide->description }}
@@ -68,13 +93,13 @@
                     
                     <!-- Controls -->
                     <div class="hidden lg:block">
-                        <button @click="prev" 
+                        <button @click="prev()" 
                                 class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-4 rounded-full backdrop-blur-sm transition-all z-20">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                             </svg>
                         </button>
-                        <button @click="next" 
+                        <button @click="next()" 
                                 class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white p-4 rounded-full backdrop-blur-sm transition-all z-20">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -85,7 +110,7 @@
                     <!-- Indicators -->
                     <div class="absolute bottom-4 lg:bottom-8 left-0 right-0 flex justify-center space-x-2 z-20">
                         <template x-for="(slide, index) in slides" :key="index">
-                            <button @click="currentIndex = index" 
+                            <button @click="goto(index)" 
                                     :class="{'bg-white w-6': currentIndex === index, 'bg-white/50 w-2': currentIndex !== index}"
                                     class="h-2 rounded-full transition-all duration-500">
                             </button>
@@ -98,53 +123,17 @@
 
     <!-- Styles -->
     <style>
-        .kenburns-0 {
-            animation: kenburns-top-reverse 7s ease-out both;
-        }
-        .kenburns-1 {
-            animation: kenburns-bottom-reverse 7s ease-out both;
-        }
-        .kenburns-2 {
-            animation: kenburns-right-reverse 7s ease-out both;
-        }
-        .kenburns-3 {
-            animation: kenburns-left-reverse 7s ease-out both;
-        }
-
-        @keyframes kenburns-top-reverse {
+        @keyframes kenburns {
             0% {
-                transform: scale(1.2) translateY(-15px);
+                transform: scale(1.2);
             }
             100% {
-                transform: scale(1) translateY(0);
+                transform: scale(0.95);
             }
         }
 
-        @keyframes kenburns-bottom-reverse {
-            0% {
-                transform: scale(1.2) translateY(15px);
-            }
-            100% {
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        @keyframes kenburns-right-reverse {
-            0% {
-                transform: scale(1.2) translateX(15px);
-            }
-            100% {
-                transform: scale(1) translateX(0);
-            }
-        }
-
-        @keyframes kenburns-left-reverse {
-            0% {
-                transform: scale(1.2) translateX(-15px);
-            }
-            100% {
-                transform: scale(1) translateX(0);
-            }
+        .animate-kenburns {
+            animation: kenburns 10s ease-in-out forwards;
         }
 
         .slide-up {
