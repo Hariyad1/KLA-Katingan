@@ -2,7 +2,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-material-ui/material-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    <!-- Tambahkan header -->
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -17,13 +16,11 @@
         </div>
     </x-slot>
 
-    <!-- Hapus ml-60 -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <!-- Search dan Show Entries -->
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 space-y-4 md:space-y-0">
                         <div class="flex items-center space-x-2">
                             <span>Show</span>
                             <select id="entriesPerPage" class="border rounded px-2 py-1 w-20" onchange="loadUsersData()">
@@ -34,21 +31,19 @@
                             </select>
                             <span>entries</span>
                         </div>
-                        <div class="flex items-center">
+                        <div class="flex items-center w-full md:w-auto">
                             <span class="mr-2">Search:</span>
-                            <input type="text" id="searchInput" class="border rounded px-3 py-1" onkeyup="loadUsersData()" placeholder="Search...">
+                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" onkeyup="loadUsersData()" placeholder="Search...">
                         </div>
                     </div>
 
-                    <!-- Alert Messages -->
-                    @if(session('success'))
-                        <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-                            <p>{{ session('success') }}</p>
+                    <div class="overflow-x-auto relative">
+                        <!-- Loading Spinner -->
+                        <div id="loadingIndicator" class="absolute inset-0 bg-white bg-opacity-80 z-10 hidden">
+                            <div class="flex justify-center items-center h-full">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                            </div>
                         </div>
-                    @endif
-
-                    <!-- Tabel Pengguna -->
-                    <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
@@ -90,13 +85,12 @@
                         </table>
                     </div>
 
-                    <!-- Pagination -->
                     <div class="flex justify-between items-center mt-4">
                         <div id="tableInfo" class="text-sm text-gray-700">
                             Showing <span id="startEntry">1</span> to <span id="endEntry">10</span> of <span id="totalEntries">0</span> entries
                         </div>
                         <div class="flex items-center space-x-2">
-                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                            <button id="prevBtn" onclick="previousPage()" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">Prev</button>
                             <div class="flex items-center space-x-1">
                                 <span>Page</span>
                                 <span id="currentPageDisplay">1</span>
@@ -121,7 +115,6 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
-        // Inisialisasi Notyf untuk toast notifications
         const notyf = new Notyf({
             duration: 3000,
             position: {x: 'right', y: 'top'},
@@ -145,7 +138,6 @@
                 return;
             }
             
-            // Gunakan SweetAlert2 untuk konfirmasi
             Swal.fire({
                 title: 'Apakah Anda yakin?',
                 text: "Data pengguna yang dihapus tidak dapat dikembalikan!",
@@ -184,7 +176,6 @@
             });
         }
 
-        // Tampilkan pesan sukses/error dengan Notyf
         @if(session('success'))
             notyf.success('{{ session("success") }}');
         @endif
@@ -198,52 +189,65 @@
         let filteredData = [];
         let allUsers = @json($users);
 
+        function showLoading() {
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingIndicator').classList.add('hidden');
+        }
+
         function loadUsersData() {
-            const perPage = document.getElementById('entriesPerPage').value;
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-
-            // Filter data berdasarkan pencarian
-            filteredData = allUsers.filter(user => 
-                user.name.toLowerCase().includes(searchQuery) ||
-                user.email.toLowerCase().includes(searchQuery)
-            );
-
-            // Hitung total halaman
-            totalPages = Math.ceil(filteredData.length / perPage);
+            showLoading();
             
-            // Pastikan halaman saat ini valid
-            if (currentPage > totalPages) {
-                currentPage = totalPages || 1;
-            }
+            setTimeout(() => {
+                const perPage = document.getElementById('entriesPerPage').value;
+                const searchQuery = document.getElementById('searchInput').value.toLowerCase();
 
-            // Update tampilan nomor halaman
-            document.getElementById('currentPageDisplay').textContent = currentPage;
-            document.getElementById('totalPagesDisplay').textContent = totalPages;
+                filteredData = allUsers.filter(user => 
+                    user.name.toLowerCase().includes(searchQuery) ||
+                    user.email.toLowerCase().includes(searchQuery)
+                );
 
-            // Hitung data untuk halaman saat ini
-            const startIndex = (currentPage - 1) * perPage;
-            const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
-            const currentPageData = filteredData.slice(startIndex, endIndex);
+                totalPages = Math.ceil(filteredData.length / perPage);
+                
+                if (currentPage > totalPages) {
+                    currentPage = totalPages || 1;
+                }
 
-            // Update tampilan tabel
-            updateTable(currentPageData, startIndex);
-            
-            // Update informasi tabel
-            document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
-            document.getElementById('endEntry').textContent = endIndex;
-            document.getElementById('totalEntries').textContent = filteredData.length;
-            
-            // Update status tombol pagination
-            document.getElementById('prevBtn').disabled = currentPage === 1;
-            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+                document.getElementById('currentPageDisplay').textContent = currentPage;
+                document.getElementById('totalPagesDisplay').textContent = totalPages;
+
+                const startIndex = (currentPage - 1) * perPage;
+                const endIndex = Math.min(startIndex + parseInt(perPage), filteredData.length);
+                const currentPageData = filteredData.slice(startIndex, endIndex);
+
+                updateTable(currentPageData, startIndex);
+                
+                document.getElementById('startEntry').textContent = filteredData.length ? startIndex + 1 : 0;
+                document.getElementById('endEntry').textContent = endIndex;
+                document.getElementById('totalEntries').textContent = filteredData.length;
+                
+                document.getElementById('prevBtn').disabled = currentPage === 1;
+                document.getElementById('nextBtn').disabled = currentPage === totalPages;
+
+                hideLoading();
+            }, 300); // Menambahkan delay kecil agar loading terlihat
         }
 
         function updateTable(users, startIndex) {
             const tbody = document.querySelector('tbody');
-            tbody.innerHTML = '';
+            tbody.innerHTML = `
+                <!-- Loading Spinner -->
+                <div id="loadingIndicator" class="absolute inset-0 bg-white bg-opacity-80 z-10 hidden">
+                    <div class="flex justify-center items-center h-full">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                    </div>
+                </div>
+            `;
 
             if (users.length === 0) {
-                tbody.innerHTML = `
+                tbody.innerHTML += `
                     <tr>
                         <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
                             Tidak ada pengguna yang tersedia
@@ -309,7 +313,6 @@
             }
         }
 
-        // Load data saat halaman dimuat
         document.addEventListener('DOMContentLoaded', loadUsersData);
     </script>
     @endpush

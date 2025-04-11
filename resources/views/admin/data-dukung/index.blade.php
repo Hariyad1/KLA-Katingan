@@ -40,11 +40,8 @@
                     </div>
 
                     <div class="overflow-x-auto relative">
-                        <div x-show="isLoading" class="absolute inset-0 bg-gray-50 bg-opacity-50 flex items-center justify-center">
-                            <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
+                        <div x-show="isLoading" class="absolute inset-0 bg-white bg-opacity-80 z-10 flex items-center justify-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
                         </div>
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -88,9 +85,7 @@
                                                             </svg>
                                                         </a>
                                                         <button type="button" @click="confirmDeleteFile(file.id)" class="text-red-600 hover:text-red-900">
-                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                            </svg>
+                                                            <i class="fas fa-trash"></i>
                                                         </button>
                                                     </div>
                                                 </div>
@@ -110,7 +105,7 @@
                                         </td>
                                     </tr>
                                 </template>
-                                <tr x-show="items.length === 0">
+                                <tr x-show="!isLoading && items.length === 0">
                                     <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                                         Tidak ada data dukung
                                     </td>
@@ -137,14 +132,7 @@
                             </button>
                             
                             <div class="flex items-center space-x-1">
-                                <template x-for="page in pages" :key="page">
-                                    <button 
-                                        @click="changePage(page)"
-                                        :class="{'bg-indigo-600 text-white': currentPage === page, 'text-gray-700': currentPage !== page}"
-                                        class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50">
-                                        <span x-text="page"></span>
-                                    </button>
-                                </template>
+                                <span class="text-sm text-gray-700">Page <span x-text="currentPage"></span> of <span x-text="lastPage"></span></span>
                             </div>
                             
                             <button 

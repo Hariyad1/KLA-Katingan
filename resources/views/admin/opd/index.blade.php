@@ -15,7 +15,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <!-- Header dengan dropdown dan pencarian -->
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
                         <div class="flex items-center gap-2">
                             <label for="entries" class="text-sm text-gray-700">Show</label>
@@ -40,7 +39,6 @@
                         </div>
                     </div>
 
-                    <!-- Tabel -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -52,18 +50,15 @@
                                 </tr>
                             </thead>
                             <tbody id="opdTableBody" class="bg-white divide-y divide-gray-200">
-                                <!-- Data akan diisi melalui JavaScript -->
                             </tbody>
                         </table>
                         
-                        <!-- Loading Spinner -->
                         <div id="loadingSpinner" class="hidden">
                             <div class="flex justify-center items-center py-4">
                                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                             </div>
                         </div>
 
-                        <!-- Pagination -->
                         <div class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
                             <div class="flex items-center">
                                 <span id="paginationInfo" class="text-sm text-gray-700"></span>
@@ -72,7 +67,7 @@
                                 <button id="prevPage" class="px-4 py-2 border rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                                     Prev
                                 </button>
-                                <span class="px-4 py-2 border rounded-md text-sm font-medium text-gray-700 bg-white">1</span>
+                                <span class="text-sm text-gray-700">Page <span id="currentPageSpan">1</span> of <span id="totalPagesSpan">1</span></span>
                                 <button id="nextPage" class="px-4 py-2 border rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                                     Next
                                 </button>
@@ -88,7 +83,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
-        // Inisialisasi Notyf
         const notyf = new Notyf({
             duration: 3000,
             position: { x: 'right', y: 'top' },
@@ -110,7 +104,6 @@
         let searchQuery = '';
         const perPage = 10;
 
-        // Fungsi untuk memuat data OPD
         async function loadOpd() {
             try {
                 document.getElementById('loadingSpinner').classList.remove('hidden');
@@ -146,24 +139,28 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
                                 <a href="/manage/opd/${opd.id}/edit" class="text-indigo-600 hover:text-indigo-900 inline-flex items-center" title="Edit OPD">
-                                    <i class="fas fa-edit"></i>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
                                 </a>
                                 <button onclick="confirmDelete(${opd.id})" class="text-red-600 hover:text-red-900 inline-flex items-center" title="Hapus OPD">
-                                    <i class="fas fa-trash"></i>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
                                 </button>
                             </td>
                         </tr>
                     `;
                 });
 
-                // Update pagination
                 totalPages = Math.ceil(data.total / perPage);
                 document.getElementById('prevPage').disabled = currentPage === 1;
                 document.getElementById('nextPage').disabled = currentPage === totalPages;
                 
-                // Update pagination info
                 document.getElementById('paginationInfo').textContent = 
                     `Showing ${data.from || 0} to ${data.to || 0} of ${data.total} data`;
+                document.getElementById('currentPageSpan').textContent = currentPage;
+                document.getElementById('totalPagesSpan').textContent = totalPages;
 
             } catch (error) {
                 notyf.error('Gagal memuat data OPD');
@@ -173,13 +170,11 @@
             }
         }
 
-        // Event listener untuk dropdown entries
         document.getElementById('entries').addEventListener('change', () => {
             currentPage = 1;
             loadOpd();
         });
 
-        // Event listener untuk pencarian
         let searchTimeout;
         document.getElementById('searchInput').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
@@ -190,7 +185,6 @@
             }, 500);
         });
 
-        // Event listener untuk pagination
         document.getElementById('prevPage').addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
@@ -205,7 +199,6 @@
             }
         });
 
-        // Fungsi konfirmasi hapus OPD
         async function confirmDelete(id) {
             const result = await Swal.fire({
                 title: 'Apakah Anda yakin?',
@@ -240,12 +233,10 @@
             }
         }
 
-        // Load data saat halaman dimuat
         document.addEventListener('DOMContentLoaded', () => {
             loadOpd();
         });
 
-        // Tampilkan notifikasi sukses jika ada
         @if(session('success'))
             notyf.success("{{ session('success') }}");
         @endif

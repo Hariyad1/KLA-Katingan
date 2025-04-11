@@ -16,10 +16,6 @@
         </div>
     </x-slot>
 
-        <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-            <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
-        </div>
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -50,12 +46,18 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Halaman</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Konten</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gambar</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
+                                    {{-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gambar</th> --}}
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="settingsTableBody" class="bg-white divide-y divide-gray-200">
+                            <tbody id="settingsTableBody" class="bg-white divide-y divide-gray-200 relative">
+                                <!-- Loading Spinner -->
+                                <div id="loadingIndicator" class="absolute inset-0 bg-white bg-opacity-80 z-10 hidden">
+                                    <div class="flex justify-center items-center h-full">
+                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                                    </div>
+                                </div>
                             </tbody>
                         </table>
                     </div>
@@ -216,9 +218,6 @@
                     <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">${setting.type || '-'}</td>
                     <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
                         ${setting.content ? `<div class="truncate max-w-xs">${setting.content}</div>` : '-'}
-                    </td>
-                    <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                        ${setting.image ? `<img src="${setting.image}" alt="${setting.name}" class="h-10 w-10 object-cover rounded">` : '-'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-3">
                         <a href="/manage/setting/video/edit/${setting.id}" class="text-blue-600 hover:text-blue-900">

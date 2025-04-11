@@ -88,7 +88,7 @@
                                                         <p class="pl-1">atau drag and drop</p>
                                                     </div>
                                                     <p class="text-xs text-gray-500">
-                                                        PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG hingga 10MB
+                                                        PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG hingga 25MB
                                                     </p>
                                                 </div>
                                             </div>
@@ -222,12 +222,10 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // Fungsi untuk menambah input file baru
         window.addFileInput = function() {
             const container = document.getElementById('fileUploads');
             const template = container.querySelector('.file-input-group').cloneNode(true);
             
-            // Reset input dan preview
             const fileInput = template.querySelector('.file-input');
             fileInput.value = '';
             const preview = template.querySelector('.file-preview');
@@ -240,7 +238,6 @@
             setupDragAndDrop(template);
         };
 
-        // Fungsi untuk menghapus input file
         window.removeFileInput = function(button) {
             const group = button.closest('.file-input-group');
             if (document.querySelectorAll('.file-input-group').length > 1) {
@@ -256,7 +253,6 @@
             }
         };
 
-        // Fungsi untuk handle file yang dipilih
         window.handleFileSelect = function(input) {
             const file = input.files[0];
             if (!file) return;
@@ -268,11 +264,9 @@
             const fileSize = preview.querySelector('.file-size');
             const error = group.querySelector('.file-error');
 
-            // Reset error
             error.classList.add('hidden');
             error.textContent = '';
 
-            // Validasi tipe file
             const allowedTypes = [
                 'application/pdf',
                 'application/msword',
@@ -291,21 +285,18 @@
                 return;
             }
 
-            // Validasi ukuran file (max 10MB)
             if (file.size > 10 * 1024 * 1024) {
-                error.textContent = 'Ukuran file maksimal 10MB';
+                error.textContent = 'Ukuran file maksimal 25MB';
                 error.classList.remove('hidden');
                 input.value = '';
                 preview.classList.add('hidden');
                 return;
             }
 
-            // Update preview
             preview.classList.remove('hidden');
             fileName.textContent = file.name;
             fileSize.textContent = `(${formatFileSize(file.size)})`;
 
-            // Set icon berdasarkan tipe file
             if (file.type.includes('pdf')) {
                 fileIcon.className = 'fas fa-file-pdf text-red-500 text-lg';
             } else if (file.type.includes('word')) {
@@ -325,7 +316,6 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Setup drag and drop untuk setiap file input
         function setupDragAndDrop(container) {
             const dropZone = container.querySelector('.border-dashed');
             const input = container.querySelector('.file-input');
@@ -364,7 +354,6 @@
             }
         }
 
-        // Setup initial drag and drop
         document.querySelectorAll('.file-input-group').forEach(setupDragAndDrop);
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -372,12 +361,10 @@
             const indikatorSelect = document.getElementById('indikator_id');
             const dataDukungId = {{ $dataDukung->id }};
 
-            // Fungsi handle submit form
             window.handleSubmit = async function(e) {
                 e.preventDefault();
                 
                 try {
-                    // Konfirmasi sebelum menyimpan
                     const confirmResult = await Swal.fire({
                         title: 'Konfirmasi',
                         text: 'Apakah Anda yakin ingin menyimpan perubahan?',
@@ -402,7 +389,6 @@
                     
                     const files = formData.getAll('files[]').filter(file => file.size > 0);
 
-                    // Reset dan tampilkan progress bar jika ada file
                     if (files.length > 0) {
                         const progressSection = document.getElementById('uploadProgress');
                         progressSection.classList.remove('hidden');
@@ -412,7 +398,6 @@
                         document.getElementById('uploadedSize').textContent = '0 KB / 0 KB';
                         document.getElementById('uploadSpeed').textContent = '';
 
-                        // Tampilkan loading state
                         await Swal.fire({
                             title: 'Sedang Mengupload',
                             html: 'Mohon tunggu sebentar...',
@@ -437,11 +422,9 @@
                             if (progressEvent.total && files.length > 0) {
                                 const totalProgress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                                 
-                                // Hitung ukuran per file dan total
                                 const totalSize = files.reduce((acc, file) => acc + file.size, 0);
                                 const uploadedBytes = progressEvent.loaded;
                                 
-                                // Tentukan file yang sedang diupload
                                 let accumulatedSize = 0;
                                 let currentFileIndex = -1;
                                 
@@ -450,7 +433,6 @@
                                     const nextAccumulatedSize = accumulatedSize + fileSize;
                                     
                                     if (uploadedBytes > accumulatedSize && uploadedBytes <= nextAccumulatedSize) {
-                                        // File sedang diupload
                                         const fileProgress = Math.round(((uploadedBytes - accumulatedSize) * 100) / fileSize);
                                         
                                         document.getElementById('progressBar').style.width = `${fileProgress}%`;
@@ -459,7 +441,6 @@
                                         document.getElementById('uploadedSize').textContent = 
                                             `${formatFileSize(uploadedBytes)} / ${formatFileSize(totalSize)}`;
                                         
-                                        // Hitung kecepatan upload
                                         const speed = formatFileSize(progressEvent.loaded / ((Date.now() - window.uploadStartTime) / 1000)) + '/s';
                                         document.getElementById('uploadSpeed').textContent = speed;
                                     }
@@ -512,7 +493,6 @@
                     submitBtn.textContent = 'Simpan';
                     if (files.length > 0) {
                         document.getElementById('uploadProgress').classList.add('hidden');
-                        // Tutup loading state jika masih terbuka
                         Swal.close();
                     }
                 }
@@ -585,13 +565,11 @@
 
                     const data = await response.json();
                     
-                    // Hapus elemen file dari DOM
                     const fileRow = document.getElementById(`file-row-${id}`);
                     if (fileRow) {
                         fileRow.remove();
                     }
 
-                    // Tampilkan pesan sukses
                     await Swal.fire({
                         icon: 'success',
                         title: 'Berhasil!',
@@ -609,10 +587,8 @@
                 }
             }
 
-            // Inisialisasi
             filterIndikator();
 
-            // Tambahkan variabel untuk tracking waktu mulai upload
             window.uploadStartTime = Date.now();
         });
     </script>

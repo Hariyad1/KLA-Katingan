@@ -55,6 +55,19 @@
                     </form>
 
                     <div id="loadingIndicator" class="hidden">
+                        <div class="mt-4">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="text-sm font-medium text-gray-700">Progress Upload</div>
+                                <div class="text-sm font-medium text-gray-700" id="uploadProgress">0%</div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-blue-600 h-2.5 rounded-full" id="progressBar" style="width: 0%"></div>
+                            </div>
+                            <div class="mt-2 text-sm text-gray-600">
+                                <span id="uploadedSize">0 KB</span> / <span id="totalSize">0 KB</span>
+                                <span id="uploadSpeed" class="ml-2">(0 KB/s)</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -86,6 +99,14 @@
             ]
         });
 
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
         function validateImageType(input) {
             const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
             
@@ -96,6 +117,9 @@
                     notyf.error('Hanya file gambar (JPG, JPEG, PNG, GIF) yang diperbolehkan');
                     return false;
                 }
+
+                // Update total size
+                document.getElementById('totalSize').textContent = formatFileSize(file.size);
             }
             return true;
         }
@@ -108,9 +132,10 @@
                 return;
             }
             
-            document.getElementById('loadingIndicator')?.classList.remove('hidden');
+            document.getElementById('loadingIndicator').classList.remove('hidden');
             
             const formData = new FormData(this);
+            window.uploadStartTime = Date.now();
             
             axios.post('/api/media', formData, {
                 headers: {
@@ -118,6 +143,17 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json',
                     'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
+                },
+                onUploadProgress: function(progressEvent) {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    document.getElementById('progressBar').style.width = percentCompleted + '%';
+                    document.getElementById('uploadProgress').textContent = percentCompleted + '%';
+                    document.getElementById('uploadedSize').textContent = formatFileSize(progressEvent.loaded);
+                    
+                    // Calculate speed
+                    const timeElapsed = (Date.now() - window.uploadStartTime) / 1000; // in seconds
+                    const uploadSpeed = progressEvent.loaded / timeElapsed; // bytes per second
+                    document.getElementById('uploadSpeed').textContent = `(${formatFileSize(uploadSpeed)}/s)`;
                 }
             })
             .then(response => {
@@ -142,7 +178,8 @@
                 }
             })
             .finally(() => {
-                document.getElementById('loadingIndicator')?.classList.add('hidden');
+                // Tidak perlu menyembunyikan loading indicator di sini
+                // karena user akan diredirect ke halaman index
             });
         });
     </script>

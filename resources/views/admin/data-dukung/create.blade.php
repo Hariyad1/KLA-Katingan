@@ -76,7 +76,7 @@
                                     </div>
                                 </div>
 
-                                <p class="mt-4 text-sm text-gray-500">Format file: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG. Maksimal 10MB per file.</p>
+                                <p class="mt-4 text-sm text-gray-500">Format file: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG. Maksimal 25MB per file.</p>
                                 
                                 <div id="selectedFiles" class="mt-4 space-y-2"></div>
                                 
@@ -156,7 +156,6 @@
             const indikatorSelect = document.getElementById('indikator_id');
             const indikatorDesc = document.getElementById('indikator-description');
             
-            // Reset indikator select
             indikatorSelect.innerHTML = '<option value="">Pilih Indikator</option>';
             
             if (klasterId) {
@@ -225,7 +224,6 @@
                 fileDiv.className = 'flex flex-col p-3 bg-gray-50 rounded mb-2';
                 fileDiv.id = `file-${index}`;
                 
-                // Info file
                 const fileInfo = document.createElement('div');
                 fileInfo.className = 'flex items-center mb-2';
                 
@@ -246,12 +244,10 @@
                 fileInfo.appendChild(fileName);
                 fileInfo.appendChild(status);
                 
-                // Progress bar container
                 const progressContainer = document.createElement('div');
                 progressContainer.className = 'hidden w-full bg-gray-200 rounded h-2 mt-2';
                 progressContainer.id = `progress-container-${index}`;
                 
-                // Progress bar
                 const progressBar = document.createElement('div');
                 progressBar.className = 'bg-indigo-600 h-2 rounded transition-all duration-300';
                 progressBar.id = `progress-${index}`;
@@ -290,7 +286,6 @@
                 return;
             }
 
-            // Konfirmasi sebelum upload
             try {
                 const result = await Swal.fire({
                     title: 'Konfirmasi Upload',
@@ -310,7 +305,6 @@
                     return;
                 }
 
-                // Reset status semua file
                 files.forEach((file, index) => {
                     const progressContainer = document.getElementById(`progress-container-${index}`);
                     const status = document.getElementById(`status-${index}`);
@@ -377,7 +371,6 @@
                 });
 
                 if (response.data) {
-                    // Update status semua file
                     files.forEach((file, index) => {
                         const status = document.getElementById(`status-${index}`);
                         if (status) {
@@ -386,7 +379,6 @@
                         }
                     });
 
-                    // Tampilkan pesan sukses
                     await Swal.fire({
                         title: 'Berhasil!',
                         text: 'Semua file berhasil diupload',
@@ -398,8 +390,7 @@
                 }
             } catch (error) {
                 console.error('Upload error:', error);
-                
-                // Update status semua file menjadi gagal
+
                 files.forEach((file, index) => {
                     const status = document.getElementById(`status-${index}`);
                     const progressBar = document.getElementById(`progress-${index}`);
@@ -424,7 +415,6 @@
                     errorMessage += '</ul>';
                 }
 
-                // Tampilkan pesan error
                 await Swal.fire({
                     title: 'Gagal!',
                     html: errorMessage,

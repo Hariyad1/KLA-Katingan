@@ -16,10 +16,6 @@
         </div>
     </x-slot>
 
-        <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-            <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
-        </div>
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -48,7 +44,14 @@
                         <span id="alertErrorMessage"></span>
                     </div>
 
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto relative">
+                        <!-- Loading Spinner -->
+                        <div id="loadingIndicator" class="absolute inset-0 bg-white bg-opacity-80 z-10 hidden">
+                            <div class="flex justify-center items-center h-full">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                            </div>
+                        </div>
+
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>

@@ -44,11 +44,16 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Path</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diunduh</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="dokumenTableBody" class="bg-white divide-y divide-gray-200">
+                            <tbody id="dokumenTableBody" class="bg-white divide-y divide-gray-200 relative">
+                                <!-- Loading Spinner -->
+                                <div id="loadingIndicator" class="absolute inset-0 bg-white bg-opacity-80 z-10 hidden">
+                                    <div class="flex justify-center items-center h-full">
+                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                                    </div>
+                                </div>
                             </tbody>
                         </table>
                     </div>
@@ -71,10 +76,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div id="loadingIndicator" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
     </div>
 
     @push('styles')
@@ -233,7 +234,6 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">${item.file || '-'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">${item.hits || 0} kali</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-3">
                             <a href="${item.path}" target="_blank" class="text-blue-600 hover:text-blue-900">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -140,7 +140,6 @@
             ]
         });
 
-        // Setup drag and drop
         const dropZone = document.querySelector('.border-dashed');
         const fileInput = document.querySelector('input[type="file"]');
 
@@ -208,7 +207,6 @@
                 } else {
                     document.getElementById('fileError').textContent = '';
                     
-                    // Update file preview
                     const preview = document.getElementById('filePreview');
                     const fileName = document.getElementById('fileName');
                     const fileSize = document.getElementById('fileSize');
@@ -218,7 +216,6 @@
                     fileName.textContent = file.name;
                     fileSize.textContent = `(${formatFileSize(file.size)})`;
                     
-                    // Set icon based on file type
                     if (file.type.includes('pdf')) {
                         fileIcon.className = 'fas fa-file-pdf text-red-500 text-lg';
                     } else if (file.type.includes('word')) {
@@ -244,7 +241,6 @@
             
             document.querySelectorAll('.text-red-500').forEach(el => el.textContent = '');
             
-            // Reset dan tampilkan progress bar
             const progressSection = document.getElementById('uploadProgress');
             progressSection.classList.remove('hidden');
             document.getElementById('progressBar').style.width = '0%';
@@ -271,18 +267,15 @@
                         document.getElementById('progressBar').style.width = percentCompleted + '%';
                         document.getElementById('progressText').textContent = percentCompleted + '%';
                         
-                        // Calculate upload speed
                         const currentTime = Date.now();
-                        const elapsedTime = (currentTime - uploadStartTime) / 1000; // in seconds
+                        const elapsedTime = (currentTime - uploadStartTime) / 1000;
                         const bytesPerSecond = progressEvent.loaded / elapsedTime;
                         const speed = formatFileSize(bytesPerSecond) + '/s';
                         document.getElementById('uploadSpeed').textContent = speed;
                         
-                        // Update status and size
                         document.getElementById('uploadedSize').textContent = 
                             `${formatFileSize(progressEvent.loaded)} / ${formatFileSize(progressEvent.total)}`;
                         
-                        // Update status message
                         if (percentCompleted < 100) {
                             document.getElementById('uploadStatus').textContent = 'Mengupload dokumen...';
                         } else {

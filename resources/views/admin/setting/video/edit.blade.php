@@ -39,14 +39,7 @@
                             <p class="text-red-500 text-xs mt-1" id="pageError"></p>
                         </div>
 
-                        <div>
-                            <label for="type" class="block text-sm font-medium text-gray-700">Tipe</label>
-                            <select name="type" id="type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" onchange="toggleFields()">
-                                <option value="statis">Statis</option>
-                                <option value="video">Video</option>
-                            </select>
-                            <p class="text-red-500 text-xs mt-1" id="typeError"></p>
-                        </div>
+                        <input type="hidden" name="type" id="type" value="video">
 
                         <div id="urlField">
                             <label for="url" class="block text-sm font-medium text-gray-700">URL</label>
@@ -56,18 +49,14 @@
 
                         <div id="contentField">
                             <label for="content" class="block text-sm font-medium text-gray-700">Konten</label>
-                            <textarea name="content" id="content" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                            <textarea 
+                                name="content" 
+                                id="content" 
+                                rows="5" 
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                placeholder="Masukkan deskripsi video..."
+                            ></textarea>
                             <p class="text-red-500 text-xs mt-1" id="contentError"></p>
-                        </div>
-
-                        <div id="imageField">
-                            <label for="image" class="block text-sm font-medium text-gray-700">Gambar</label>
-                            <input type="file" name="image" id="image" class="mt-1 block w-full">
-                            <p class="text-red-500 text-xs mt-1" id="imageError"></p>
-                            <div id="currentImage" class="mt-2 hidden">
-                                <p class="text-sm text-gray-500">Gambar saat ini:</p>
-                                <img id="previewImage" src="" alt="Current Image" class="mt-1 h-32 object-cover">
-                            </div>
                         </div>
 
                         <div>
@@ -88,7 +77,6 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    <script src="{{ asset('ckeditor/ckeditor.js') }}"></script>
     <script>
         const notyf = new Notyf({
             duration: 3000,
@@ -110,40 +98,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             const settingId = '{{ $setting->id }}';
             
-            CKEDITOR.replace('content', {
-                height: 400,
-                removeButtons: 'PasteFromWord',
-                toolbar: [
-                    { name: 'document', items: [ 'Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates' ] },
-                    { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo' ] },
-                    { name: 'editing', items: [ 'Find', 'Replace', '-', 'SelectAll', '-', 'Scayt' ] },
-                    { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'CopyFormatting', 'RemoveFormat' ] },
-                    '/',
-                    { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl' ] },
-                    { name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
-                    { name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'SpecialChar' ] },
-                    '/',
-                    { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
-                    { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
-                    { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
-                ],
-                filebrowserUploadMethod: 'form',
-                filebrowserUploadUrl: '{{ route("upload.image") }}',
-                allowedContent: true,
-                extraPlugins: 'wysiwygarea',
-                enterMode: CKEDITOR.ENTER_P,
-                shiftEnterMode: CKEDITOR.ENTER_BR,
-                autoParagraph: false,
-                fillEmptyBlocks: false,
-                entities: false,
-                basicEntities: false,
-                entities_latin: false,
-                entities_greek: false,
-                entities_additional: '',
-                htmlEncodeOutput: false,
-                forceSimpleAmpersand: true
-            });
-            
             document.getElementById('loadingIndicator').classList.remove('hidden');
             
             const config = {
@@ -164,22 +118,13 @@
                         document.getElementById('name').value = setting.name || '';
                         document.getElementById('page').value = setting.page || '';
                         document.getElementById('url').value = setting.url || '';
-                        CKEDITOR.instances.content.setData(setting.content || '');
-                        document.getElementById('type').value = setting.type || 'statis';
-                        
-                        if (setting.image) {
-                            document.getElementById('currentImage').classList.remove('hidden');
-                            document.getElementById('previewImage').src = setting.image;
-                        }
-                        
-                        toggleFields();
+                        document.getElementById('content').value = setting.content || '';
                     } else {
                         notyf.error('Gagal memuat data pengaturan');
                     }
                 })
                 .catch(function(error) {
                     document.getElementById('loadingIndicator').classList.add('hidden');
-                    
                     console.error('Error:', error);
                     notyf.error('Terjadi kesalahan saat memuat data pengaturan');
                 });
@@ -193,7 +138,6 @@
                 
                 const formData = new FormData(this);
                 formData.append('_method', 'PUT');
-                formData.set('content', CKEDITOR.instances.content.getData());
                 
                 axios.post(`/api/setting/${settingId}?_method=PUT`, formData, {
                     headers: {
@@ -218,8 +162,6 @@
                 .catch(function(error) {
                     document.getElementById('loadingIndicator').classList.add('hidden');
                     
-                    console.error('Error:', error);
-                    
                     if (error.response && error.response.data && error.response.data.errors) {
                         const errors = error.response.data.errors;
                         
@@ -235,36 +177,14 @@
                             document.getElementById('urlError').textContent = errors.url[0];
                         }
                         
-                        if (errors.type) {
-                            document.getElementById('typeError').textContent = errors.type[0];
-                        }
-                        
                         if (errors.content) {
                             document.getElementById('contentError').textContent = errors.content[0];
-                        }
-                        
-                        if (errors.image) {
-                            document.getElementById('imageError').textContent = errors.image[0];
                         }
                     } else {
                         notyf.error('Terjadi kesalahan saat memperbarui pengaturan');
                     }
                 });
             });
-            
-            function toggleFields() {
-                const type = document.getElementById('type').value;
-                
-                if (type === 'statis') {
-                    document.getElementById('imageField').style.display = 'block';
-                    document.getElementById('contentField').style.display = 'block';
-                    document.getElementById('urlField').style.display = 'block';
-                } else if (type === 'video') {
-                    document.getElementById('imageField').style.display = 'none';
-                    document.getElementById('contentField').style.display = 'block';
-                    document.getElementById('urlField').style.display = 'block';
-                }
-            }
         });
     </script>
     @endpush
