@@ -55,19 +55,16 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-center space-x-4 py-4 overflow-x-auto">
                 <a href="{{ route('berita') }}" 
-                   class="px-4 py-2 rounded-full {{ !request()->segment(2) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }} 
+                   class="px-4 py-2 rounded-full {{ !isset($kategori) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }} 
                           transition-colors duration-200">
                     Semua
                 </a>
                 @foreach($categories as $category)
-                    <a href="{{ route('berita', str_replace(' ', '-', strtolower($category->name))) }}" 
+                    <a href="{{ route('berita.kategori', str_replace(' ', '-', strtolower($category->name))) }}" 
                        class="px-4 py-2 rounded-full whitespace-nowrap
-                              {{ request()->segment(2) == str_replace(' ', '-', strtolower($category->name)) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}
+                              {{ isset($kategori) && $kategori == str_replace(' ', '-', strtolower($category->name)) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}
                               transition-colors duration-200">
                         {{ $category->name }}
-                        <span class="ml-2 text-xs {{ request()->segment(2) == str_replace(' ', '-', strtolower($category->name)) ? 'bg-white/20' : 'bg-gray-200' }} px-2 py-1 rounded-full">
-                            {{ $category->news_count }}
-                        </span>
                     </a>
                 @endforeach
             </div>
@@ -140,8 +137,67 @@
             </div>
 
             <!-- Pagination -->
-            <div class="mt-8">
-                {{ $news->links() }}
+            <div class="mt-4">
+                @if ($news->hasPages())
+                    <nav role="navigation" aria-label="Pagination Navigation" class="flex justify-center">
+                        <div class="flex items-center gap-4">
+                            {{-- Previous Page Link --}}
+                            @if ($news->onFirstPage())
+                                <span class="px-4 py-2 text-sm font-semibold text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                    </svg>
+                                </span>
+                            @else
+                                @if(isset($kategori))
+                                    <a href="{{ $news->currentPage() == 2 ? route('berita.kategori', $kategori) : route('berita.kategori.page', ['kategori' => $kategori, 'page' => $news->currentPage() - 1]) }}" 
+                                       class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </a>
+                                @else
+                                    <a href="{{ $news->currentPage() == 2 ? route('berita') : route('berita.page', $news->currentPage() - 1) }}" 
+                                       class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </a>
+                                @endif
+                            @endif
+
+                            {{-- Page Information --}}
+                            <span class="text-sm text-gray-700">
+                                Halaman {{ $news->currentPage() }} dari {{ $news->lastPage() }}
+                            </span>
+
+                            {{-- Next Page Link --}}
+                            @if ($news->hasMorePages())
+                                @if(isset($kategori))
+                                    <a href="{{ route('berita.kategori.page', ['kategori' => $kategori, 'page' => $news->currentPage() + 1]) }}" 
+                                       class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </a>
+                                @else
+                                    <a href="{{ route('berita.page', $news->currentPage() + 1) }}" 
+                                       class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </a>
+                                @endif
+                            @else
+                                <span class="px-4 py-2 text-sm font-semibold text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </span>
+                            @endif
+                        </div>
+                    </nav>
+                @endif
             </div>
         </div>
     </div>

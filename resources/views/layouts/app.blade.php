@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @if (session()->has('api_token'))
+    <meta name="api-token" content="{{ session('api_token') }}">
+    @endif
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
@@ -14,6 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
         integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -42,23 +46,39 @@
 </head>
 
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100">
+    <div x-data="{ open: false }" class="min-h-screen bg-gray-100">
+        <!-- Sidebar Navigation -->
         @include('layouts.navigation')
 
-        <!-- Page Heading -->
-        @isset($header)
-            <header class="bg-white shadow">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    {{ $header }}
-                </div>
-            </header>
-        @endisset
+        <!-- Main Content -->
+        <div class="lg:ml-60">
+            <!-- Top Navigation Bar -->
+            <div class="bg-white shadow-sm p-4 flex items-center justify-between lg:hidden">
+                <span class="text-xl font-bold text-indigo-700">Admin</span>
+                <button @click="open = !open" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
 
-        <!-- Page Content -->
-        <main>
-            {{ $slot }}
-        </main>
+            <!-- Page Content -->
+            <div :class="{'pointer-events-none': open}" class="lg:pointer-events-auto">
+                @isset($header)
+                    <header class="bg-white shadow">
+                        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endisset
+
+                <main class="p-4">
+                    {{ $slot }}
+                </main>
+            </div>
+        </div>
     </div>
+    @stack('scripts')
 </body>
 
 </html>

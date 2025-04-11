@@ -19,12 +19,12 @@
             <div class="gallery-carousel h-full">
                 @forelse($galleries->sortByDesc('created_at')->take(4) as $gallery)
                     <div class="slide-item h-full">
-                        <a href="{{ route('gallery.show', $gallery->id) }}" class="block h-full">
+                        <div class="block h-full">
                             <img src="{{ $gallery->path }}" 
                                  alt="{{ $gallery->name }}" 
                                  class="w-full h-full object-cover"
                                  onerror="this.onerror=null; this.src='{{ asset('images/default-image.jpg') }}';">
-                        </a>
+                        </div>
                     </div>
                 @empty
                     <div class="flex items-center justify-center h-full">
@@ -63,16 +63,13 @@ document.addEventListener('DOMContentLoaded', function() {
             rtl: false
         });
 
-        // Update indicator dots
         $carousel.on('beforeChange', function(event, slick, currentSlide, nextSlide) {
             $('.indicator-dot').removeClass('bg-white').addClass('bg-white/50');
             $(`.indicator-dot[data-slide="${nextSlide}"]`).removeClass('bg-white/50').addClass('bg-white');
         });
 
-        // Initialize first dot as active
         $('.indicator-dot[data-slide="0"]').removeClass('bg-white/50').addClass('bg-white');
 
-        // Click handler for indicator dots
         $('.indicator-dot').on('click', function() {
             const slideIndex = $(this).data('slide');
             $carousel.slick('slickGoTo', slideIndex);
@@ -109,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
     z-index: 1;
 }
 
-/* Custom indicator styles */
 .indicator-dot {
     cursor: pointer;
     transition: all 0.3s ease;
@@ -119,13 +115,11 @@ document.addEventListener('DOMContentLoaded', function() {
     background-color: rgba(255, 255, 255, 0.75);
 }
 
-/* Memastikan container slider tidak bertumpuk */
 .gallery-carousel .slick-list,
 .gallery-carousel .slick-track {
     height: 100%;
 }
 
-/* Menghilangkan efek fade */
 .gallery-carousel {
     overflow: hidden;
 }

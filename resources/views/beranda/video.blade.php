@@ -96,8 +96,49 @@
 
             <!-- Pagination -->
             @if($videoSettings instanceof \Illuminate\Pagination\LengthAwarePaginator)
-                <div class="mt-6">
-                    {{ $videoSettings->links() }}
+                <div class="mt-4">
+                    @if ($videoSettings->hasPages())
+                        <nav role="navigation" aria-label="Pagination Navigation" class="flex justify-center">
+                            <div class="flex items-center gap-4">
+                                {{-- Previous Page Link --}}
+                                @if ($videoSettings->onFirstPage())
+                                    <span class="px-4 py-2 text-sm font-semibold text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </span>
+                                @else
+                                    <a href="{{ $videoSettings->currentPage() == 2 ? route('video') : route('video.page', $videoSettings->currentPage() - 1) }}" 
+                                       class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </a>
+                                @endif
+
+                                {{-- Page Information --}}
+                                <span class="text-sm text-gray-700">
+                                    Halaman {{ $videoSettings->currentPage() }} dari {{ $videoSettings->lastPage() }}
+                                </span>
+
+                                {{-- Next Page Link --}}
+                                @if ($videoSettings->hasMorePages())
+                                    <a href="{{ route('video.page', $videoSettings->currentPage() + 1) }}" 
+                                       class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </a>
+                                @else
+                                    <span class="px-4 py-2 text-sm font-semibold text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </span>
+                                @endif
+                            </div>
+                        </nav>
+                    @endif
                 </div>
             @endif
         </div>
@@ -115,7 +156,6 @@
             animation: float 3s ease-in-out infinite;
         }
 
-        /* Card hover effect */
         .bg-white {
             transition: all 0.3s ease-in-out;
         }
