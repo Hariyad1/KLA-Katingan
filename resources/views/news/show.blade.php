@@ -2,6 +2,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+
                 <div class="p-6">
                     <!-- Breadcrumb -->
                     <div class="flex items-center text-sm text-gray-600 mb-6">
@@ -20,16 +21,18 @@
                         <span>{{ \Carbon\Carbon::parse($news->created_at)->format('d F Y') }}</span>
                         <span class="mx-2">•</span>
                         <span>Oleh: {{ $news->creator->name }}</span>
-                        <span class="mx-2">•</span>
-                        <span>Dilihat: {{ $news->counter }} kali</span>
+                        {{-- <span class="mx-2">•</span>
+                        <span>Dilihat: {{ $news->counter }} kali</span> --}}
                     </div>
-
+                    
                     <!-- Featured Image -->
                     @if($news->image)
-                    <div class="mb-6">
-                        <img src="{{ $news->image }}" 
-                             alt="{{ $news->title }}" 
-                             class="w-full h-[400px] object-cover rounded-lg">
+                    <div class="w-full flex justify-center p-6">
+                        <div class="max-w-xl w-full">
+                            <img src="{{ $news->image }}" 
+                                alt="{{ $news->title }}" 
+                                class="w-full h-auto rounded-lg shadow-lg">
+                        </div>
                     </div>
                     @endif
 

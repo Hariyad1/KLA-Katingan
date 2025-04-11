@@ -32,14 +32,14 @@
             <div class="absolute right-16 top-12">
                 <svg width="100" height="100" viewBox="0 0 100 100" class="text-yellow-300 opacity-80 transform -rotate-45">
                     <path fill="currentColor" d="M50 0 L52 98 L48 98 L50 0 Z"/>
-                    <circle cx="50" cy="10" r="8" fill="currentColor"/>
+                    <circle cx=" cy="10" r="8" fill="currentColor"/>
                 </svg>
             </div>
         </div>
         
         <!-- Content -->
         <div class="relative z-10 text-center">
-            <h1 class="text-5xl font-extrabold text-white mb-4 tracking-wide">
+            <h1 class="text-5xl t-extrabold text-white mb-4 tracking-wide">
                 LINGKUNGAN KELUARGA DAN PENGASUHAN ALTERNATIF
             </h1>
             <div class="flex items-center justify-center text-white text-lg font-medium">
@@ -105,26 +105,21 @@
                 </div>
             </div> --}}
 
-            <!-- Konten Dinamis -->
             @if(isset($settings) && $settings->isNotEmpty())
                 @foreach($settings as $setting)
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
                         <div class="p-6">
                             <div class="prose max-w-none">
-                                <div class="bg-gray-50 rounded-lg p-8">
-                                    @if($setting->image)
-                                        <div class="mb-6">
-                                            <img src="{{ $setting->image }}" 
-                                                 alt="{{ $setting->name }}" 
-                                                 class="w-full h-auto rounded-lg object-cover">
-                                        </div>
-                                    @endif
-
-                                    <div class="bg-white rounded-lg p-6 shadow-sm">
-                                        <div class="space-y-4">
-                                            {!! $setting->content !!}
-                                        </div>
+                                @if($setting->image)
+                                    <div class="mb-6">
+                                        <img src="{{ $setting->image }}" 
+                                             alt="{{ $setting->name }}" 
+                                             class="w-full h-auto rounded-lg object-cover">
                                     </div>
+                                @endif
+
+                                <div class="space-y-4">
+                                    {!! $setting->content !!}
                                 </div>
                             </div>
                         </div>

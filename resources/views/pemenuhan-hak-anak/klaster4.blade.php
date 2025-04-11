@@ -94,26 +94,21 @@
                 </div>
             </div> --}}
 
-            <!-- Konten Dinamis -->
             @if(isset($settings) && $settings->isNotEmpty())
                 @foreach($settings as $setting)
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
                         <div class="p-6">
                             <div class="prose max-w-none">
-                                <div class="bg-gray-50 rounded-lg p-8">
-                                    @if($setting->image)
-                                        <div class="mb-6">
-                                            <img src="{{ $setting->image }}" 
-                                                 alt="{{ $setting->name }}" 
-                                                 class="w-full h-auto rounded-lg object-cover">
-                                        </div>
-                                    @endif
-
-                                    <div class="bg-white rounded-lg p-6 shadow-sm">
-                                        <div class="space-y-4">
-                                            {!! $setting->content !!}
-                                        </div>
+                                @if($setting->image)
+                                    <div class="mb-6">
+                                        <img src="{{ $setting->image }}" 
+                                             alt="{{ $setting->name }}" 
+                                             class="w-full h-auto rounded-lg object-cover">
                                     </div>
+                                @endif
+
+                                <div class="space-y-4">
+                                    {!! $setting->content !!}
                                 </div>
                             </div>
                         </div>
