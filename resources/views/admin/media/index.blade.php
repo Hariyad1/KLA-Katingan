@@ -10,7 +10,7 @@
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
-                <span>Tambah Media</span>
+                <span>Tambah Gambar</span>
             </a>
         </div>
     </x-slot>
@@ -32,7 +32,7 @@
                         </div>
                         <div class="flex items-center w-full md:w-auto">
                             <span class="mr-2">Search:</span>
-                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" placeholder="Search...">
+                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" placeholder="Cari...">
                         </div>
                     </div>
 

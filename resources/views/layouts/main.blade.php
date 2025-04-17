@@ -66,7 +66,7 @@
                 }, 120000);
             })
             .catch(error => {
-                // console.error('❌ Error mencatat statistik:', error);
+                console.error('❌ Error mencatat statistik:', error);
             });
         }
 

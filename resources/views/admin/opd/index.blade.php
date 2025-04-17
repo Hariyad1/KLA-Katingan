@@ -27,14 +27,19 @@
                             <span class="text-sm text-gray-700">entries</span>
                         </div>
                         <div class="relative w-full md:w-auto">
-                            <input type="text" 
-                                id="searchInput" 
-                                placeholder="Cari..." 
-                                class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                                </svg>
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-500 text-sm">Search:</span>
+                                <div class="relative flex-1">
+                                    <input type="text" 
+                                        id="searchInput" 
+                                        placeholder="Cari..." 
+                                        class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -108,7 +113,33 @@
             try {
                 document.getElementById('loadingSpinner').classList.remove('hidden');
                 
-                const response = await fetch(`/api/opd?page=${currentPage}&search=${searchQuery}&per_page=${document.getElementById('entries').value}`);
+                const response = await fetch(`/api/opd?page=${currentPage}&search=${searchQuery}&per_page=${document.getElementById('entries').value}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Authorization': `Bearer ${document.querySelector('meta[name="api-token"]')?.getAttribute('content') || ''}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Sesi telah berakhir. Silakan muat ulang halaman.');
+                    }
+                    if (response.status === 404) {
+                        throw new Error('API endpoint tidak ditemukan.');
+                    }
+                    throw new Error(`Error: ${response.status}`);
+                }
+
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Response bukan dalam format JSON');
+                }
+
                 const data = await response.json();
                 
                 const tableBody = document.getElementById('opdTableBody');
@@ -130,11 +161,11 @@
                     const startingNumber = (currentPage - 1) * perPage + 1;
                     tableBody.innerHTML += `
                         <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">${startingNumber + index}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${startingNumber + index}</td>
                             <td class="px-6 py-4">
                                 <div class="text-sm text-gray-900">${opd.name || '-'}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 ${new Date(opd.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
@@ -215,20 +246,37 @@
                 try {
                     const response = await fetch(`/api/opd/${id}`, {
                         method: 'DELETE',
+                        credentials: 'include',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Authorization': `Bearer ${document.querySelector('meta[name="api-token"]')?.getAttribute('content') || ''}`
                         }
                     });
 
-                    if (response.ok) {
-                        notyf.success('OPD berhasil dihapus');
-                        loadOpd();
-                    } else {
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            throw new Error('Sesi telah berakhir. Silakan muat ulang halaman.');
+                        }
+                        if (response.status === 403) {
+                            throw new Error('Anda tidak memiliki izin untuk menghapus OPD ini.');
+                        }
                         throw new Error('Gagal menghapus OPD');
                     }
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        notyf.success('OPD berhasil dihapus');
+                        await loadOpd();
+                    } else {
+                        throw new Error(data.message || 'Gagal menghapus OPD');
+                    }
                 } catch (error) {
-                    notyf.error('Gagal menghapus OPD');
                     console.error('Error:', error);
+                    notyf.error(error.message);
                 }
             }
         }

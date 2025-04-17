@@ -23,55 +23,71 @@
                         currentIndex: 0,
                         slides: {{ json_encode($slides) }},
                         timer: null,
+                        canSlide: true,
                         
                         init() {
                             this.startTimer();
                         },
                         
                         startTimer() {
+                            this.stopTimer();
                             this.timer = setInterval(() => {
-                                this.next();
+                                if (this.canSlide) {
+                                    this.next();
+                                }
                             }, 7000);
                         },
                         
                         stopTimer() {
-                            if (this.timer) clearInterval(this.timer);
+                            if (this.timer) {
+                                clearInterval(this.timer);
+                                this.timer = null;
+                            }
                         },
                         
                         next() {
+                            if (!this.canSlide) return;
+                            this.canSlide = false;
                             this.currentIndex = (this.currentIndex + 1) % this.slides.length;
-                            this.resetTimer();
+                            this.resetSlideState();
                         },
                         
                         prev() {
+                            if (!this.canSlide) return;
+                            this.canSlide = false;
                             this.currentIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
-                            this.resetTimer();
+                            this.resetSlideState();
                         },
                         
                         goto(index) {
+                            if (!this.canSlide || index === this.currentIndex) return;
+                            this.canSlide = false;
                             this.currentIndex = index;
-                            this.resetTimer();
+                            this.resetSlideState();
                         },
                         
-                        resetTimer() {
+                        resetSlideState() {
                             this.stopTimer();
-                            this.startTimer();
+                            setTimeout(() => {
+                                this.canSlide = true;
+                                this.startTimer();
+                            }, 1000);
                         }
                     }" 
                     x-init="init()"
                     @mouseenter="stopTimer()"
-                    @mouseleave="startTimer()">
+                    @mouseleave="if (canSlide) startTimer()">
                     
                     <!-- Slides -->
                     @foreach($slides as $slide)
-                        <div class="absolute inset-0 w-full h-full"
+                        <div class="absolute inset-0 w-full h-full transition-all duration-1000"
                         x-show="currentIndex === {{ $loop->index }}"
-                        x-transition:enter="transition ease-in duration-1000"
-                        x-transition:enter-start="opacity-0"
-                        x-transition:enter-end="opacity-100"
-                        x-transition:leave="transition ease-out duration-1000"
-                        x-transition:leave-start="opacity-100"
-                        x-transition:leave-end="opacity-0">
+                        x-transition:enter="transition ease-in-out duration-1000"
+                        x-transition:enter-start="opacity-0 transform translate-x-full"
+                        x-transition:enter-end="opacity-100 transform translate-x-0"
+                        x-transition:leave="transition ease-in-out duration-1000"
+                        x-transition:leave-start="opacity-100 transform translate-x-0"
+                        x-transition:leave-end="opacity-0 transform -translate-x-full">
                             <div class="absolute inset-0">
                                 <img src="{{ $slide->path }}" 
                                      alt="{{ $slide->name }}" 
@@ -125,15 +141,17 @@
     <style>
         @keyframes kenburns {
             0% {
-                transform: scale(1.2);
+                transform: scale(1.2) translate(0);
             }
             100% {
-                transform: scale(0.95);
+                transform: scale(1) translate(0);
             }
         }
 
         .animate-kenburns {
-            animation: kenburns 10s ease-in-out forwards;
+            animation: kenburns 7s ease-out;
+            animation-fill-mode: both;
+            transform-origin: center center;
         }
 
         .slide-up {
@@ -333,7 +351,7 @@
                                     </h2>
                                 </div>
                                 <div class="flex flex-col divide-y-4 divide-dashed divide-indigo-200 space-y-6">
-                                    @foreach($latestNews as $item)
+                                    @forelse($latestNews as $item)
                                     <div class="flex flex-col md:flex-row gap-4 bg-gradient-to-r from-white via-blue-50 to-indigo-50 p-4 rounded-xl hover:shadow-lg transition-all duration-300 hover:from-blue-50 hover:via-indigo-50 hover:to-white {{ !$loop->first ? 'pt-10' : '' }}">
                                         <div class="w-full md:w-1/3 relative overflow-hidden rounded-lg">
                                             @if($item->image)
@@ -368,7 +386,17 @@
                                             </a>
                                         </div>
                                     </div>
-                                    @endforeach
+                                    @empty
+                                    <div class="text-center py-12 bg-white/60 rounded-xl">
+                                        <div class="mb-4">
+                                            <svg class="mx-auto h-16 w-16 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-xl font-semibold text-indigo-900 mb-2">Tidak Ada Berita</h3>
+                                        <p class="text-indigo-600">Belum ada berita yang dipublikasikan saat ini</p>
+                                    </div>
+                                    @endforelse
                                 </div>
                             </div>
                         </div>
@@ -532,4 +560,3 @@ $(document).ready(function(){
     });
 });
 </script>
-

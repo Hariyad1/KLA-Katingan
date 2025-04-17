@@ -28,14 +28,19 @@
                             <span class="text-sm text-gray-700">entries</span>
                         </div>
                         <div class="relative w-full md:w-auto">
-                            <input type="text" 
-                                id="searchInput" 
-                                placeholder="Cari..." 
-                                class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                                </svg>
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-500 text-sm">Search:</span>
+                                <div class="relative flex-1">
+                                    <input type="text" 
+                                        id="searchInput" 
+                                        placeholder="Cari..." 
+                                        class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -113,16 +118,44 @@
             try {
                 document.getElementById('loadingSpinner').classList.remove('hidden');
                 
-                const response = await fetch(`/api/indikator?page=${currentPage}&search=${searchQuery}&per_page=${document.getElementById('entries').value}`);
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                
+                const response = await fetch(`/api/indikator?page=${currentPage}&search=${searchQuery}&per_page=${document.getElementById('entries').value}&sort=created_at&order=desc`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Authorization': `Bearer ${document.querySelector('meta[name="api-token"]')?.getAttribute('content') || ''}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Sesi telah berakhir. Silakan muat ulang halaman.');
+                    }
+                    if (response.status === 404) {
+                        throw new Error('API endpoint tidak ditemukan. Silakan hubungi administrator.');
+                    }
+                    throw new Error(`Error: ${response.status}`);
+                }
+
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Response was not JSON');
+                }
+
                 const data = await response.json();
                 
                 const tableBody = document.getElementById('indikatorTableBody');
                 tableBody.innerHTML = '';
                 
-                if (data.data.length === 0) {
+                if (!data.data || data.data.length === 0) {
                     tableBody.innerHTML = `
                         <tr>
-                            <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">
+                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
                                 Tidak ada indikator yang tersedia
                             </td>
                         </tr>
@@ -138,8 +171,8 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">${startingNumber + index}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">${indikator.klaster_name || '-'}</div>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900">${indikator.klaster?.name || '-'}</div>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm text-gray-900">${indikator.name || '-'}</div>
@@ -170,8 +203,17 @@
                 document.getElementById('totalPagesSpan').textContent = totalPages;
 
             } catch (error) {
-                notyf.error('Gagal memuat data indikator');
                 console.error('Error:', error);
+                notyf.error(error.message || 'Gagal memuat data indikator');
+                
+                const tableBody = document.getElementById('indikatorTableBody');
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-sm text-red-500">
+                            ${error.message || 'Terjadi kesalahan saat memuat data. Silakan coba lagi.'}
+                        </td>
+                    </tr>
+                `;
             } finally {
                 document.getElementById('loadingSpinner').classList.add('hidden');
             }
@@ -220,22 +262,41 @@
 
             if (result.isConfirmed) {
                 try {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    
                     const response = await fetch(`/api/indikator/${id}`, {
                         method: 'DELETE',
+                        credentials: 'include',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Authorization': `Bearer ${document.querySelector('meta[name="api-token"]')?.getAttribute('content') || ''}`
                         }
                     });
 
-                    if (response.ok) {
-                        notyf.success('Indikator berhasil dihapus');
-                        loadIndikator();
-                    } else {
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            throw new Error('Sesi telah berakhir. Silakan muat ulang halaman.');
+                        }
+                        if (response.status === 403) {
+                            throw new Error('Anda tidak memiliki izin untuk menghapus indikator ini.');
+                        }
                         throw new Error('Gagal menghapus indikator');
                     }
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        notyf.success('Indikator berhasil dihapus');
+                        await loadIndikator();
+                    } else {
+                        throw new Error(data.message || 'Gagal menghapus indikator');
+                    }
                 } catch (error) {
-                    notyf.error('Gagal menghapus indikator');
                     console.error('Error:', error);
+                    notyf.error(error.message);
                 }
             }
         }

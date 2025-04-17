@@ -30,7 +30,7 @@
                             <span>Search:</span>
                             <input type="text" 
                                 id="searchInput" 
-                                placeholder="Search..." 
+                                placeholder="Cari..." 
                                 class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         </div>
                     </div>
@@ -55,7 +55,7 @@
                                 <template x-if="!isLoading && items.length === 0">
                                     <tr>
                                         <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                                            Tidak ada data dukung yang ditemukan
+                                            Tidak ada data dukung yang tersedia
                                         </td>
                                     </tr>
                                 </template>
@@ -122,20 +122,26 @@
                         <!-- Pagination -->
                         <div class="mt-4 flex items-center justify-between">
                             <div class="text-sm text-gray-700">
-                                Showing <span x-text="startNumber"></span> to <span x-text="endNumber"></span> of <span x-text="totalItems"></span> entries
+                                Showing 
+                                <span x-text="totalItems === 0 ? '0' : startNumber"></span> 
+                                to 
+                                <span x-text="totalItems === 0 ? '0' : endNumber"></span> 
+                                of 
+                                <span x-text="totalItems"></span> 
+                                entries
                             </div>
                             <div class="flex items-center gap-4">
                                 <button @click="previousPage" 
-                                        :disabled="currentPage === 1"
+                                        :disabled="currentPage === 1 || totalItems === 0"
                                         class="px-3 py-1" 
-                                        :class="currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-indigo-600 hover:text-indigo-800'">
+                                        :class="currentPage === 1 || totalItems === 0 ? 'text-gray-400 cursor-not-allowed' : 'text-indigo-600 hover:text-indigo-800'">
                                     Prev
                                 </button>
-                                <span>Page <span x-text="currentPage"></span> of <span x-text="lastPage"></span></span>
+                                <span>Page <span x-text="totalItems === 0 ? '0' : currentPage"></span> of <span x-text="totalItems === 0 ? '0' : lastPage"></span></span>
                                 <button @click="nextPage" 
-                                        :disabled="currentPage === lastPage"
+                                        :disabled="currentPage === lastPage || totalItems === 0"
                                         class="px-3 py-1" 
-                                        :class="currentPage === lastPage ? 'text-gray-400 cursor-not-allowed' : 'text-indigo-600 hover:text-indigo-800'">
+                                        :class="currentPage === lastPage || totalItems === 0 ? 'text-gray-400 cursor-not-allowed' : 'text-indigo-600 hover:text-indigo-800'">
                                     Next
                                 </button>
                             </div>

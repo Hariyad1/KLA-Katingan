@@ -33,7 +33,7 @@
                         </div>
                         <div class="flex items-center w-full md:w-auto">
                             <span class="mr-2">Search:</span>
-                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" placeholder="Search...">
+                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" placeholder="Cari...">
                         </div>
                     </div>
 

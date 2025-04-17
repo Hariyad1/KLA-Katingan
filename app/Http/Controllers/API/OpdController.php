@@ -6,32 +6,31 @@ use App\Http\Controllers\Controller;
 use App\Models\Opd;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class OpdController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->search;
-        $perPage = $request->per_page ?? 10;
+        try {
+            $search = $request->search;
+            $perPage = $request->per_page ?? 10;
 
-        $query = Opd::query()
-            ->when($search, function ($query) use ($search) {
-                return $query->where('name', 'like', '%' . $search . '%');
-            })
-            ->orderBy('created_at', 'desc');
+            $query = Opd::query()
+                ->when($search, function ($query) use ($search) {
+                    return $query->where('name', 'like', '%' . $search . '%');
+                })
+                ->orderBy('created_at', 'desc');
 
-        $opds = $query->paginate($perPage);
+            $opds = $query->paginate($perPage);
 
-        // Transform data untuk memastikan format yang konsisten
-        $opds->through(function ($opd) {
-            return [
-                'id' => $opd->id,
-                'name' => $opd->name,
-                'created_at' => $opd->created_at
-            ];
-        });
-
-        return response()->json($opds);
+            return response()->json($opds);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat data OPD: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroy($id)
@@ -53,6 +52,82 @@ class OpdController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus OPD: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function store(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:opds'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            DB::beginTransaction();
+            
+            $opd = Opd::create([
+                'name' => $request->name
+            ]);
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'OPD berhasil ditambahkan',
+                'data' => $opd
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan OPD: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $opd = Opd::findOrFail($id);
+
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:opds,name,' . $id
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            DB::beginTransaction();
+            
+            $opd->update([
+                'name' => $request->name
+            ]);
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'OPD berhasil diperbarui',
+                'data' => $opd
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui OPD: ' . $e->getMessage()
             ], 500);
         }
     }

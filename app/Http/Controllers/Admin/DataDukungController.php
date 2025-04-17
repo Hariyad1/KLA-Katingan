@@ -30,7 +30,7 @@ class DataDukungController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'opd_id' => 'required|exists:opds,id',
             'indikator_id' => 'required|exists:indikators,id',
             'files' => 'required|array',
@@ -38,11 +38,16 @@ class DataDukungController extends Controller
             'description' => 'nullable|string'
         ]);
 
-        $data = array_merge($request->validated(), [
+        $data = array_merge($validated, [
             'created_by' => Auth::id() ?? 1
         ]);
 
-        $dataDukung = DataDukung::create($data);
+        $dataDukung = DataDukung::create([
+            'opd_id' => $data['opd_id'],
+            'indikator_id' => $data['indikator_id'],
+            'description' => $data['description'] ?? null,
+            'created_by' => $data['created_by']
+        ]);
 
         $uploadedFiles = [];
         
@@ -62,6 +67,7 @@ class DataDukungController extends Controller
                     $uploadedFiles[] = $file->getClientOriginalName();
                     
                 } catch (\Exception $e) {
+                    Log::error('Error uploading file: ' . $e->getMessage());
                     continue;
                 }
             }
@@ -152,5 +158,48 @@ class DataDukungController extends Controller
         $file->delete();
 
         return back()->with('success', 'File berhasil dihapus');
+    }
+
+    public function all(Request $request)
+    {
+        $query = DataDukung::with(['opd', 'indikator.klaster', 'files'])
+            ->orderBy('created_at', 'desc');
+
+        // Filter berdasarkan OPD
+        if ($request->has('opd') && $request->opd) {
+            $query->where('opd_id', $request->opd);
+        }
+
+        // Filter berdasarkan Klaster
+        if ($request->has('klaster') && $request->klaster) {
+            $query->whereHas('indikator', function($q) use ($request) {
+                $q->where('klaster_id', $request->klaster);
+            });
+        }
+
+        // Filter berdasarkan pencarian
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('opd', function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('indikator', function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('klaster', function($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+                })
+                ->orWhereHas('files', function($q) use ($search) {
+                    $q->where('original_name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $dataDukungs = $query->paginate(10);
+        $opds = Opd::orderBy('name')->get();
+        $klasters = Klaster::orderBy('name')->get();
+
+        return view('user.data-dukung.all', compact('dataDukungs', 'opds', 'klasters'));
     }
 } 

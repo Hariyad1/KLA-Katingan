@@ -52,21 +52,20 @@
 
     <!-- Filter Categories Section -->
     <div class="bg-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-center space-x-4 py-4 overflow-x-auto">
-                <a href="{{ route('berita') }}" 
-                   class="px-4 py-2 rounded-full {{ !isset($kategori) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }} 
-                          transition-colors duration-200">
-                    Semua
-                </a>
-                @foreach($categories as $category)
-                    <a href="{{ route('berita.kategori', str_replace(' ', '-', strtolower($category->name))) }}" 
-                       class="px-4 py-2 rounded-full whitespace-nowrap
-                              {{ isset($kategori) && $kategori == str_replace(' ', '-', strtolower($category->name)) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}
-                              transition-colors duration-200">
-                        {{ $category->name }}
-                    </a>
-                @endforeach
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <h2 class="text-lg font-semibold text-gray-700">Filter Kategori:</h2>
+                <div class="w-full sm:w-auto">
+                    <select id="kategoriSelect" class="w-full sm:w-64 px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                        <option value="{{ route('berita') }}" {{ !isset($kategori) ? 'selected' : '' }}>Semua Kategori</option>
+                        @foreach($categories as $category)
+                            <option value="{{ route('berita.kategori', Str::slug($category->name)) }}"
+                                    {{ isset($kategori) && $kategori == Str::slug($category->name) ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </div>
     </div>
@@ -214,5 +213,19 @@
             animation: float 3s ease-in-out infinite;
         }
     </style>
+    @endpush
+
+    @push('scripts')
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const kategoriSelect = document.getElementById('kategoriSelect');
+        
+        if (kategoriSelect) {
+            kategoriSelect.addEventListener('change', function() {
+                window.location.href = this.value;
+            });
+        }
+    });
+    </script>
     @endpush
 </x-main-layout> 

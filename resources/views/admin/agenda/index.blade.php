@@ -32,7 +32,7 @@
                         </div>
                         <div class="flex items-center w-full md:w-auto">
                             <span class="mr-2">Search:</span>
-                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" onkeyup="handleSearch()" placeholder="Search...">
+                            <input type="text" id="searchInput" class="border rounded px-3 py-1 w-full md:w-auto" onkeyup="handleSearch()" placeholder="Cari...">
                         </div>
                     </div>
 
@@ -255,6 +255,19 @@
         function updateTable(agendas, startIndex) {
             const tableBody = document.getElementById('agendaTableBody');
             tableBody.innerHTML = '';
+            
+            if (agendas.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                            Tidak ada agenda yang tersedia
+                        </td>
+                    </tr>
+                `;
+                tableBody.appendChild(emptyRow);
+                return;
+            }
             
             agendas.forEach(function(agenda, index) {
                 const agendaDate = new Date(agenda.tanggal);

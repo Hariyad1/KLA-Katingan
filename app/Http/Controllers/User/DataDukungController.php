@@ -4,7 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\DataDukung;
-use App\Models\DataDukungFile;
+use App\Models\DataDukungFile;  
 use App\Models\Opd;
 use App\Models\Indikator;
 use App\Models\Klaster;
@@ -211,5 +211,45 @@ class DataDukungController extends Controller
         return response()->json([
             'data' => $dataDukung
         ]);
+    }
+
+    public function all(Request $request)
+    {
+        $query = DataDukung::with(['opd', 'indikator.klaster', 'files'])
+            ->orderBy('created_at', 'desc');
+
+        if ($request->has('opd') && $request->opd) {
+            $query->where('opd_id', $request->opd);
+        }
+
+        if ($request->has('klaster') && $request->klaster) {
+            $query->whereHas('indikator', function($q) use ($request) {
+                $q->where('klaster_id', $request->klaster);
+            });
+        }
+
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('opd', function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('indikator', function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('klaster', function($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+                })
+                ->orWhereHas('files', function($q) use ($search) {
+                    $q->where('original_name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $dataDukungs = $query->paginate(10);
+        $opds = OPD::orderBy('name')->get();
+        $klasters = Klaster::orderBy('name')->get();
+
+        return view('user.data-dukung.all', compact('dataDukungs', 'opds', 'klasters'));
     }
 } 
