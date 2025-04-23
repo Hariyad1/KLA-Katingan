@@ -44,7 +44,26 @@
                             <label class="block text-sm font-medium text-gray-700">Gambar Berita</label>
                             @if($news->image)
                                 <div class="mt-2">
-                                    <img src="{{ asset('storage/' . $news->image) }}" alt="Gambar Berita" class="h-32 w-auto">
+                                    @php
+                                        $imagePaths = [
+                                            asset('storage/' . $news->image),
+                                            asset($news->image),
+                                            url($news->image),
+                                            $news->image
+                                        ];
+                                    @endphp
+
+                                    @foreach($imagePaths as $index => $path)
+                                        <img src="{{ $path }}" 
+                                             alt="Gambar Berita" 
+                                             class="h-32 w-auto {{ $index > 0 ? 'hidden' : '' }}"
+                                             onerror="this.classList.add('hidden'); document.getElementById('img-{{ $index + 1 }}')?.classList.remove('hidden');"
+                                             id="img-{{ $index }}">
+                                    @endforeach
+
+                                    <p id="img-{{ count($imagePaths) }}" class="hidden text-red-500 mt-2">
+                                        Gambar tidak dapat ditampilkan. Upload gambar baru.
+                                    </p>
                                 </div>
                             @endif
                             <input type="file" name="image" accept="image/*" class="mt-1 block w-full">

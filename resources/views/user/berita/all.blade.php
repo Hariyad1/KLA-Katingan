@@ -2,14 +2,8 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Daftar Berita Saya') }}
+                {{ __('Daftar Semua Berita') }}
             </h2>
-            <a href="{{ route('user.news.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                <span>Tambah Berita</span>
-            </a>
         </div>
     </x-slot>
 
@@ -47,9 +41,9 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">No</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Judul</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Kategori</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Penulis</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Tanggal</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="newsTableBody" class="bg-white divide-y divide-gray-200">
@@ -108,7 +102,8 @@
             
             filteredData = allNews.filter(news => 
                 news.title.toLowerCase().includes(searchQuery) ||
-                news.kategori.name.toLowerCase().includes(searchQuery)
+                news.kategori?.name.toLowerCase().includes(searchQuery) ||
+                news.creator?.name.toLowerCase().includes(searchQuery)
             );
 
             currentPage = 1;
@@ -123,10 +118,10 @@
         function loadNewsData() {
             showLoading();
             
-            fetch('/api/user/news', {
+            fetch('/api/news', {
                 headers: {
-                    'Authorization': 'Bearer {{ session("api_token") }}',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Authorization': 'Bearer {{ session("api_token") }}'
                 }
             })
             .then(response => response.json())
@@ -199,26 +194,13 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-b">${startIndex + index + 1}</td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-b">${item.title}</td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-b">${item.kategori?.name || '-'}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900 border-b">${item.creator?.name || '-'}</td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-b">${new Date(item.created_at).toLocaleDateString('id-ID', {
                             day: 'numeric',
                             month: 'short',
                             year: 'numeric'
                         })}</td>
                         <td class="px-6 py-4 border-b">${statusBadge}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border-b">
-                            <div class="flex space-x-3">
-                                <a href="/my/news/${item.id}/edit" class="text-blue-600 hover:text-blue-900">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                    </svg>
-                                </a>
-                                <button onclick="deleteNews(${item.id})" class="text-red-600 hover:text-red-900">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
                     </tr>
                 `;
                 tbody.insertAdjacentHTML('beforeend', row);
@@ -237,53 +219,6 @@
                 currentPage++;
                 updateTableDisplay();
             }
-        }
-
-        function deleteNews(id) {
-            Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Berita akan dihapus secara permanen!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    showLoading();
-                    fetch(`/api/news/${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Accept': 'application/json',
-                            'Authorization': 'Bearer {{ session("api_token") }}'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        hideLoading();
-                        if (data.success) {
-                            Swal.fire(
-                                'Dihapus!',
-                                'Berita berhasil dihapus.',
-                                'success'
-                            ).then(() => {
-                                loadNewsData();
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        hideLoading();
-                        console.error('Error:', error);
-                        Swal.fire(
-                            'Error!',
-                            'Terjadi kesalahan saat menghapus berita.',
-                            'error'
-                        );
-                    });
-                }
-            });
         }
     </script>
     @endpush

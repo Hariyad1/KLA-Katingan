@@ -8,6 +8,20 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            padding: 5px;
+            border-color: #d1d5db;
+            border-radius: 0.375rem;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+    </style>
     @endpush
 
     <div class="py-12">
@@ -48,8 +62,6 @@
                                 <select name="indikator_id" id="indikator_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
                                     <option value="">Pilih Indikator</option>
                                 </select>
-                                <div id="indikator-description" class="mt-2 p-3 bg-gray-50 rounded-md text-sm text-gray-600 hidden">
-                                </div>
                                 @error('indikator_id')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -81,7 +93,7 @@
                                     </div>
                                 </div>
 
-                                <p class="mt-4 text-sm text-gray-500">Format file: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG. Maksimal 25MB per file.</p>
+                                <p class="mt-4 text-sm text-gray-500">Format file: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG. Maksimal 50MB per file.</p>
                                 
                                 <div id="selectedFiles" class="mt-4 space-y-2"></div>
                                 
@@ -136,9 +148,20 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            if (typeof jQuery !== 'undefined') {
+                $(document).ready(function() {
+                    $('#opd_id').select2({
+                        placeholder: 'Pilih OPD',
+                        allowClear: true,
+                        width: '100%'
+                    });
+                });
+            } else {
+                console.error('jQuery is not loaded, Select2 cannot be initialized');
+            }
+            
             const klasterSelect = document.getElementById('klaster_id');
             const indikatorSelect = document.getElementById('indikator_id');
-            const indikatorDesc = document.getElementById('indikator-description');
 
             if (klasterSelect) {
                 klasterSelect.addEventListener('change', function() {
@@ -155,34 +178,12 @@
                                         const option = document.createElement('option');
                                         option.value = indikator.id;
                                         option.textContent = indikator.name;
-                                        option.setAttribute('data-description', indikator.name);
                                         indikatorSelect.appendChild(option);
                                     });
                                 })
                                 .catch(error => {
                                     console.error('Error fetching indikators:', error);
                                 });
-                        }
-                    }
-                });
-            }
-
-            if (indikatorSelect) {
-                indikatorSelect.addEventListener('change', function() {
-                    if (indikatorDesc) {
-                        const selectedOption = this.options[this.selectedIndex];
-                        
-                        if (selectedOption && selectedOption.value) {
-                            const description = selectedOption.getAttribute('data-description');
-                            indikatorDesc.innerHTML = `
-                                <div class="text-gray-600">
-                                    <p class="font-medium mb-1">Deskripsi Indikator:</p>
-                                    <p>${description || 'Tidak ada deskripsi'}</p>
-                                </div>
-                            `;
-                            indikatorDesc.classList.remove('hidden');
-                        } else {
-                            indikatorDesc.classList.add('hidden');
                         }
                     }
                 });

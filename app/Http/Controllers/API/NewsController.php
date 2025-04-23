@@ -102,7 +102,7 @@ class NewsController extends Controller
             'kategori_id' => 'required|exists:kategori,id',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|max:2048', // max 2MB
+            'image' => 'nullable|image|max:25600',
             'flag' => 'nullable|string|max:20'
         ]);
 
@@ -269,7 +269,7 @@ class NewsController extends Controller
             'kategori_id' => 'required|exists:kategori,id',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:25600',
             'flag' => 'nullable|string|max:20'
         ]);
 
@@ -293,11 +293,17 @@ class NewsController extends Controller
             $news->image = Storage::url($path);
         }
 
+        $status = $news->status;
+        if ($news->status == 2) {
+            $status = 0;
+        }
+
         $news->update([
             'kategori_id' => $request->kategori_id,
             'title' => $request->title,
             'content' => $request->content,
-            'flag' => $request->flag ?? $news->flag
+            'flag' => $request->flag ?? $news->flag,
+            'status' => $status
         ]);
 
         return response()->json([

@@ -104,7 +104,7 @@
                                                         <p class="pl-1">atau drag and drop</p>
                                                     </div>
                                                     <p class="text-xs text-gray-500">
-                                                        PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG hingga 25MB
+                                                        PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG.
                                                     </p>
                                                 </div>
                                             </div>
@@ -454,8 +454,8 @@
                 return;
             }
 
-            if (file.size > 10 * 1024 * 1024) {
-                error.textContent = 'Ukuran file maksimal 25MB';
+            if (file.size > 50 * 1024 * 1024) {
+                error.textContent = 'Ukuran file maksimal 50MB';
                 error.classList.remove('hidden');
                 input.value = '';
                 preview.classList.add('hidden');

@@ -30,7 +30,7 @@ class SettingController extends Controller
             'name' => 'required|string|max:100',
             'page' => 'required|string|max:100',
             'url' => 'required|string|max:100',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:25600',
             'content' => 'nullable|string',
             'type' => 'required|string|max:500'
         ]);

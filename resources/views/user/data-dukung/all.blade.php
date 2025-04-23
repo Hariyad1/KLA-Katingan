@@ -86,9 +86,9 @@
                                                         </div>
                                                         <div>
                                                             <a href="{{ Storage::url($file->file) }}" 
-                                                               target="_blank"
-                                                               class="text-indigo-600 hover:text-indigo-900">
-                                                                <i class="fas fa-eye"></i>
+                                                               download="{{ $file->original_name }}"
+                                                               class="text-blue-600 hover:text-blue-900">
+                                                                <i class="fas fa-download"></i>
                                                             </a>
                                                         </div>
                                                     </div>

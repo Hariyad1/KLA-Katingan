@@ -48,7 +48,30 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Ganti Gambar (Opsional)</label>
-                            <input type="file" name="image" accept="image/*" class="mt-1 block w-full">
+                            <input type="file" name="image" id="imageInput" accept="image/*" class="mt-1 block w-full" onchange="previewImage(this)">
+                            
+                            <!-- Image Preview -->
+                            <div id="imagePreview" class="mt-3 hidden">
+                                <img id="previewImg" src="#" alt="Preview" class="h-40 w-auto object-cover rounded-md">
+                                <button type="button" onclick="resetImage()" class="mt-2 px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">
+                                    Hapus
+                                </button>
+                            </div>
+                            
+                            <!-- Upload Progress Bar -->
+                            <div id="uploadProgress" class="mt-3 hidden">
+                                <div class="flex justify-between mb-1">
+                                    <p class="text-xs text-gray-700" id="progressText">0%</p>
+                                    <div class="flex space-x-2">
+                                        <p class="text-xs text-gray-700"><span id="uploadedSize">0</span>/<span id="totalSize">0</span> MB</p>
+                                        <p class="text-xs text-gray-700"><span id="uploadSpeed">0</span> KB/s</p>
+                                    </div>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
                             <p class="mt-1 text-sm text-gray-500">Format yang didukung: JPG, JPEG, PNG</p>
                             <p class="text-red-500 text-xs mt-1" id="imageError"></p>
                         </div>
@@ -200,6 +223,34 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json',
                         'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').getAttribute('content')
+                    },
+                    onUploadProgress: function(progressEvent) {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        const totalSize = (progressEvent.total / (1024 * 1024)).toFixed(2);
+                        const uploadedSize = (progressEvent.loaded / (1024 * 1024)).toFixed(2);
+                        
+                        // Menghitung kecepatan upload
+                        const currentTime = Date.now();
+                        if (!window.lastUploadTime) {
+                            window.lastUploadTime = currentTime;
+                            window.lastLoaded = 0;
+                        }
+                        
+                        const timeElapsed = (currentTime - window.lastUploadTime) / 1000; // dalam detik
+                        if (timeElapsed > 0.5) { // update setiap 0.5 detik
+                            const loadedSinceLastUpdate = progressEvent.loaded - window.lastLoaded;
+                            const speedKBps = Math.round((loadedSinceLastUpdate / 1024) / timeElapsed);
+                            
+                            document.getElementById('uploadSpeed').textContent = speedKBps;
+                            window.lastUploadTime = currentTime;
+                            window.lastLoaded = progressEvent.loaded;
+                        }
+                        
+                        document.getElementById('progressBar').style.width = percentCompleted + '%';
+                        document.getElementById('progressText').textContent = percentCompleted + '%';
+                        document.getElementById('totalSize').textContent = totalSize;
+                        document.getElementById('uploadedSize').textContent = uploadedSize;
+                        document.getElementById('uploadProgress').classList.remove('hidden');
                     }
                 })
                 .then(response => {
@@ -224,6 +275,32 @@
                     }
                 });
             });
+
+            // Fungsi untuk pratinjau gambar
+            function previewImage(input) {
+                const preview = document.getElementById('previewImg');
+                const previewContainer = document.getElementById('imagePreview');
+                
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        previewContainer.classList.remove('hidden');
+                    }
+                    
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+            
+            // Fungsi untuk reset gambar
+            function resetImage() {
+                const input = document.getElementById('imageInput');
+                const previewContainer = document.getElementById('imagePreview');
+                
+                input.value = '';
+                previewContainer.classList.add('hidden');
+            }
         });
     </script>
     @endpush

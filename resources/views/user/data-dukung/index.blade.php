@@ -80,7 +80,7 @@
                                                         </div>
                                                         <div class="flex-1">
                                                             <a :href="'/storage/' + file.file.replace('public/', '')" 
-                                                               target="_blank" 
+                                                               :download="file.original_name" 
                                                                class="text-indigo-600 hover:text-indigo-900 text-sm block"
                                                                x-text="file.original_name">
                                                             </a>

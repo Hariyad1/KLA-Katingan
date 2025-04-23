@@ -67,7 +67,7 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-Route::middleware(['auth'])->prefix('manage/berita')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('manage/berita')->group(function () {
     Route::get('/', function() {
         $news = News::with(['kategori', 'creator'])->latest()->get();
         return view('admin.berita.index', compact('news'));
@@ -80,6 +80,16 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
         $expiredCount = Agenda::where('tanggal', '<', now()->subDay())->count();
         return view('admin.agenda.index', compact('agendas', 'expiredCount'));
     })->name('admin.agenda.index');
+    
+    Route::prefix('agenda')->group(function () {
+        Route::get('/create', function () {
+            return view('admin.agenda.create');
+        })->name('admin.agenda.create');
+        
+        Route::get('/{id}/edit', function ($id) {
+            return view('admin.agenda.edit', compact('id'));
+        })->name('admin.agenda.edit');
+    });
 });
 
 Route::middleware(['auth', 'admin'])->prefix('manage')->group(function () {
@@ -309,16 +319,6 @@ Route::middleware(['auth', 'admin'])->prefix('manage')->name('admin.')->group(fu
         Route::get('/edit/{setting}', [SettingController::class, 'edit'])->name('setting.edit');
     });
 
-    Route::prefix('agenda')->group(function () {
-        Route::get('/create', function () {
-            return view('admin.agenda.create');
-        })->name('agenda.create');
-        
-        Route::get('/{id}/edit', function ($id) {
-            return view('admin.agenda.edit', compact('id'));
-        })->name('agenda.edit');
-    });
-
     Route::prefix('news')->group(function () {
         Route::get('/', [App\Http\Controllers\Admin\NewsController::class, 'index'])->name('news.index');
         Route::get('/create', [App\Http\Controllers\Admin\NewsController::class, 'create'])->name('news.create');
@@ -356,11 +356,26 @@ Route::prefix('galeri')->group(function () {
         return view('beranda.galeri', compact('media'));
     })->name('galeri');
     
+    Route::get('/halaman/{page}', function ($page) {
+        $media = Media::where(function($query) {
+            $query->where('file', 'like', '%.jpg')
+                  ->orWhere('file', 'like', '%.jpeg')
+                  ->orWhere('file', 'like', '%.png')
+                  ->orWhere('file', 'like', '%.gif');
+        })->latest()->paginate(12, ['*'], 'page', $page);
+        
+        if ($media->isEmpty() && $page > 1) {
+            return redirect()->route('galeri');
+        }
+        
+        return view('beranda.galeri', compact('media'));
+    })->name('galeri.page')->where('page', '[0-9]+');
+    
     Route::get('/{id}', function ($id) {
         $media = Media::findOrFail($id);
         $media->increment('hits');
         return view('beranda.galeri-detail', compact('media'));
-    })->name('gallery.show');
+    })->name('gallery.show')->where('id', '[0-9]+');
 });
 
 Route::get('/berita/{kategori?}', function ($kategori = null) {
@@ -394,6 +409,10 @@ Route::middleware(['auth'])->prefix('my')->name('user.')->group(function () {
         Route::get('/create', [App\Http\Controllers\User\NewsController::class, 'create'])->name('news.create');
         Route::get('/{news}/edit', [App\Http\Controllers\User\NewsController::class, 'edit'])->name('news.edit');
     });
+});
+
+Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
+    Route::get('/all-news', [App\Http\Controllers\User\NewsController::class, 'allNews'])->name('all.news');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('manage/opd')->name('admin.opd.')->group(function () {

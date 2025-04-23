@@ -28,12 +28,16 @@
 
             <div class="space-y-1">
                 <p class="px-4 py-2 text-xs font-semibold text-gray-500">BERITA</p>
-            <a href="{{ route('berita.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 rounded-lg {{ request()->routeIs('berita.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
-                <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-.586-1.414l-3.5-3.5A2 2 0 0012.586 4H10"></path>
-                </svg>
-                <span>Berita</span>
-            </a>
+            
+            <!-- Berita Admin -->
+            @if(auth()->check() && auth()->user()->status == 1)
+                <a href="{{ route('berita.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 rounded-lg {{ request()->routeIs('berita.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-.586-1.414l-3.5-3.5A2 2 0 0012.586 4H10"></path>
+                    </svg>
+                    <span>Berita</span>
+                </a>
+            @endif
 
             <a href="{{ route('user.news.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 rounded-lg {{ request()->routeIs('user.news.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
                 <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,6 +45,16 @@
                 </svg>
                 <span>Berita Saya</span>
             </a>
+
+            <!-- Semua Berita - Hanya untuk User Biasa -->
+            @if(auth()->check() && auth()->user()->status == 0)
+                <a href="{{ route('user.all.news') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 rounded-lg {{ request()->routeIs('user.all.news') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                    <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-.586-1.414l-3.5-3.5A2 2 0 0012.586 4H10"></path>
+                    </svg>
+                    <span>Semua Berita</span>
+                </a>
+            @endif
 
             <!-- Kategori - Hanya untuk Admin -->
             @if(auth()->check() && auth()->user()->status == 1)
@@ -173,12 +187,12 @@
                 <div class="space-y-1">
                     <p class="px-4 py-2 text-xs font-semibold text-gray-500">PENGATURAN</p>
                     
-                    <!-- Setting Statis -->
+                    <!-- Setting Dinamis -->
                     <a href="{{ route('admin.setting.statis.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 rounded-lg {{ request()->routeIs('admin.setting.statis.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
                         <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2M7 7h10"></path>
                         </svg>
-                        <span>Setting Statis</span>
+                        <span>Setting Dinamis</span>
                     </a>
                 </div>
             @endif

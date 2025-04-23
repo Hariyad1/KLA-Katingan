@@ -3,11 +3,83 @@
         <div id="dokumen-list-container">
             @if($media->count() > 0)
                 @foreach($media as $item)
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-300">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-300 gap-4">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 flex-shrink-0 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            <div class="w-12 h-12 flex-shrink-0 rounded-lg flex items-center justify-center
+                                @php
+                                    $extension = strtolower(pathinfo($item->path, PATHINFO_EXTENSION));
+                                    $bgColor = 'bg-blue-100';
+                                    $textColor = 'text-blue-600';
+                                    
+                                    switch($extension) {
+                                        case 'pdf':
+                                            $bgColor = 'bg-red-100';
+                                            $textColor = 'text-red-600';
+                                            break;
+                                        case 'doc':
+                                        case 'docx':
+                                            $bgColor = 'bg-blue-100';
+                                            $textColor = 'text-blue-600';
+                                            break;
+                                        case 'xls':
+                                        case 'xlsx':
+                                            $bgColor = 'bg-green-100';
+                                            $textColor = 'text-green-600';
+                                            break;
+                                        case 'ppt':
+                                        case 'pptx':
+                                            $bgColor = 'bg-orange-100';
+                                            $textColor = 'text-orange-600';
+                                            break;
+                                        case 'jpg':
+                                        case 'jpeg':
+                                        case 'png':
+                                        case 'gif':
+                                            $bgColor = 'bg-purple-100';
+                                            $textColor = 'text-purple-600';
+                                            break;
+                                        case 'zip':
+                                        case 'rar':
+                                            $bgColor = 'bg-yellow-100';
+                                            $textColor = 'text-yellow-600';
+                                            break;
+                                    }
+                                @endphp
+                                {{ $bgColor }} {{ $textColor }}">
+                                @php
+                                    $extension = strtolower(pathinfo($item->path, PATHINFO_EXTENSION));
+                                    $icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>';
+                                    
+                                    switch($extension) {
+                                        case 'pdf':
+                                            $icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9h4m-4 3h2m-2 3h4"/>';
+                                            break;
+                                        case 'doc':
+                                        case 'docx':
+                                            $icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>';
+                                            break;
+                                        case 'xls':
+                                        case 'xlsx':
+                                            $icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9h1m-1 3h4m-4 3h2"/>';
+                                            break;
+                                        case 'ppt':
+                                        case 'pptx':
+                                            $icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8h2m0 0v8"/>';
+                                            break;
+                                        case 'jpg':
+                                        case 'jpeg':
+                                        case 'png':
+                                        case 'gif':
+                                            $icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>';
+                                            break;
+                                        case 'zip':
+                                        case 'rar':
+                                            $icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>';
+                                            break;
+                                    }
+                                @endphp
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {!! $icon !!}
                                 </svg>
                             </div>
                             <div>
@@ -23,11 +95,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
                             <!-- Preview Button -->
                             <button type="button"
                                     onclick="window.previewDocument('{{ route('dokumen.preview', $item->id) }}', '{{ $item->name }}')" 
-                                    class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">
+                                    class="inline-flex items-center justify-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors w-full sm:w-auto">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                           d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -39,7 +111,7 @@
                             <!-- Download Button -->
                             <a href="{{ $item->path }}" 
                                download="{{ $item->name }}.{{ pathinfo($item->file, PATHINFO_EXTENSION) }}"
-                               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                               class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors w-full sm:w-auto">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                           d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>

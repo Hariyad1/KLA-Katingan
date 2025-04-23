@@ -24,6 +24,14 @@ class NewsController extends Controller
     }
 
     /**
+     * Display a listing of all news for viewing.
+     */
+    public function allNews()
+    {
+        return view('user.berita.all');
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()

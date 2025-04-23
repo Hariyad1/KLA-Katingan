@@ -66,6 +66,16 @@
                         <div id="imageField">
                             <label for="image" class="block text-sm font-medium text-gray-700">Gambar</label>
                             <input type="file" name="image" id="image" class="mt-1 block w-full">
+                            <div id="upload-progress" class="hidden mt-2">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div id="upload-progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">
+                                    <span id="upload-progress-text">0%</span> - 
+                                    <span id="upload-progress-size">0 KB</span> / 
+                                    <span id="upload-total-size">0 KB</span>
+                                </div>
+                            </div>
                             <p class="text-red-500 text-xs mt-1" id="imageError"></p>
                         </div>
 
@@ -113,6 +123,7 @@
                 e.preventDefault();
 
                 document.getElementById('loadingIndicator')?.classList.remove('hidden');
+                document.getElementById('upload-progress').classList.remove('hidden');
 
                 const formData = new FormData(this);
                 formData.set('content', CKEDITOR.instances.content.getData());
@@ -122,10 +133,21 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Authorization': 'Bearer {{ session("api_token") }}'
+                    },
+                    onUploadProgress: function(progressEvent) {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        const loadedSize = formatFileSize(progressEvent.loaded);
+                        const totalSize = formatFileSize(progressEvent.total);
+                        
+                        document.getElementById('upload-progress-bar').style.width = percentCompleted + '%';
+                        document.getElementById('upload-progress-text').textContent = percentCompleted + '%';
+                        document.getElementById('upload-progress-size').textContent = loadedSize;
+                        document.getElementById('upload-total-size').textContent = totalSize;
                     }
                 })
                 .then(function(response) {
                     document.getElementById('loadingIndicator')?.classList.add('hidden');
+                    document.getElementById('upload-progress').classList.add('hidden');
 
                     if (response.data.success) {
                         notyf.success('Pengaturan berhasil ditambahkan');
@@ -136,6 +158,7 @@
                 })
                 .catch(function(error) {
                     document.getElementById('loadingIndicator')?.classList.add('hidden');
+                    document.getElementById('upload-progress').classList.add('hidden');
 
                     if (error.response?.data?.errors) {
                         const errors = error.response.data.errors;
@@ -188,6 +211,14 @@
             htmlEncodeOutput: false,
             forceSimpleAmpersand: true
         });
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
     </script>
     @endpush
 </x-app-layout> 

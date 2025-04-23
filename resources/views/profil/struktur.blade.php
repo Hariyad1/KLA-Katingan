@@ -57,16 +57,252 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <!-- Empty State Message -->
-                    <div class="text-center py-12">
-                        <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                  d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        <h3 class="mt-4 text-lg font-medium text-gray-900">Struktur Organisasi Masih Kosong</h3>
-                        <p class="mt-2 text-sm text-gray-500">
-                            Data struktur organisasi belum tersedia.
-                        </p>
+                    <!-- Struktur Organisasi dengan Hierarki -->
+                    <div class="flex flex-col items-center space-y-8">
+                        <!-- Level 1: Kepala Dinas (Paling Atas) -->
+                        <div class="flex justify-center">
+                            <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                <div class="absolute top-0 right-0">
+                                    <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                        <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                    </div>
+                                </div>
+                                <div class="p-3">
+                                    <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                    
+                                    <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                    <div class="text-sm font-medium text-gray-600">Jabatan</div>
+                                    <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Connector Line -->
+                        <div class="h-8 w-1 bg-blue-500"></div>
+
+                        <!-- Level 2: Sekretaris di kanan -->
+                        <div class="w-full">
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-6 px-4">
+                                <!-- Placeholder kosong di kiri pada tampilan desktop -->
+                                <div class="hidden md:block md:col-span-3"></div>
+                                
+                                <!-- Sekretaris di kanan (tapi tidak terlalu pojok) -->
+                                <div class="justify-self-center md:col-span-2 md:justify-self-start md:pl-4">
+                                    <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                        <div class="absolute top-0 right-0">
+                                            <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                                <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                            </div>
+                                        </div>
+                                        <div class="p-3">
+                                            <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                            
+                                            <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                            <div class="text-sm font-medium text-gray-600">Sekretaris</div>
+                                            <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Connector Line -->
+                        <div class="h-8 w-1 bg-blue-500"></div>
+
+                        <!-- Level 3: Kasubag (3 Posisi) -->
+                        <div class="w-full">
+                            <div class="text-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-700">Kepala Sub Bagian</h3>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+                                <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                    <div class="absolute top-0 right-0">
+                                        <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                            <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                        
+                                        <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                        <div class="text-sm font-medium text-gray-600">Kasubag Umum</div>
+                                        <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                    </div>
+                                </div>
+
+                                <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                    <div class="absolute top-0 right-0">
+                                        <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                            <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                        
+                                        <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                        <div class="text-sm font-medium text-gray-600">Kasubag Keuangan</div>
+                                        <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                    </div>
+                                </div>
+
+                                <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                    <div class="absolute top-0 right-0">
+                                        <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                            <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                        
+                                        <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                        <div class="text-sm font-medium text-gray-600">Kasubag Program</div>
+                                        <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Connector Line -->
+                        <div class="h-8 w-1 bg-blue-500"></div>
+
+                        <!-- Level 4: Kabid (4 posisi) -->
+                        <div class="w-full">
+                            <div class="text-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-700">Kepala Bidang</h3>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center px-4">
+                                <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                    <div class="absolute top-0 right-0">
+                                        <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                            <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                        
+                                        <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                        <div class="text-sm font-medium text-gray-600">Kabid A</div>
+                                        <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                    </div>
+                                </div>
+
+                                <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                    <div class="absolute top-0 right-0">
+                                        <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                            <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                        
+                                        <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                        <div class="text-sm font-medium text-gray-600">Kabid B</div>
+                                        <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                    </div>
+                                </div>
+
+                                <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                    <div class="absolute top-0 right-0">
+                                        <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                            <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                        
+                                        <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                        <div class="text-sm font-medium text-gray-600">Kabid C</div>
+                                        <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                    </div>
+                                </div>
+
+                                <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                    <div class="absolute top-0 right-0">
+                                        <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                            <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                        
+                                        <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                        <div class="text-sm font-medium text-gray-600">Kabid D</div>
+                                        <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Connector Line -->
+                        <div class="h-8 w-1 bg-blue-500"></div>
+
+                        <!-- Level 5: Kasi -->
+                        <div class="w-full">
+                            <div class="text-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-700">Kepala Seksi</h3>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center px-4">
+                                <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                    <div class="absolute top-0 right-0">
+                                        <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                            <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                        
+                                        <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                        <div class="text-sm font-medium text-gray-600">Kasi 1</div>
+                                        <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                    </div>
+                                </div>
+
+                                <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                    <div class="absolute top-0 right-0">
+                                        <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                            <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                        
+                                        <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                        <div class="text-sm font-medium text-gray-600">Kasi 2</div>
+                                        <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                    </div>
+                                </div>
+
+                                <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                    <div class="absolute top-0 right-0">
+                                        <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                            <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                        
+                                        <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                        <div class="text-sm font-medium text-gray-600">Kasi 3</div>
+                                        <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                    </div>
+                                </div>
+
+                                <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
+                                    <div class="absolute top-0 right-0">
+                                        <div class="bg-blue-500 w-7 h-7 flex items-center justify-center rounded-bl-lg">
+                                            <img src="{{ asset('images/logo-mini.png') }}" alt="Logo" class="w-5 h-5 object-contain">
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
+                                        
+                                        <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
+                                        <div class="text-sm font-medium text-gray-600">Kasi 4</div>
+                                        <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
