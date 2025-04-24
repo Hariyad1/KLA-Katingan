@@ -141,8 +141,8 @@
                             </svg>
                             +{{ \App\Models\Media::whereDate('created_at', today())->where(function($query) {
                                 $query->where('file', 'like', '%.mp4')
-                                    ->orWhere('file', 'like', '%.avi')
-                                    ->orWhere('file', 'like', '%.mov')
+                                ->orWhere('file', 'like', '%.avi')
+                                ->orWhere('file', 'like', '%.mov')
                                     ->orWhere('file', 'like', '%.wmv');
                                 })->count() + \App\Models\Setting::where('type', 'video')->whereDate('created_at', today())->count() }} hari ini
                         </span>
@@ -151,8 +151,8 @@
                     <div class="flex items-baseline">
                         <p class="text-3xl font-bold text-gray-900">{{ \App\Models\Media::where(function($query) {
                             $query->where('file', 'like', '%.mp4')
-                                ->orWhere('file', 'like', '%.avi')
-                                ->orWhere('file', 'like', '%.mov')
+                            ->orWhere('file', 'like', '%.avi')
+                            ->orWhere('file', 'like', '%.mov')
                                 ->orWhere('file', 'like', '%.wmv');
                             })->count() + \App\Models\Setting::where('type', 'video')->count() }}</p>
                         <span class="ml-2 text-sm text-gray-500">file</span>

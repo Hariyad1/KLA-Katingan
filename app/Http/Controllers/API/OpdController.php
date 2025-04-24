@@ -39,6 +39,14 @@ class OpdController extends Controller
             DB::beginTransaction();
             
             $opd = Opd::findOrFail($id);
+            
+            if ($opd->dataDukung()->count() > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'OPD tidak dapat dihapus karena masih memiliki data dukung terkait.'
+                ], 422);
+            }
+            
             $opd->delete();
             
             DB::commit();

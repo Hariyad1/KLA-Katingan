@@ -67,6 +67,11 @@ class OpdController extends Controller
 
     public function destroy(Opd $opd)
     {
+        if ($opd->dataDukung()->count() > 0) {
+            return redirect()->route('admin.opd.index')
+                ->with('error', 'OPD tidak dapat dihapus karena masih memiliki data dukung terkait.');
+        }
+        
         $opd->delete();
         return redirect()->route('admin.opd.index')
             ->with('success', 'OPD berhasil dihapus');

@@ -46,6 +46,14 @@ class IndikatorController extends Controller
             DB::beginTransaction();
             
             $indikator = Indikator::findOrFail($id);
+            
+            if ($indikator->dataDukungs()->count() > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Indikator tidak dapat dihapus karena masih memiliki data dukung terkait.'
+                ], 422);
+            }
+            
             $indikator->delete();
             
             DB::commit();

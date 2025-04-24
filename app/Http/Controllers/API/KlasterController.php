@@ -44,8 +44,12 @@ class KlasterController extends Controller
             
             $klaster = Klaster::findOrFail($id);
             
-            // Hapus semua indikator terkait
-            $klaster->indikators()->delete();
+            if ($klaster->indikators()->count() > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Klaster tidak dapat dihapus karena masih memiliki indikator terkait.'
+                ], 422);
+            }
             
             // Hapus klaster
             $klaster->delete();

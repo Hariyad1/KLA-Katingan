@@ -50,6 +50,11 @@ class KlasterController extends Controller
 
     public function destroy(Klaster $klaster)
     {
+        if ($klaster->indikators->count() > 0) {
+            return redirect()->route('admin.klaster.index')
+                ->with('error', 'Klaster tidak dapat dihapus karena masih memiliki indikator terkait.');
+        }
+
         $klaster->delete();
 
         return redirect()->route('admin.klaster.index')
