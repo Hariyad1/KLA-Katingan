@@ -107,21 +107,22 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                             </svg>
-                            +{{ \App\Models\Media::where('file', 'like', '%.jpg')
-                                ->orWhere('file', 'like', '%.jpeg')
-                                ->orWhere('file', 'like', '%.png')
-                                ->orWhere('file', 'like', '%.gif')
-                                ->whereDate('created_at', today())
-                                ->count() }} hari ini
+                            +{{ \App\Models\Media::whereDate('created_at', today())->where(function($query) {
+                                $query->where('file', 'like', '%.jpg')
+                                    ->orWhere('file', 'like', '%.jpeg')
+                                    ->orWhere('file', 'like', '%.png')
+                                    ->orWhere('file', 'like', '%.gif');
+                            })->count() }} hari ini
                         </span>
                     </div>
                     <h3 class="text-gray-600 font-medium mb-2">Total Gambar</h3>
                     <div class="flex items-baseline">
-                        <p class="text-3xl font-bold text-gray-900">{{ \App\Models\Media::where('file', 'like', '%.jpg')
-                            ->orWhere('file', 'like', '%.jpeg')
-                            ->orWhere('file', 'like', '%.png')
-                            ->orWhere('file', 'like', '%.gif')
-                            ->count() }}</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ \App\Models\Media::where(function($query) {
+                            $query->where('file', 'like', '%.jpg')
+                                ->orWhere('file', 'like', '%.jpeg')
+                                ->orWhere('file', 'like', '%.png')
+                                ->orWhere('file', 'like', '%.gif');
+                        })->count() }}</p>
                         <span class="ml-2 text-sm text-gray-500">file</span>
                     </div>
                 </div>
@@ -138,21 +139,22 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                             </svg>
-                            +{{ \App\Models\Media::where('file', 'like', '%.mp4')
-                                ->orWhere('file', 'like', '%.avi')
-                                ->orWhere('file', 'like', '%.mov')
-                                ->orWhere('file', 'like', '%.wmv')
-                                ->whereDate('created_at', today())
-                                ->count() }} hari ini
+                            +{{ \App\Models\Media::whereDate('created_at', today())->where(function($query) {
+                                $query->where('file', 'like', '%.mp4')
+                                    ->orWhere('file', 'like', '%.avi')
+                                    ->orWhere('file', 'like', '%.mov')
+                                    ->orWhere('file', 'like', '%.wmv');
+                                })->count() + \App\Models\Setting::where('type', 'video')->whereDate('created_at', today())->count() }} hari ini
                         </span>
                     </div>
                     <h3 class="text-gray-600 font-medium mb-2">Total Video</h3>
                     <div class="flex items-baseline">
-                        <p class="text-3xl font-bold text-gray-900">{{ \App\Models\Media::where('file', 'like', '%.mp4')
-                            ->orWhere('file', 'like', '%.avi')
-                            ->orWhere('file', 'like', '%.mov')
-                            ->orWhere('file', 'like', '%.wmv')
-                            ->count() }}</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ \App\Models\Media::where(function($query) {
+                            $query->where('file', 'like', '%.mp4')
+                                ->orWhere('file', 'like', '%.avi')
+                                ->orWhere('file', 'like', '%.mov')
+                                ->orWhere('file', 'like', '%.wmv');
+                            })->count() + \App\Models\Setting::where('type', 'video')->count() }}</p>
                         <span class="ml-2 text-sm text-gray-500">file</span>
                     </div>
                 </div>
@@ -169,27 +171,28 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                             </svg>
-                            +{{ \App\Models\Media::where('file', 'like', '%.pdf')
+                            +{{ \App\Models\Media::whereDate('created_at', today())->where(function($query) {
+                                $query->where('file', 'like', '%.pdf')
+                                    ->orWhere('file', 'like', '%.doc')
+                                    ->orWhere('file', 'like', '%.docx')
+                                    ->orWhere('file', 'like', '%.xls')
+                                    ->orWhere('file', 'like', '%.xlsx')
+                                    ->orWhere('file', 'like', '%.ppt')
+                                    ->orWhere('file', 'like', '%.pptx');
+                            })->count() }} hari ini
+                        </span>
+                    </div>
+                    <h3 class="text-gray-600 font-medium mb-2">Total Dokumen</h3>
+                    <div class="flex items-baseline">
+                        <p class="text-3xl font-bold text-gray-900">{{ \App\Models\Media::where(function($query) {
+                            $query->where('file', 'like', '%.pdf')
                                 ->orWhere('file', 'like', '%.doc')
                                 ->orWhere('file', 'like', '%.docx')
                                 ->orWhere('file', 'like', '%.xls')
                                 ->orWhere('file', 'like', '%.xlsx')
                                 ->orWhere('file', 'like', '%.ppt')
-                                ->orWhere('file', 'like', '%.pptx')
-                                ->whereDate('created_at', today())
-                                ->count() }} hari ini
-                        </span>
-                    </div>
-                    <h3 class="text-gray-600 font-medium mb-2">Total Dokumen</h3>
-                    <div class="flex items-baseline">
-                        <p class="text-3xl font-bold text-gray-900">{{ \App\Models\Media::where('file', 'like', '%.pdf')
-                            ->orWhere('file', 'like', '%.doc')
-                            ->orWhere('file', 'like', '%.docx')
-                            ->orWhere('file', 'like', '%.xls')
-                            ->orWhere('file', 'like', '%.xlsx')
-                            ->orWhere('file', 'like', '%.ppt')
-                            ->orWhere('file', 'like', '%.pptx')
-                            ->count() }}</p>
+                                ->orWhere('file', 'like', '%.pptx');
+                        })->count() }}</p>
                         <span class="ml-2 text-sm text-gray-500">file</span>
                     </div>
                 </div>

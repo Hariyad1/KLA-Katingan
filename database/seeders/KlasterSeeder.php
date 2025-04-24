@@ -7,14 +7,29 @@ use Illuminate\Database\Seeder;
 
 class KlasterSeeder extends Seeder
 {
-    public function run(): void
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
     {
         $klasters = [
-            ['name' => 'Klaster Kesehatan'],
-            ['name' => 'Klaster Pendidikan'],
-            ['name' => 'Klaster Infrastruktur'],
-            ['name' => 'Klaster Ekonomi'],
-            ['name' => 'Klaster Sosial'],
+            [
+                'name' => 'Hak Sipil dan Kebebasan'
+            ],
+            [
+                'name' => 'Lingkungan Keluarga dan Pengasuhan Alternatif'
+            ],
+            [
+                'name' => 'Kesehatan Dasar dan Kesejahteraan'
+            ],
+            [
+                'name' => 'Pendidikan, Pemanfaatan Waktu Luang, dan Kegiatan Budaya'
+            ],
+            [
+                'name' => 'Perlindungan Khusus'
+            ],
         ];
 
         foreach ($klasters as $klaster) {
