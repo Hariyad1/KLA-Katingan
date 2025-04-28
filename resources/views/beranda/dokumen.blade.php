@@ -136,6 +136,8 @@
                 documentsList.innerHTML = html;
                 documentsList.classList.remove('opacity-50');
                 
+                applyLocalSearch();
+                
                 const newUrl = new URL(window.location.href);
                 newUrl.searchParams.delete('q');
                 newUrl.searchParams.delete('show');
@@ -143,12 +145,78 @@
             });
         }
         
+        function applyLocalSearch() {
+            const searchValue = searchInput.value.toLowerCase();
+            if (!searchValue) return;
+            
+            const documentItems = documentsList.querySelectorAll('.flex.flex-col.sm\\:flex-row');
+            let foundCount = 0;
+            
+            documentItems.forEach(item => {
+                const title = item.querySelector('h3')?.textContent.toLowerCase() || '';
+                const fileType = item.querySelector('p:first-of-type')?.textContent.toLowerCase() || '';
+                const showItem = title.includes(searchValue) || fileType.includes(searchValue);
+                
+                if (showItem) {
+                    foundCount++;
+                    item.style.display = 'flex';
+                    highlightMatchingText(item, searchValue);
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            updateResultCount(foundCount, documentItems.length);
+        }
+        
+        function highlightMatchingText(element, searchTerm) {
+            if (!searchTerm) return;
+            
+            const titleElement = element.querySelector('h3');
+            if (titleElement) {
+                const originalText = titleElement.textContent;
+                const lowerCaseText = originalText.toLowerCase();
+                let highlightedText = originalText;
+                
+                const startIndex = lowerCaseText.indexOf(searchTerm);
+                if (startIndex !== -1) {
+                    const endIndex = startIndex + searchTerm.length;
+                    const matchedPortion = originalText.substring(startIndex, endIndex);
+                    highlightedText = originalText.substring(0, startIndex) + 
+                                     '<span class="bg-yellow-200">' + matchedPortion + '</span>' + 
+                                     originalText.substring(endIndex);
+                    
+                    titleElement.innerHTML = highlightedText;
+                }
+            }
+        }
+        
+        function updateResultCount(foundCount, totalCount) {
+            const paginationInfo = documentsList.querySelector('.text-gray-600');
+            if (paginationInfo && foundCount < totalCount) {
+                paginationInfo.textContent = `Showing ${foundCount} of ${totalCount} entries (filtered)`;
+            }
+        }
+        
         entriesSelect.addEventListener('change', () => updateContent());
         
         let timeout = null;
         searchInput.addEventListener('input', function() {
             clearTimeout(timeout);
-            timeout = setTimeout(() => updateContent(), 500);
+            timeout = setTimeout(() => {
+                const searchValue = searchInput.value.trim();
+                if (searchValue.length >= 1) {
+                    applyLocalSearch();
+                } else if (searchValue === '') {
+                    updateContent();
+                }
+            }, 300);
+        });
+        
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                updateContent();
+            }
         });
         
         document.addEventListener('click', function(e) {

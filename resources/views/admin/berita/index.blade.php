@@ -359,7 +359,7 @@
                     .then(response => {
                         if (response.data.success) {
                             notyf.success('Berita berhasil dihapus');
-                            loadNewsData(); // Reload data setelah hapus
+                            loadNewsData();
                         }
                     })
                     .catch(error => {

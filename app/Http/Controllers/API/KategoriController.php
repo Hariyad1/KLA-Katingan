@@ -166,7 +166,7 @@ class KategoriController extends Controller
         if (!$kategori) {
             return response()->json([
                 'success' => false,
-                'message' => 'Kategori not found'
+                'message' => 'Kategori tidak ditemukan'
             ], 404);
         }
         return response()->json([
@@ -230,7 +230,7 @@ class KategoriController extends Controller
         if (!$kategori) {
             return response()->json([
                 'success' => false,
-                'message' => 'Kategori not found'
+                'message' => 'Kategori tidak ditemukan'
             ], 404);
         }
 
@@ -293,22 +293,21 @@ class KategoriController extends Controller
         if (!$kategori) {
             return response()->json([
                 'success' => false,
-                'message' => 'Kategori not found'
+                'message' => 'Kategori tidak ditemukan'
             ], 404);
         }
 
-        // Check if kategori has related news
         if ($kategori->news()->count() > 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cannot delete kategori with related news'
+                'message' => 'Tidak dapat menghapus kategori yang memiliki berita terkait'
             ], 422);
         }
 
         $kategori->delete();
         return response()->json([
             'success' => true,
-            'message' => 'Kategori deleted successfully'
+            'message' => 'Kategori berhasil dihapus'
         ]);
     }
 } 

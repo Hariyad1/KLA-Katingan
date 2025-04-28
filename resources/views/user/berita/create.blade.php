@@ -135,15 +135,14 @@
                         const totalSize = (progressEvent.total / (1024 * 1024)).toFixed(2);
                         const uploadedSize = (progressEvent.loaded / (1024 * 1024)).toFixed(2);
                         
-                        // Menghitung kecepatan upload
                         const currentTime = Date.now();
                         if (!window.lastUploadTime) {
                             window.lastUploadTime = currentTime;
                             window.lastLoaded = 0;
                         }
                         
-                        const timeElapsed = (currentTime - window.lastUploadTime) / 1000; // dalam detik
-                        if (timeElapsed > 0.5) { // update setiap 0.5 detik
+                        const timeElapsed = (currentTime - window.lastUploadTime) / 1000;
+                        if (timeElapsed > 0.5) {
                             const loadedSinceLastUpdate = progressEvent.loaded - window.lastLoaded;
                             const speedKBps = Math.round((loadedSinceLastUpdate / 1024) / timeElapsed);
                             

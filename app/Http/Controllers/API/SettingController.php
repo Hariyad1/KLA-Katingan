@@ -117,7 +117,6 @@ class SettingController extends Controller
             ], 422);
         }
 
-        // Log data yang diterima
         Log::info('Data setting yang akan disimpan:', $request->all());
 
         if ($request->type === 'statis') {
@@ -265,12 +264,10 @@ class SettingController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            // Delete old image
             if ($setting->image) {
                 Storage::delete(str_replace('/storage', 'public', $setting->image));
             }
 
-            // Upload new image
             $file = $request->file('image');
             $fileName = time() . '_' . Str::slug($request->name) . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('public/settings', $fileName);
@@ -328,7 +325,6 @@ class SettingController extends Controller
             ], 404);
         }
 
-        // Delete image if exists
         if ($setting->image) {
             Storage::delete(str_replace('/storage', 'public', $setting->image));
         }

@@ -108,16 +108,15 @@
         let totalPages = 1;
         let searchQuery = '';
         const perPage = 10;
+        let allKlasterData = [];
 
-        async function loadKlaster() {
+        async function fetchAllKlaster() {
             try {
                 document.getElementById('loadingSpinner').classList.remove('hidden');
                 
-                // Dapatkan CSRF token dari meta tag
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 
-                // Menggunakan URL yang sesuai dengan routes/api.php
-                const response = await fetch(`/api/klaster?page=${currentPage}&search=${searchQuery}&per_page=${document.getElementById('entries').value}`, {
+                const response = await fetch(`/api/klaster?per_page=1000`, {
                     method: 'GET',
                     credentials: 'include',
                     headers: {
@@ -130,75 +129,100 @@
                 });
 
                 if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error('API endpoint tidak ditemukan. Silakan hubungi administrator.');
-                    }
-                    if (response.status === 401) {
-                        throw new Error('Sesi telah berakhir. Silakan muat ulang halaman.');
-                    }
                     throw new Error(`Error: ${response.status}`);
-                }
-
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    throw new Error('Response was not JSON');
                 }
 
                 const data = await response.json();
                 
-                const tableBody = document.getElementById('klasterTableBody');
-                tableBody.innerHTML = '';
-                
                 if (!data.data || data.data.length === 0) {
-                    tableBody.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                                Tidak ada klaster yang tersedia
-                            </td>
-                        </tr>
-                    `;
-                    document.getElementById('paginationInfo').textContent = 'Showing 0 data';
-                    return;
+                    return [];
                 }
 
-                data.data.forEach((klaster, index) => {
-                    const startingNumber = (currentPage - 1) * perPage + 1;
-                    tableBody.innerHTML += `
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">${startingNumber + index}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">${klaster.name || '-'}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-500">${klaster.indikator_count || 0}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                                <a href="/manage/klaster/${klaster.id}/edit" class="text-indigo-600 hover:text-indigo-900 inline-flex items-center" title="Edit Klaster">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                    </svg>
-                                </a>
-                                <button onclick="confirmDelete(${klaster.id})" class="text-red-600 hover:text-red-900 inline-flex items-center" title="Hapus Klaster">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
+                return data.data;
+            } catch (error) {
+                console.error('Error:', error);
+                notyf.error(error.message || 'Gagal memuat data klaster');
+                return [];
+            } finally {
+                document.getElementById('loadingSpinner').classList.add('hidden');
+            }
+        }
 
-                totalPages = Math.ceil(data.total / perPage);
-                document.getElementById('prevPage').disabled = currentPage === 1;
-                document.getElementById('nextPage').disabled = currentPage === totalPages;
+        function renderTable() {
+            const tableBody = document.getElementById('klasterTableBody');
+            tableBody.innerHTML = '';
+            
+            let filteredData = allKlasterData;
+            if (searchQuery.trim() !== '') {
+                const searchLower = searchQuery.toLowerCase();
+                filteredData = allKlasterData.filter(klaster => 
+                    klaster.name && klaster.name.toLowerCase().includes(searchLower)
+                );
+            }
+            
+            totalPages = Math.ceil(filteredData.length / perPage);
+            
+            const startIndex = (currentPage - 1) * perPage;
+            const endIndex = startIndex + perPage;
+            const currentPageData = filteredData.slice(startIndex, endIndex);
+            
+            if (currentPageData.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                            Tidak ada klaster yang tersedia
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('paginationInfo').textContent = 'Showing 0 data';
+                return;
+            }
+
+            currentPageData.forEach((klaster, index) => {
+                const startingNumber = (currentPage - 1) * perPage + 1;
+                tableBody.innerHTML += `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${startingNumber + index}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${klaster.name || '-'}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${klaster.indikator_count || 0}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                            <a href="/manage/klaster/${klaster.id}/edit" class="text-indigo-600 hover:text-indigo-900 inline-flex items-center" title="Edit Klaster">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </a>
+                            <button onclick="confirmDelete(${klaster.id})" class="text-red-600 hover:text-red-900 inline-flex items-center" title="Hapus Klaster">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
+            
+            document.getElementById('paginationInfo').textContent = 
+                `Showing ${startIndex + 1} to ${Math.min(endIndex, filteredData.length)} of ${filteredData.length} data`;
+            document.getElementById('currentPageSpan').textContent = currentPage;
+            document.getElementById('totalPagesSpan').textContent = totalPages || 1;
+        }
+
+        async function loadKlaster() {
+            try {
+                if (allKlasterData.length === 0) {
+                    allKlasterData = await fetchAllKlaster();
+                }
                 
-                document.getElementById('paginationInfo').textContent = 
-                    `Showing ${data.from || 0} to ${data.to || 0} of ${data.total} data`;
-                document.getElementById('currentPageSpan').textContent = currentPage;
-                document.getElementById('totalPagesSpan').textContent = totalPages;
-
+                renderTable();
             } catch (error) {
                 console.error('Error:', error);
                 notyf.error(error.message || 'Gagal memuat data klaster');
@@ -211,14 +235,12 @@
                         </td>
                     </tr>
                 `;
-            } finally {
-                document.getElementById('loadingSpinner').classList.add('hidden');
             }
         }
 
         document.getElementById('entries').addEventListener('change', () => {
             currentPage = 1;
-            loadKlaster();
+            renderTable();
         });
 
         let searchTimeout;
@@ -227,21 +249,21 @@
             searchTimeout = setTimeout(() => {
                 searchQuery = e.target.value;
                 currentPage = 1;
-                loadKlaster();
-            }, 500);
+                renderTable();
+            }, 300);
         });
 
         document.getElementById('prevPage').addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
-                loadKlaster();
+                renderTable();
             }
         });
 
         document.getElementById('nextPage').addEventListener('click', () => {
             if (currentPage < totalPages) {
                 currentPage++;
-                loadKlaster();
+                renderTable();
             }
         });
 
@@ -287,7 +309,8 @@
                     
                     if (data.success) {
                         notyf.success('Klaster berhasil dihapus');
-                        await loadKlaster(); // Muat ulang data setelah berhasil menghapus
+                        allKlasterData = await fetchAllKlaster();
+                        renderTable();
                     } else {
                         throw new Error(data.message || 'Gagal menghapus klaster');
                     }

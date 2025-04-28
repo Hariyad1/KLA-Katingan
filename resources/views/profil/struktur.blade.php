@@ -98,7 +98,7 @@
                                             <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
                                             
                                             <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
-                                            <div class="text-sm font-medium text-gray-600">Sekretaris</div>
+                                            <div class="text-sm font-medium text-gray-600">Jabatan</div>
                                             <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
                                         </div>
                                     </div>
@@ -112,7 +112,7 @@
                         <!-- Level 3: Kasubag (3 Posisi) -->
                         <div class="w-full">
                             <div class="text-center mb-4">
-                                <h3 class="text-lg font-semibold text-gray-700">Kepala Sub Bagian</h3>
+                                <h3 class="text-lg font-semibold text-gray-700">Kepala Jabatan</h3>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
                                 <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
@@ -125,7 +125,7 @@
                                         <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
                                         
                                         <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
-                                        <div class="text-sm font-medium text-gray-600">Kasubag Umum</div>
+                                        <div class="text-sm font-medium text-gray-600">Jabatan</div>
                                         <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
                                     </div>
                                 </div>
@@ -140,7 +140,7 @@
                                         <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
                                         
                                         <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
-                                        <div class="text-sm font-medium text-gray-600">Kasubag Keuangan</div>
+                                        <div class="text-sm font-medium text-gray-600">Jabatan</div>
                                         <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
                                     </div>
                                 </div>
@@ -155,7 +155,7 @@
                                         <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
                                         
                                         <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
-                                        <div class="text-sm font-medium text-gray-600">Kasubag Program</div>
+                                        <div class="text-sm font-medium text-gray-600">Jabatan</div>
                                         <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
                                     </div>
                                 </div>
@@ -168,7 +168,7 @@
                         <!-- Level 4: Kabid (4 posisi) -->
                         <div class="w-full">
                             <div class="text-center mb-4">
-                                <h3 class="text-lg font-semibold text-gray-700">Kepala Bidang</h3>
+                                <h3 class="text-lg font-semibold text-gray-700">Kepala Jabatan</h3>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center px-4">
                                 <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
@@ -181,7 +181,7 @@
                                         <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
                                         
                                         <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
-                                        <div class="text-sm font-medium text-gray-600">Kabid A</div>
+                                        <div class="text-sm font-medium text-gray-600">Jabatan</div>
                                         <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
                                     </div>
                                 </div>
@@ -196,7 +196,7 @@
                                         <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
                                         
                                         <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
-                                        <div class="text-sm font-medium text-gray-600">Kabid B</div>
+                                        <div class="text-sm font-medium text-gray-600">Jabatan</div>
                                         <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
                                     </div>
                                 </div>
@@ -211,7 +211,7 @@
                                         <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
                                         
                                         <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
-                                        <div class="text-sm font-medium text-gray-600">Kabid C</div>
+                                        <div class="text-sm font-medium text-gray-600">Jabatan</div>
                                         <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
                                     </div>
                                 </div>
@@ -226,7 +226,7 @@
                                         <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
                                         
                                         <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
-                                        <div class="text-sm font-medium text-gray-600">Kabid D</div>
+                                        <div class="text-sm font-medium text-gray-600">Jabatan</div>
                                         <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
                                     </div>
                                 </div>
@@ -239,7 +239,7 @@
                         <!-- Level 5: Kasi -->
                         <div class="w-full">
                             <div class="text-center mb-4">
-                                <h3 class="text-lg font-semibold text-gray-700">Kepala Seksi</h3>
+                                <h3 class="text-lg font-semibold text-gray-700">Kepala Jabatan</h3>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center px-4">
                                 <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
@@ -252,7 +252,7 @@
                                         <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
                                         
                                         <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
-                                        <div class="text-sm font-medium text-gray-600">Kasi 1</div>
+                                        <div class="text-sm font-medium text-gray-600">Jabatan</div>
                                         <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
                                     </div>
                                 </div>
@@ -267,7 +267,7 @@
                                         <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
                                         
                                         <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
-                                        <div class="text-sm font-medium text-gray-600">Kasi 2</div>
+                                        <div class="text-sm font-medium text-gray-600">Jabatan</div>
                                         <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
                                     </div>
                                 </div>
@@ -282,7 +282,7 @@
                                         <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
                                         
                                         <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
-                                        <div class="text-sm font-medium text-gray-600">Kasi 3</div>
+                                        <div class="text-sm font-medium text-gray-600">Jabatan</div>
                                         <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
                                     </div>
                                 </div>
@@ -297,7 +297,7 @@
                                         <img src="{{ asset('images/default-profile.jpg') }}" alt="Profil" class="w-full h-48 object-cover object-center">
                                         
                                         <div class="mt-4 font-semibold text-blue-800 text-lg">NAMA LENGKAP</div>
-                                        <div class="text-sm font-medium text-gray-600">Kasi 4</div>
+                                        <div class="text-sm font-medium text-gray-600">Jabatan</div>
                                         <div class="text-xs text-gray-500 mt-1">NIP. 1234567890</div>
                                     </div>
                                 </div>

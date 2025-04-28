@@ -118,5 +118,16 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Copyright Section -->
+        <div class="relative z-10 bg-indigo-800 py-4">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-center items-center">
+                    <div class="text-white text-center text-sm">
+                        Copyright ©2025 | Diskominfostandi Katingan | All Rights Reserved.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </footer> 

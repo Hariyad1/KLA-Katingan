@@ -155,9 +155,8 @@
                         document.getElementById('uploadProgress').textContent = percentCompleted + '%';
                         document.getElementById('uploadedSize').textContent = formatFileSize(progressEvent.loaded);
                         
-                        // Calculate speed
-                        const timeElapsed = (Date.now() - window.uploadStartTime) / 1000; // in seconds
-                        const uploadSpeed = progressEvent.loaded / timeElapsed; // bytes per second
+                        const timeElapsed = (Date.now() - window.uploadStartTime) / 1000;
+                        const uploadSpeed = progressEvent.loaded / timeElapsed;
                         document.getElementById('uploadSpeed').textContent = `(${formatFileSize(uploadSpeed)}/s)`;
                     }
                 })
@@ -194,7 +193,6 @@
                     notyf.error('Hanya file gambar (JPG, JPEG, PNG, GIF) yang diperbolehkan');
                     return false;
                 }
-                // Update total size when file is selected
                 document.getElementById('totalSize').textContent = formatFileSize(file.size);
             }
             return true;

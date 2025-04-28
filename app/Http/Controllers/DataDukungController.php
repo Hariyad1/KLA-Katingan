@@ -13,12 +13,10 @@ class DataDukungController extends Controller
         try {
             $file = DataDukungFile::findOrFail($id);
             
-            // Hapus file fisik jika ada
             if (Storage::exists($file->file)) {
                 Storage::delete($file->file);
             }
             
-            // Hapus record dari database
             $file->delete();
             
             return response()->json([

@@ -165,19 +165,16 @@ class DataDukungController extends Controller
         $query = DataDukung::with(['opd', 'indikator.klaster', 'files'])
             ->orderBy('created_at', 'desc');
 
-        // Filter berdasarkan OPD
         if ($request->has('opd') && $request->opd) {
             $query->where('opd_id', $request->opd);
         }
 
-        // Filter berdasarkan Klaster
         if ($request->has('klaster') && $request->klaster) {
             $query->whereHas('indikator', function($q) use ($request) {
                 $q->where('klaster_id', $request->klaster);
             });
         }
 
-        // Filter berdasarkan pencarian
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {

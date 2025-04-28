@@ -44,7 +44,6 @@
                             <label class="block text-sm font-medium text-gray-700">Gambar Berita</label>
                             <input type="file" name="image" id="imageInput" accept="image/*" class="mt-1 block w-full" required>
                             
-                            <!-- Upload Progress Bar -->
                             <div id="uploadProgress" class="mt-3 hidden">
                                 <div class="flex justify-between mb-1">
                                     <p class="text-xs text-gray-700" id="progressText">0%</p>
@@ -106,7 +105,7 @@
                 entities: false,
                 basicEntities: false,
                 entities_latin: false,
-                entities_greek: false,
+                entities_greek: false,  
                 entities_additional: '',
                 htmlEncodeOutput: false,
                 forceSimpleAmpersand: true
@@ -135,15 +134,14 @@
                         const totalSize = (progressEvent.total / (1024 * 1024)).toFixed(2);
                         const uploadedSize = (progressEvent.loaded / (1024 * 1024)).toFixed(2);
                         
-                        // Menghitung kecepatan upload
                         const currentTime = Date.now();
                         if (!window.lastUploadTime) {
                             window.lastUploadTime = currentTime;
                             window.lastLoaded = 0;
                         }
                         
-                        const timeElapsed = (currentTime - window.lastUploadTime) / 1000; // dalam detik
-                        if (timeElapsed > 0.5) { // update setiap 0.5 detik
+                        const timeElapsed = (currentTime - window.lastUploadTime) / 1000;
+                        if (timeElapsed > 0.5) {
                             const loadedSinceLastUpdate = progressEvent.loaded - window.lastLoaded;
                             const speedKBps = Math.round((loadedSinceLastUpdate / 1024) / timeElapsed);
                             

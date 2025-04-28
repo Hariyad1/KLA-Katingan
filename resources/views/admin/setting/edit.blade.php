@@ -161,7 +161,6 @@
                     if (response.data.success) {
                         const setting = response.data.data;
                         
-                        // Isi form dengan data
                         document.getElementById('name').value = setting.name || '';
                         document.getElementById('page').value = setting.page || '';
                         document.getElementById('url').value = setting.url || '';

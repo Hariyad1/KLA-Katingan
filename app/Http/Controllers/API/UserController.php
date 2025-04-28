@@ -92,7 +92,6 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         try {
-            // Jangan izinkan menghapus diri sendiri
             if (Auth::check() && Auth::user()->id === $user->id) {
                 return response()->json([
                     'success' => false,
@@ -100,15 +99,12 @@ class UserController extends Controller
                 ], 403);
             }
 
-            // Hapus token pengguna dengan aman
             try {
                 $user->tokens()->delete();
             } catch (\Exception $e) {
-                // Lanjutkan meskipun ada error pada token
                 \Illuminate\Support\Facades\Log::error('Error saat menghapus token: ' . $e->getMessage());
             }
             
-            // Hapus pengguna
             $user->delete();
 
             return response()->json([

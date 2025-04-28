@@ -35,11 +35,9 @@ class SettingController extends Controller
             'type' => 'required|string|max:500'
         ]);
 
-        // Jika tipe adalah statis, buat slug dari URL
         if ($validated['type'] === 'statis') {
             $validated['url'] = Str::slug($validated['url']);
             
-            // Cek apakah URL sudah ada
             if (Setting::where('url', $validated['url'])->exists()) {
                 return back()
                     ->withInput()
@@ -47,7 +45,6 @@ class SettingController extends Controller
             }
         }
 
-        // Upload gambar jika ada
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $fileName = time() . '_' . Str::slug($validated['name']) . '.' . $file->getClientOriginalExtension();

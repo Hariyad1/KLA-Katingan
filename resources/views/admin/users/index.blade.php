@@ -231,13 +231,12 @@
                 document.getElementById('nextBtn').disabled = currentPage === totalPages;
 
                 hideLoading();
-            }, 300); // Menambahkan delay kecil agar loading terlihat
+            }, 300);
         }
 
         function updateTable(users, startIndex) {
             const tbody = document.querySelector('tbody');
             tbody.innerHTML = `
-                <!-- Loading Spinner -->
                 <div id="loadingIndicator" class="absolute inset-0 bg-white bg-opacity-80 z-10 hidden">
                     <div class="flex justify-center items-center h-full">
                         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>

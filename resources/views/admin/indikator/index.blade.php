@@ -15,7 +15,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <!-- Header dengan dropdown dan pencarian -->
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
                         <div class="flex items-center gap-2">
                             <label for="entries" class="text-sm text-gray-700">Show</label>
@@ -57,7 +56,6 @@
                                 </tr>
                             </thead>
                             <tbody id="indikatorTableBody" class="bg-white divide-y divide-gray-200">
-                                <!-- Data akan diisi melalui JavaScript -->
                             </tbody>
                         </table>
                         
@@ -113,14 +111,15 @@
         let totalPages = 1;
         let searchQuery = '';
         const perPage = 10;
+        let allIndikatorData = [];
 
-        async function loadIndikator() {
+        async function fetchAllIndikator() {
             try {
                 document.getElementById('loadingSpinner').classList.remove('hidden');
                 
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 
-                const response = await fetch(`/api/indikator?page=${currentPage}&search=${searchQuery}&per_page=${document.getElementById('entries').value}&sort=created_at&order=desc`, {
+                const response = await fetch(`/api/indikator?per_page=1000`, {
                     method: 'GET',
                     credentials: 'include',
                     headers: {
@@ -133,95 +132,111 @@
                 });
 
                 if (!response.ok) {
-                    if (response.status === 401) {
-                        throw new Error('Sesi telah berakhir. Silakan muat ulang halaman.');
-                    }
-                    if (response.status === 404) {
-                        throw new Error('API endpoint tidak ditemukan. Silakan hubungi administrator.');
-                    }
                     throw new Error(`Error: ${response.status}`);
-                }
-
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    throw new Error('Response was not JSON');
                 }
 
                 const data = await response.json();
                 
-                const tableBody = document.getElementById('indikatorTableBody');
-                tableBody.innerHTML = '';
-                
                 if (!data.data || data.data.length === 0) {
-                    tableBody.innerHTML = `
-                        <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                                Tidak ada indikator yang tersedia
-                            </td>
-                        </tr>
-                    `;
-                    document.getElementById('paginationInfo').textContent = 'Showing 0 data';
-                    return;
+                    return [];
                 }
 
-                data.data.forEach((indikator, index) => {
-                    const startingNumber = (currentPage - 1) * perPage + 1;
-                    tableBody.innerHTML += `
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">${startingNumber + index}</div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm font-medium text-gray-900">${indikator.klaster?.name || '-'}</div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900">${indikator.name || '-'}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                                <a href="/manage/indikator/${indikator.id}/edit" class="text-indigo-600 hover:text-indigo-900 inline-flex items-center" title="Edit Indikator">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                    </svg>
-                                </a>
-                                <button onclick="confirmDelete(${indikator.id})" class="text-red-600 hover:text-red-900 inline-flex items-center" title="Hapus Indikator">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                totalPages = Math.ceil(data.total / perPage);
-                document.getElementById('prevPage').disabled = currentPage === 1;
-                document.getElementById('nextPage').disabled = currentPage === totalPages;
-                
-                document.getElementById('paginationInfo').textContent = 
-                    `Showing ${data.from || 0} to ${data.to || 0} of ${data.total} data`;
-                document.getElementById('currentPageSpan').textContent = currentPage;
-                document.getElementById('totalPagesSpan').textContent = totalPages;
-
+                return data.data;
             } catch (error) {
                 console.error('Error:', error);
                 notyf.error(error.message || 'Gagal memuat data indikator');
-                
-                const tableBody = document.getElementById('indikatorTableBody');
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-sm text-red-500">
-                            ${error.message || 'Terjadi kesalahan saat memuat data. Silakan coba lagi.'}
-                        </td>
-                    </tr>
-                `;
+                return [];
             } finally {
                 document.getElementById('loadingSpinner').classList.add('hidden');
             }
         }
 
+        function renderTable() {
+            const tableBody = document.getElementById('indikatorTableBody');
+            tableBody.innerHTML = '';
+            
+            let filteredData = allIndikatorData;
+            if (searchQuery.trim() !== '') {
+                const searchLower = searchQuery.toLowerCase();
+                filteredData = allIndikatorData.filter(indikator => 
+                    (indikator.name && indikator.name.toLowerCase().includes(searchLower)) || 
+                    (indikator.klaster && indikator.klaster.name && indikator.klaster.name.toLowerCase().includes(searchLower))
+                );
+            }
+            
+            totalPages = Math.ceil(filteredData.length / perPage);
+            
+            const startIndex = (currentPage - 1) * perPage;
+            const endIndex = startIndex + perPage;
+            const currentPageData = filteredData.slice(startIndex, endIndex);
+            
+            if (currentPageData.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                            Tidak ada indikator yang tersedia
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('paginationInfo').textContent = 'Showing 0 data';
+                return;
+            }
+
+            currentPageData.forEach((indikator, index) => {
+                const startingNumber = (currentPage - 1) * perPage + 1;
+                tableBody.innerHTML += `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${startingNumber + index}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-900">${indikator.klaster?.name || '-'}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">${indikator.name || '-'}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                            <a href="/manage/indikator/${indikator.id}/edit" class="text-indigo-600 hover:text-indigo-900 inline-flex items-center" title="Edit Indikator">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </a>
+                            <button onclick="confirmDelete(${indikator.id})" class="text-red-600 hover:text-red-900 inline-flex items-center" title="Hapus Indikator">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Update pagination UI
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
+            
+            document.getElementById('paginationInfo').textContent = 
+                `Showing ${startIndex + 1} to ${Math.min(endIndex, filteredData.length)} of ${filteredData.length} data`;
+            document.getElementById('currentPageSpan').textContent = currentPage;
+            document.getElementById('totalPagesSpan').textContent = totalPages || 1;
+        }
+
+        async function loadIndikator() {
+            try {
+                if (allIndikatorData.length === 0) {
+                    allIndikatorData = await fetchAllIndikator();
+                }
+                
+                renderTable();
+            } catch (error) {
+                console.error('Error:', error);
+                notyf.error(error.message || 'Gagal memuat data indikator');
+            }
+        }
+
         document.getElementById('entries').addEventListener('change', () => {
             currentPage = 1;
-            loadIndikator();
+            renderTable();
         });
 
         let searchTimeout;
@@ -230,21 +245,21 @@
             searchTimeout = setTimeout(() => {
                 searchQuery = e.target.value;
                 currentPage = 1;
-                loadIndikator();
-            }, 500);
+                renderTable();
+            }, 300);
         });
 
         document.getElementById('prevPage').addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
-                loadIndikator();
+                renderTable();
             }
         });
 
         document.getElementById('nextPage').addEventListener('click', () => {
             if (currentPage < totalPages) {
                 currentPage++;
-                loadIndikator();
+                renderTable();
             }
         });
 
@@ -290,7 +305,8 @@
                     
                     if (data.success) {
                         notyf.success('Indikator berhasil dihapus');
-                        await loadIndikator();
+                        allIndikatorData = await fetchAllIndikator();
+                        renderTable();
                     } else {
                         throw new Error(data.message || 'Gagal menghapus indikator');
                     }

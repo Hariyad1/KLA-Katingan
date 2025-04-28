@@ -121,7 +121,7 @@ class NewsController extends Controller
             $imagePath = Storage::url($path);
         }
 
-        $status = 0; // 0 untuk pending
+        $status = 0;
 
         $news = News::create([
             'kategori_id' => $request->kategori_id,
@@ -169,7 +169,6 @@ class NewsController extends Controller
             ], 404);
         }
 
-        // Increment counter
         $news->increment('counter');
 
         return response()->json([
@@ -281,12 +280,10 @@ class NewsController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            // Delete old image
             if ($news->image) {
                 Storage::delete(str_replace('/storage', 'public', $news->image));
             }
 
-            // Upload new image
             $file = $request->file('image');
             $fileName = time() . '_' . Str::slug($request->title) . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('public/news', $fileName);
@@ -340,7 +337,6 @@ class NewsController extends Controller
             ], 404);
         }
 
-        // Delete image if exists
         if ($news->image) {
             Storage::delete(str_replace('/storage', 'public', $news->image));
         }
@@ -421,7 +417,7 @@ class NewsController extends Controller
             ], 404);
         }
 
-        $news->status = 1; // Set status to approved
+        $news->status = 1;
         $news->save();
 
         return response()->json([
@@ -458,7 +454,7 @@ class NewsController extends Controller
             ], 404);
         }
 
-        $news->status = 2; // Set status to rejected
+        $news->status = 2;
         $news->save();
 
         return response()->json([

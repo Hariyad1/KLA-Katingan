@@ -109,12 +109,10 @@ class MediaController extends Controller
             ], 422);
         }
 
-        // Handle file upload
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $mimeType = $file->getMimeType();
             
-            // Check if file is image or document
             $isImage = strpos($mimeType, 'image/') === 0;
             $isDocument = in_array($mimeType, [
                 'application/pdf',
@@ -191,7 +189,6 @@ class MediaController extends Controller
             ], 404);
         }
 
-        // Increment hits counter
         $media->increment('hits');
 
         return response()->json([
@@ -269,12 +266,9 @@ class MediaController extends Controller
             ], 422);
         }
 
-        // Handle file update if new file is uploaded
         if ($request->hasFile('file')) {
-            // Delete old file
             Storage::delete('public/media/' . $media->file);
 
-            // Upload new file
             $file = $request->file('file');
             $fileName = time() . '_' . Str::slug($request->name) . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('public/media', $fileName);
@@ -294,7 +288,7 @@ class MediaController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $media->fresh()  // Refresh data dari database
+            'data' => $media->fresh()
         ]);
     }
 
@@ -339,7 +333,6 @@ class MediaController extends Controller
             ], 404);
         }
 
-        // Delete file from storage
         Storage::delete('public/media/' . $media->file);
 
         $media->delete();

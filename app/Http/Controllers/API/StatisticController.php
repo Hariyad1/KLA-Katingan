@@ -76,21 +76,18 @@ class StatisticController extends Controller
         $agent = new Agent();
         $ip = $request->ip();
         
-        // Cek apakah sudah ada record untuk IP ini hari ini
         $existingRecord = Statistic::where('ip', $ip)
             ->whereDate('created_at', today())
             ->first();
             
         if (!$existingRecord) {
-            // Jika belum ada, buat record baru
             $statistic = new Statistic();
             $statistic->ip = $ip;
             $statistic->browser = $agent->browser();
             $statistic->os = $agent->platform();
-            $statistic->last_activity = now(); // Set last_activity saat pertama kali
+            $statistic->last_activity = now();
             $statistic->save();
         } else {
-            // Jika sudah ada, update last_activity
             $existingRecord->last_activity = now();
             $existingRecord->save();
         }

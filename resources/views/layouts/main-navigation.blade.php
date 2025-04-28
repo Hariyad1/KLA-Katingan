@@ -173,14 +173,6 @@
                 Beranda
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link href="{{ route('galeri') }}" :active="request()->routeIs('galeri')">
-                Galeri
-            </x-responsive-nav-link>
-
-            <x-responsive-nav-link href="{{ route('dokumen') }}" :active="request()->routeIs('dokumen')">
-                Dokumen
-            </x-responsive-nav-link>
-
             <div x-data="{ subOpen: false }" class="relative">
                 <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-4 py-2 text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50">
                     <span>Profil</span>
@@ -198,6 +190,14 @@
                     <a href="{{ route('profil.program') }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Program Kerja</a>
                 </div>
             </div>
+
+            <x-responsive-nav-link href="{{ route('galeri') }}" :active="request()->routeIs('galeri')">
+                Galeri
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link href="{{ route('dokumen') }}" :active="request()->routeIs('dokumen')">
+                Dokumen
+            </x-responsive-nav-link>
 
             <div x-data="{ subOpen: false }" class="relative">
                 <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-4 py-2 text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50">

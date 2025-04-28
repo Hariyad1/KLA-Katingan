@@ -188,7 +188,6 @@ class DataDukungController extends Controller
         try {
             DB::beginTransaction();
 
-            // Buat data dukung baru
             $dataDukung = DataDukung::create([
                 'opd_id' => $request->opd_id,
                 'indikator_id' => $request->indikator_id,
@@ -196,19 +195,16 @@ class DataDukungController extends Controller
                 'created_by' => Auth::id()
             ]);
 
-            // Handle file uploads
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     try {
                         $fileName = Str::random(40) . '.' . $file->getClientOriginalExtension();
-                        // Simpan file ke storage publik
                         $path = Storage::disk('public')->putFileAs(
                             'data-dukung-files',
                             $file,
                             $fileName
                         );
 
-                        // Simpan informasi file ke database
                         $dataDukung->files()->create([
                             'file' => $path,
                             'original_name' => $file->getClientOriginalName(),
@@ -321,7 +317,6 @@ class DataDukungController extends Controller
         try {
             DB::beginTransaction();
 
-            // Update data dukung
             $dataDukung->update([
                 'opd_id' => $request->opd_id,
                 'indikator_id' => $request->indikator_id,
@@ -329,19 +324,16 @@ class DataDukungController extends Controller
                 'updated_by' => Auth::id()
             ]);
 
-            // Handle file uploads
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     try {
                         $fileName = Str::random(40) . '.' . $file->getClientOriginalExtension();
-                        // Simpan file ke storage publik
                         $path = Storage::disk('public')->putFileAs(
                             'data-dukung-files',
                             $file,
                             $fileName
                         );
 
-                        // Simpan informasi file ke database
                         $dataDukung->files()->create([
                             'file' => $path,
                             'original_name' => $file->getClientOriginalName(),
@@ -416,7 +408,6 @@ class DataDukungController extends Controller
         try {
             $file = DataDukungFile::findOrFail($id);
             
-            // Coba beberapa kemungkinan lokasi file
             $possiblePaths = [
                 $file->file,
                 'public/' . $file->file,
@@ -440,7 +431,6 @@ class DataDukungController extends Controller
             if (!$fileDeleted) {
             }
             
-            // Hapus record dari database
             $file->delete();
             
             return response()->json([
@@ -491,7 +481,6 @@ class DataDukungController extends Controller
         try {
             $dataDukung = DataDukung::findOrFail($id);
             
-            // Hapus semua file terkait
             foreach ($dataDukung->files as $file) {
                 $possiblePaths = [
                     $file->file,
@@ -512,7 +501,6 @@ class DataDukungController extends Controller
                 }
             }
             
-            // Hapus data dukung (akan menghapus files juga karena cascade)
             $dataDukung->delete();
             
             return response()->json([

@@ -46,61 +46,65 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">OPD</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Klaster</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Indikator</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">No</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">OPD</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Klaster</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">Indikator</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <template x-for="(item, index) in items" :key="item.id">
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap" x-text="(currentPage - 1) * perPage + index + 1"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap" x-text="item.opd.name"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap" x-text="item.indikator.klaster.name"></td>
-                                        <td class="px-6 py-4 whitespace-nowrap" x-text="item.indikator.name"></td>
+                                        <td class="px-6 py-4 w-16" x-text="(currentPage - 1) * perPage + index + 1"></td>
+                                        <td class="px-6 py-4 w-1/6 truncate" x-text="item.opd.name"></td>
+                                        <td class="px-6 py-4 w-1/6 truncate" x-text="item.indikator.klaster.name"></td>
+                                        <td class="px-6 py-4 w-1/4 break-words" x-text="item.indikator.name"></td>
                                         <td class="px-6 py-4">
                                             <template x-for="file in item.files" :key="file.id">
-                                                <div class="mb-2 flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-150">
-                                                    <div class="flex items-center gap-3">
-                                                        <i :class="{
-                                                                'fas fa-file-pdf text-red-500 text-base': file.original_name.toLowerCase().endsWith('.pdf'),
-                                                                'fas fa-file-word text-blue-500 text-base': file.original_name.toLowerCase().endsWith('.doc') || file.original_name.toLowerCase().endsWith('.docx'),
-                                                                'fas fa-file-excel text-green-500 text-base': file.original_name.toLowerCase().endsWith('.xls') || file.original_name.toLowerCase().endsWith('.xlsx'),
-                                                                'fas fa-file-image text-purple-500 text-base': file.original_name.toLowerCase().endsWith('.jpg') || file.original_name.toLowerCase().endsWith('.jpeg') || file.original_name.toLowerCase().endsWith('.png'),
-                                                                'fas fa-file text-gray-500 text-base': !file.original_name.toLowerCase().match(/\.(pdf|doc|docx|xls|xlsx|jpg|jpeg|png)$/)
-                                                        }" class="text-lg"></i>
-                                                        <div class="flex flex-col">
-                                                            <span class="text-sm font-medium text-gray-700" x-text="file.original_name"></span>
+                                                <div class="mb-2 p-2 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-150">
+                                                    <div class="flex items-start gap-2">
+                                                        <div class="flex-shrink-0">
+                                                            <i :class="{
+                                                                    'fas fa-file-pdf text-red-500 text-base': file.original_name.toLowerCase().endsWith('.pdf'),
+                                                                    'fas fa-file-word text-blue-500 text-base': file.original_name.toLowerCase().endsWith('.doc') || file.original_name.toLowerCase().endsWith('.docx'),
+                                                                    'fas fa-file-excel text-green-500 text-base': file.original_name.toLowerCase().endsWith('.xls') || file.original_name.toLowerCase().endsWith('.xlsx'),
+                                                                    'fas fa-file-image text-purple-500 text-base': file.original_name.toLowerCase().endsWith('.jpg') || file.original_name.toLowerCase().endsWith('.jpeg') || file.original_name.toLowerCase().endsWith('.png'),
+                                                                    'fas fa-file text-gray-500 text-base': !file.original_name.toLowerCase().match(/\.(pdf|doc|docx|xls|xlsx|jpg|jpeg|png)$/)
+                                                            }" class="text-lg"></i>
+                                                        </div>
+                                                        <div class="flex-1 min-w-0">
+                                                            <span class="text-sm font-medium text-gray-700 truncate block" :title="file.original_name" x-text="file.original_name.length > 30 ? file.original_name.substring(0, 27) + '...' : file.original_name"></span>
                                                             <span class="text-xs text-gray-500" x-text="file.size ? formatFileSize(file.size) : 'Ukuran tidak tersedia'"></span>
                                                         </div>
-                                                    </div>
-                                                    <div class="flex items-center gap-2">
-                                                        <a :href="'/storage/' + file.file" download title="Unduh" class="text-indigo-600 hover:text-indigo-800">
-                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                                                            </svg>
-                                                        </a>
-                                                        <button type="button" @click="confirmDeleteFile(file.id)" class="text-red-600 hover:text-red-900">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
+                                                        <div class="flex items-center gap-2 flex-shrink-0">
+                                                            <a :href="'/storage/' + file.file" download title="Unduh" class="text-indigo-600 hover:text-indigo-800">
+                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                                </svg>
+                                                            </a>
+                                                            <button type="button" @click="confirmDeleteFile(file.id)" class="text-red-600 hover:text-red-900">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </template>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a :href="'/manage/data-dukung/' + item.id + '/edit'" class="text-indigo-600 hover:text-indigo-900 mr-3 inline-flex items-center">
-                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                                </svg>
-                                            </a>
-                                            <button type="button" @click="confirmDelete(item.id)" class="text-red-600 hover:text-red-900 inline-flex items-center">
-                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                </svg>
-                                            </button>
+                                        <td class="px-6 py-4 w-24">
+                                            <div class="flex items-center space-x-2">
+                                                <a :href="'/manage/data-dukung/' + item.id + '/edit'" class="text-indigo-600 hover:text-indigo-900 inline-flex items-center">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                    </svg>
+                                                </a>
+                                                <button type="button" @click="confirmDelete(item.id)" class="text-red-600 hover:text-red-900 inline-flex items-center">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 </template>
@@ -159,6 +163,7 @@
                 perPage: 10,
                 isLoading: true,
                 totalItems: 0,
+                cachedData: null,
 
                 formatFileSize(bytes) {
                     if (!bytes || bytes === 0) return 'Ukuran tidak tersedia';
@@ -192,7 +197,41 @@
                     try {
                         const apiToken = document.querySelector('meta[name="api-token"]')?.getAttribute('content');
                         
-                        const response = await fetch(`/api/data-dukung?page=${this.currentPage}&search=${this.searchTerm}&per_page=${this.perPage}`, {
+                        if (this.searchTerm && this.cachedData) {
+                            
+                            const searchLower = this.searchTerm.toLowerCase();
+                            const filteredData = this.cachedData.filter(item => 
+                                (item.opd?.name?.toLowerCase().includes(searchLower)) ||
+                                (item.indikator?.name?.toLowerCase().includes(searchLower)) ||
+                                (item.indikator?.klaster?.name?.toLowerCase().includes(searchLower))
+                            );
+                            
+                            this.items = filteredData.slice(
+                                (this.currentPage - 1) * this.perPage,
+                                this.currentPage * this.perPage
+                            );
+                            
+                            this.totalItems = filteredData.length;
+                            this.lastPage = Math.ceil(this.totalItems / this.perPage);
+                            
+                            if (this.currentPage > this.lastPage && this.lastPage > 0) {
+                                this.currentPage = 1;
+                                this.items = filteredData.slice(0, this.perPage);
+                            }
+                            
+                            this.isLoading = false;
+                            return;
+                        }
+                        
+                        const params = new URLSearchParams({
+                            page: this.currentPage,
+                            search: this.searchTerm,
+                            per_page: this.perPage,
+                        });
+                        
+                        const url = `/api/data-dukung?${params.toString()}`;
+                        
+                        const response = await fetch(url, {
                             headers: {
                                 'Accept': 'application/json',
                                 'Content-Type': 'application/json',
@@ -238,6 +277,33 @@
                         this.currentPage = result.meta?.current_page || result.current_page || 1;
                         this.lastPage = result.meta?.last_page || result.last_page || 1;
                         this.totalItems = result.meta?.total || result.total || this.items.length;
+                        
+                        if (!this.searchTerm) {
+                            const getAllParams = new URLSearchParams({
+                                per_page: 1000,
+                            });
+                            
+                            const getAllUrl = `/api/data-dukung?${getAllParams.toString()}`;
+                            
+                            const allDataResponse = await fetch(getAllUrl, {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${apiToken}`,
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                credentials: 'include'
+                            });
+                            
+                            if (allDataResponse.ok) {
+                                const allDataResult = await allDataResponse.json();
+                                if (allDataResult.data) {
+                                    this.cachedData = Array.isArray(allDataResult.data) 
+                                        ? allDataResult.data 
+                                        : (allDataResult.data.data || []);
+                                }
+                            }
+                        }
                     } catch (error) {
                         console.error('Detailed error:', error);
                         Swal.fire({
@@ -394,6 +460,15 @@
 
                 init() {
                     this.fetchData();
+                    
+                    let searchTimeout;
+                    this.$watch('searchTerm', () => {
+                        clearTimeout(searchTimeout);
+                        searchTimeout = setTimeout(() => {
+                            this.currentPage = 1;
+                            this.fetchData();
+                        }, 500);
+                    });
                 }
             }
         }

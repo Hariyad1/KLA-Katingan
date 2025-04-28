@@ -86,6 +86,123 @@
         .prose img {
             margin: 0 auto;
         }
+
+        .dynamic-content {
+            --tw-prose-p-spacing: 1.5em;
+        }
+        
+        .dynamic-content p {
+            margin-top: 1.5em !important;
+            margin-bottom: 1.5em !important;
+        }
+
+        .dynamic-content p:empty {
+            min-height: 1em !important;
+            display: block !important;
+        }
+
+        .dynamic-content ul, 
+        .dynamic-content ol {
+            margin-top: 1.25em !important;
+            margin-bottom: 1.25em !important;
+            padding-left: 2em !important;
+            list-style-position: outside !important;
+        }
+
+        .dynamic-content ul {
+            list-style-type: disc !important;
+        }
+        
+        .dynamic-content ol {
+            list-style-type: decimal !important;
+        }
+
+        .dynamic-content h1, 
+        .dynamic-content h2, 
+        .dynamic-content h3, 
+        .dynamic-content h4, 
+        .dynamic-content h5, 
+        .dynamic-content h6 {
+            margin-top: 1.5em !important;
+            margin-bottom: 0.75em !important;
+        }
+
+        .dynamic-content blockquote,
+        .dynamic-content pre,
+        .dynamic-content figure,
+        .dynamic-content table {
+            margin-top: 1.5em !important;
+            margin-bottom: 1.5em !important;
+        }
+
+        .dynamic-content * {
+            line-height: 1.6 !important;
+        }
+
+        .dynamic-content img {
+            margin-top: 1.5em !important;
+            margin-bottom: 1.5em !important;
+        }
+
+        .dynamic-content iframe {
+            margin-top: 1.5em !important;
+            margin-bottom: 1.5em !important;
+            max-width: 100% !important;
+        }
+
+        .dynamic-content p + p {
+            margin-top: 1.5em !important;
+        }
+
+        .dynamic-content [style] {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        .dynamic-content > *:first-child {
+            margin-top: 0 !important;
+        }
+        
+        .dynamic-content div {
+            margin-top: 1.5em !important;
+            margin-bottom: 1.5em !important;
+        }
+        
+        .dynamic-content p span {
+            display: inline-block !important;
+            width: 100% !important;
+        }
+        
+        .dynamic-content > div,
+        .dynamic-content > p {
+            margin-bottom: 1.5em !important;
+        }
+        
+        .dynamic-content br + br {
+            display: block !important;
+            content: "" !important;
+            margin-top: 1.5em !important;
+        }
+        
+        .dynamic-content ul li,
+        .dynamic-content ol li {
+            display: list-item !important;
+            margin-bottom: 0.5em !important;
+        }
+        
+        .dynamic-content ul > li::marker,
+        .dynamic-content ol > li::marker {
+            display: inline-block !important;
+        }
+        
+        .dynamic-content li ul,
+        .dynamic-content li ol {
+            margin-top: 0.5em !important;
+        }
+
+        .dynamic-content p[style*="text-indent"] {
+            text-indent: 2em !important;
+        }
     </style>
     @endpush
 </x-main-layout>

@@ -147,6 +147,74 @@
 
     @push('scripts')
     <script>
+        window.addFileInput = function() {
+            const fileInputs = document.getElementById('fileInputs');
+            const newFileInput = document.createElement('div');
+            newFileInput.className = 'file-input-group';
+            newFileInput.innerHTML = `
+                <div class="flex items-center mt-2">
+                    <input type="file" name="files[]" class="mt-1 block w-full" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                    <button type="button" onclick="removeFileInput(this)" class="ml-2 text-red-600 hover:text-red-900">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            `;
+            fileInputs.appendChild(newFileInput);
+        };
+
+        window.removeFileInput = function(button) {
+            button.closest('.file-input-group').remove();
+            updateFilePreview();
+        };
+
+        function updateFilePreview() {
+            const selectedFiles = document.getElementById('selectedFiles');
+            selectedFiles.innerHTML = '';
+            
+            const allFiles = [];
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            
+            fileInputs.forEach(input => {
+                if (input.files.length > 0) {
+                    Array.from(input.files).forEach(file => {
+                        allFiles.push(file);
+                    });
+                }
+            });
+            
+            allFiles.forEach((file, index) => {
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'flex items-center p-2 bg-gray-50 rounded';
+                
+                const icon = document.createElement('span');
+                icon.className = 'mr-2';
+                icon.innerHTML = '📎';
+                
+                const fileName = document.createElement('span');
+                fileName.className = 'flex-1';
+                fileName.textContent = `${index + 1}. ${file.name} (${formatFileSize(file.size)})`;
+                
+                const status = document.createElement('span');
+                status.className = 'ml-2 text-sm text-green-600';
+                status.textContent = 'Siap diupload';
+                
+                fileDiv.appendChild(icon);
+                fileDiv.appendChild(fileName);
+                fileDiv.appendChild(status);
+                selectedFiles.appendChild(fileDiv);
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof jQuery !== 'undefined') {
                 $(document).ready(function() {
@@ -189,83 +257,11 @@
                 });
             }
 
-            let fileInputCount = 1;
-
-            function addFileInput() {
-                const fileInputs = document.getElementById('fileInputs');
-                const newFileInput = document.createElement('div');
-                newFileInput.className = 'file-input-group';
-                newFileInput.innerHTML = `
-                    <div class="flex items-center mt-2">
-                        <input type="file" name="files[]" class="mt-1 block w-full" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
-                        <button type="button" onclick="removeFileInput(this)" class="ml-2 text-red-600 hover:text-red-900">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
-                `;
-                fileInputs.appendChild(newFileInput);
-                fileInputCount++;
-            }
-
-            function removeFileInput(button) {
-                button.closest('.file-input-group').remove();
-                fileInputCount--;
-                updateFilePreview();
-            }
-
             document.addEventListener('change', function(e) {
                 if (e.target.type === 'file') {
                     updateFilePreview();
                 }
             });
-
-            function updateFilePreview() {
-                const selectedFiles = document.getElementById('selectedFiles');
-                selectedFiles.innerHTML = '';
-                
-                const allFiles = [];
-                const fileInputs = document.querySelectorAll('input[type="file"]');
-                
-                fileInputs.forEach(input => {
-                    if (input.files.length > 0) {
-                        Array.from(input.files).forEach(file => {
-                            allFiles.push(file);
-                        });
-                    }
-                });
-                
-                allFiles.forEach((file, index) => {
-                    const fileDiv = document.createElement('div');
-                    fileDiv.className = 'flex items-center p-2 bg-gray-50 rounded';
-                    
-                    const icon = document.createElement('span');
-                    icon.className = 'mr-2';
-                    icon.innerHTML = '📎';
-                    
-                    const fileName = document.createElement('span');
-                    fileName.className = 'flex-1';
-                    fileName.textContent = `${index + 1}. ${file.name} (${formatFileSize(file.size)})`;
-                    
-                    const status = document.createElement('span');
-                    status.className = 'ml-2 text-sm text-green-600';
-                    status.textContent = 'Siap diupload';
-                    
-                    fileDiv.appendChild(icon);
-                    fileDiv.appendChild(fileName);
-                    fileDiv.appendChild(status);
-                    selectedFiles.appendChild(fileDiv);
-                });
-            }
-
-            function formatFileSize(bytes) {
-                if (bytes === 0) return '0 Bytes';
-                const k = 1024;
-                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-            }
 
             document.querySelector('form').addEventListener('submit', function(e) {
                 const selectedFiles = document.getElementById('selectedFiles');

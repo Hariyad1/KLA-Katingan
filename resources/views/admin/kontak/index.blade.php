@@ -152,7 +152,8 @@
             filteredData = window.allContacts.filter(contact => 
                 contact.nama.toLowerCase().includes(searchQuery) ||
                 contact.email.toLowerCase().includes(searchQuery) ||
-                contact.subjek.toLowerCase().includes(searchQuery)
+                contact.subjek.toLowerCase().includes(searchQuery) ||
+                contact.isi.toLowerCase().includes(searchQuery)
             );
 
             totalPages = Math.ceil(filteredData.length / perPage);
@@ -176,6 +177,13 @@
                 window.allContacts = response.data.data || response.data;
                 filteredData = window.allContacts;
                 updateTableDisplay();
+                
+                // Add event for search input with debounce
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    searchInput.removeEventListener('input', handleSearchDebounce);
+                    searchInput.addEventListener('input', handleSearchDebounce);
+                }
             })
             .catch(function(error) {
                 hideLoading();
@@ -387,8 +395,28 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadContactData();
             
+            // Replace direct event with debounced search
             const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('input', handleSearch);
+            searchInput.removeEventListener('input', handleSearch);
+            
+            // Create debounced search handler
+            let searchTimeout;
+            window.handleSearchDebounce = function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    handleSearch();
+                }, 300);
+            };
+            
+            searchInput.addEventListener('input', handleSearchDebounce);
+            
+            // Add Enter key handler
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    clearTimeout(searchTimeout);
+                    handleSearch();
+                }
+            });
         });
 
         @if(session('success'))
