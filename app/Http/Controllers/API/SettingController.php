@@ -17,10 +17,10 @@ use Illuminate\Support\Facades\Log;
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="name", type="string", example="Nama Setting"),
  *     @OA\Property(property="page", type="string", example="home"),
- *     @OA\Property(property="url", type="string", example="https://example.com"),
+ *     @OA\Property(property="url", type="string", example="https://example.com / pemenuhan-hak-anak/klaster-1"),
  *     @OA\Property(property="image", type="string", nullable=true, example="/storage/settings/image.jpg"),
  *     @OA\Property(property="content", type="string", nullable=true),
- *     @OA\Property(property="type", type="string", example="link"),
+ *     @OA\Property(property="type", type="string", example="video / statis"),
  *     @OA\Property(property="created_at", type="string", format="date-time"),
  *     @OA\Property(property="updated_at", type="string", format="date-time")
  * )
@@ -74,10 +74,10 @@ class SettingController extends Controller
      *                 required={"name","page","url","type"},
      *                 @OA\Property(property="name", type="string", example="Nama Setting"),
      *                 @OA\Property(property="page", type="string", example="home"),
-     *                 @OA\Property(property="url", type="string", example="https://example.com"),
+     *                 @OA\Property(property="url", type="string", example="https://example.com / pemenuhan-hak-anak/klaster-1"),
      *                 @OA\Property(property="image", type="string", format="binary"),
      *                 @OA\Property(property="content", type="string"),
-     *                 @OA\Property(property="type", type="string", example="link")
+     *                 @OA\Property(property="type", type="string", example="video / statis")
      *             )
      *         )
      *     ),
@@ -105,7 +105,7 @@ class SettingController extends Controller
             'name' => 'required|string|max:100',
             'page' => 'required|string|max:100',
             'url' => 'required|string|max:100',
-            'image' => 'nullable|image|max:25600',
+            'image' => 'nullable|image|max:51200',
             'content' => 'nullable|string',
             'type' => 'required|string|max:500'
         ]);
@@ -251,7 +251,7 @@ class SettingController extends Controller
             'name' => 'required|string|max:100',
             'page' => 'required|string|max:100',
             'url' => 'required|string|max:100',
-            'image' => 'nullable|image|max:25600',
+            'image' => 'nullable|image|max:51200',
             'content' => 'nullable|string',
             'type' => 'required|string|max:500'
         ]);

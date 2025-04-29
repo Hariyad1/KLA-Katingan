@@ -175,7 +175,7 @@ class DataDukungController extends Controller
             'opd_id' => 'required|exists:opds,id',
             'indikator_id' => 'required|exists:indikators,id',
             'description' => 'nullable|string',
-            'files.*' => 'required|file|max:25600'
+            'files.*' => 'required|file|max:51200'
         ]);
 
         if ($validator->fails()) {
@@ -304,7 +304,7 @@ class DataDukungController extends Controller
             'opd_id' => 'required|exists:opds,id',
             'indikator_id' => 'required|exists:indikators,id',
             'description' => 'nullable|string',
-            'files.*' => 'nullable|file|max:25600'
+            'files.*' => 'nullable|file|max:51200'
         ]);
 
         if ($validator->fails()) {

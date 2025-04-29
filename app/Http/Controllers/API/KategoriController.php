@@ -44,7 +44,7 @@ class KategoriController extends Controller
      *                 @OA\Items(
      *                     type="object",
      *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="name", type="string", example="Politik"),
+     *                     @OA\Property(property="name", type="string", example="Klaster 1 - Hak Sipil dan Kebebasan"),
      *                     @OA\Property(property="created_at", type="string", format="datetime"),
      *                     @OA\Property(property="updated_at", type="string", format="datetime"),
      *                     @OA\Property(property="news", type="array", @OA\Items(type="object"))
@@ -73,7 +73,7 @@ class KategoriController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"name"},
-     *             @OA\Property(property="name", type="string", example="Politik")
+     *             @OA\Property(property="name", type="string", example="Klaster 1 - Hak Sipil dan Kebebasan")
      *         )
      *     ),
      *     @OA\Response(
@@ -85,7 +85,7 @@ class KategoriController extends Controller
      *                 property="data",
      *                 type="object",
      *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="name", type="string", example="Politik"),
+     *                 @OA\Property(property="name", type="string", example="Klaster 1 - Hak Sipil dan Kebebasan"),
      *                 @OA\Property(property="created_at", type="string", format="datetime"),
      *                 @OA\Property(property="updated_at", type="string", format="datetime")
      *             )
@@ -143,7 +143,7 @@ class KategoriController extends Controller
      *                 property="data",
      *                 type="object",
      *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="name", type="string", example="Politik"),
+     *                 @OA\Property(property="name", type="string", example="Klaster 1 - Hak Sipil dan Kebebasan"),
      *                 @OA\Property(property="created_at", type="string", format="datetime"),
      *                 @OA\Property(property="updated_at", type="string", format="datetime"),
      *                 @OA\Property(property="news", type="array", @OA\Items(type="object"))
@@ -192,7 +192,7 @@ class KategoriController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"name"},
-     *             @OA\Property(property="name", type="string", example="Politik Update")
+     *             @OA\Property(property="name", type="string", example="Klaster 1 - Hak Sipil dan Kebebasan Update")
      *         )
      *     ),
      *     @OA\Response(
@@ -204,7 +204,7 @@ class KategoriController extends Controller
      *                 property="data",
      *                 type="object",
      *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="name", type="string", example="Politik Update"),
+     *                 @OA\Property(property="name", type="string", example="Klaster 1 - Hak Sipil dan Kebebasan Update"),
      *                 @OA\Property(property="created_at", type="string", format="datetime"),
      *                 @OA\Property(property="updated_at", type="string", format="datetime")
      *             )

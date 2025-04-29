@@ -37,14 +37,14 @@
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 table-fixed">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Path</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[5%]">No</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[30%]">Nama</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">File</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[35%]">Path</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="dokumenTableBody" class="bg-white divide-y divide-gray-200 relative">
@@ -81,6 +81,14 @@
     @push('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-material-ui/material-ui.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <style>
+        .truncate-text {
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
     @endpush
 
     @push('scripts')
@@ -226,15 +234,19 @@
 
                 const row = `
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">${index + 1}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">${item.name || '-'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <td class="px-6 py-4 text-sm">${index + 1}</td>
+                        <td class="px-6 py-4 text-sm">
+                            <div class="truncate-text" title="${item.name || '-'}">${item.name || '-'}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm">
                             <span class="px-2 py-1 text-xs rounded-full ${typeClass}">
                                 ${type}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">${item.file || '-'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-3">
+                        <td class="px-6 py-4 text-sm">
+                            <div class="truncate-text" title="${item.file || '-'}">${item.file || '-'}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm font-medium flex space-x-3">
                             <a href="${item.path}" download class="text-blue-600 hover:text-blue-900" title="Unduh">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -260,14 +272,14 @@
         function previousPage() {
             if (currentPage > 1) {
                 currentPage--;
-                loadDokumenData();
+                updateTableDisplay();
             }
         }
 
         function nextPage() {
             if (currentPage < totalPages) {
                 currentPage++;
-                loadDokumenData();
+                updateTableDisplay();
             }
         }
 

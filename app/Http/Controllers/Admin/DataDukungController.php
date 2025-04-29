@@ -34,7 +34,7 @@ class DataDukungController extends Controller
             'opd_id' => 'required|exists:opds,id',
             'indikator_id' => 'required|exists:indikators,id',
             'files' => 'required|array',
-            'files.*' => 'required|file|max:25600|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
+            'files.*' => 'required|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
             'description' => 'nullable|string'
         ]);
 
@@ -94,7 +94,7 @@ class DataDukungController extends Controller
         $request->validate([
             'opd_id' => 'required|exists:opds,id',
             'indikator_id' => 'required|exists:indikators,id',
-            'files.*' => 'nullable|file|max:25600|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
+            'files.*' => 'nullable|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
             'description' => 'nullable|string'
         ]);
 

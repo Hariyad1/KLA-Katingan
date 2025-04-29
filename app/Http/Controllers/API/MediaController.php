@@ -98,7 +98,7 @@ class MediaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100',
-            'file' => 'required|file|max:25600',
+            'file' => 'required|file|max:51200',
             'slide_show' => 'nullable|boolean'
         ]);
 
@@ -255,7 +255,7 @@ class MediaController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100',
-            'file' => 'nullable|file|max:25600',
+            'file' => 'nullable|file|max:51200',
             'slide_show' => 'nullable|boolean'
         ]);
 

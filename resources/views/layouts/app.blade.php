@@ -9,7 +9,10 @@
     <meta name="api-token" content="{{ session('api_token') }}">
     @endif
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'KLA-Katingan') }}</title>
+    <link rel="shortcut icon" href="{{ asset('images/logo_katingan.png') }}">
+    <link rel="icon" href="{{ asset('images/logo_katingan.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_katingan.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

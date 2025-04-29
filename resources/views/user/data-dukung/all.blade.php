@@ -91,7 +91,7 @@
                         </div>
                         <div class="flex items-center space-x-4">
                             <button id="prevPageBtn" disabled class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed">
-                                Prev
+                                    Prev
                             </button>
 
                             <div class="text-sm text-gray-700">
@@ -99,7 +99,7 @@
                             </div>
 
                             <button id="nextPageBtn" disabled class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed">
-                                Next
+                                    Next
                             </button>
                         </div>
                     </div>

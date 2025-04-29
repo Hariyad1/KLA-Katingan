@@ -671,12 +671,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
+                }
             },
             "post": {
                 "tags": [
@@ -1354,7 +1349,7 @@
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "Politik"
+                                                        "example": "Klaster 1 - Hak Sipil dan Kebebasan"
                                                     },
                                                     "created_at": {
                                                         "type": "string",
@@ -1404,7 +1399,7 @@
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Politik"
+                                        "example": "Klaster 1 - Hak Sipil dan Kebebasan"
                                     }
                                 },
                                 "type": "object"
@@ -1431,7 +1426,7 @@
                                                 },
                                                 "name": {
                                                     "type": "string",
-                                                    "example": "Politik"
+                                                    "example": "Klaster 1 - Hak Sipil dan Kebebasan"
                                                 },
                                                 "created_at": {
                                                     "type": "string",
@@ -1501,7 +1496,7 @@
                                                 },
                                                 "name": {
                                                     "type": "string",
-                                                    "example": "Politik"
+                                                    "example": "Klaster 1 - Hak Sipil dan Kebebasan"
                                                 },
                                                 "created_at": {
                                                     "type": "string",
@@ -1581,7 +1576,7 @@
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Politik Update"
+                                        "example": "Klaster 1 - Hak Sipil dan Kebebasan Update"
                                     }
                                 },
                                 "type": "object"
@@ -1608,7 +1603,7 @@
                                                 },
                                                 "name": {
                                                     "type": "string",
-                                                    "example": "Politik Update"
+                                                    "example": "Klaster 1 - Hak Sipil dan Kebebasan Update"
                                                 },
                                                 "created_at": {
                                                     "type": "string",

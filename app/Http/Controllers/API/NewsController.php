@@ -102,7 +102,7 @@ class NewsController extends Controller
             'kategori_id' => 'required|exists:kategori,id',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|max:25600',
+            'image' => 'nullable|image|max:51200',
             'flag' => 'nullable|string|max:20'
         ]);
 
@@ -268,7 +268,7 @@ class NewsController extends Controller
             'kategori_id' => 'required|exists:kategori,id',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|max:25600',
+            'image' => 'nullable|image|max:51200',
             'flag' => 'nullable|string|max:20'
         ]);
 

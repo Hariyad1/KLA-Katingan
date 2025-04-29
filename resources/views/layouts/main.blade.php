@@ -9,6 +9,9 @@
     @endif
 
     <title>{{ config('app.name', 'Kabupaten Layak Anak') }}</title>
+    <link rel="shortcut icon" href="{{ asset('images/logo_katingan.png') }}">
+    <link rel="icon" href="{{ asset('images/logo_katingan.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_katingan.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

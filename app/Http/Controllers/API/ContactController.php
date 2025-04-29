@@ -32,7 +32,6 @@ class ContactController extends Controller
      *     path="/api/contact",
      *     tags={"Contact"},
      *     summary="Mendapatkan daftar kontak",
-     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",

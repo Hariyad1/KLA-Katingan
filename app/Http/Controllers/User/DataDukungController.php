@@ -42,7 +42,7 @@ class DataDukungController extends Controller
             'indikator_id' => 'required|exists:indikators,id',
             'description' => 'nullable|string',
             'files' => 'required|array',
-            'files.*' => 'required|file|max:25600|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png'
+            'files.*' => 'required|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png'
         ]);
 
         $dataDukung = DataDukung::create([
@@ -117,7 +117,7 @@ class DataDukungController extends Controller
                 },
             ],
             'description' => 'nullable|string',
-            'files.*' => 'nullable|file|max:25600|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png'
+            'files.*' => 'nullable|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png'
         ]);
 
         try {
