@@ -137,14 +137,10 @@
                                 Previous
                             </button>
                             
-                            <!-- Page Numbers -->
-                            @for ($i = 1; $i <= $media->lastPage(); $i++)
-                                <button type="button"
-                                        class="w-8 h-8 flex items-center justify-center rounded-md {{ $media->currentPage() == $i ? 'bg-blue-600 text-white' : 'hover:bg-gray-50' }}"
-                                        onclick="fetchPage('{{ $media->url($i) }}')">
-                                    {{ $i }}
-                                </button>
-                            @endfor
+                            <!-- Current Page -->
+                            <button type="button" class="w-8 h-8 flex items-center justify-center rounded-md bg-blue-600 text-white">
+                                {{ $media->currentPage() }}
+                            </button>
 
                             <!-- Next Button -->
                             <button type="button"

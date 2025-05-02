@@ -171,24 +171,10 @@
                                                     @endif
                                                 @endif
 
-                                                {{-- Pagination Elements --}}
-                                                @foreach ($media->getUrlRange(1, $media->lastPage()) as $page => $url)
-                                                    @if ($page == $media->currentPage())
-                                                        <span class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-blue-600 bg-blue-50 border border-gray-300">
-                                                            {{ $page }}
-                                                        </span>
-                                                    @else
-                                                        @if ($page == 1)
-                                                            <a href="{{ route('galeri') }}" class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:text-blue-600">
-                                                                {{ $page }}
-                                                            </a>
-                                                        @else
-                                                            <a href="{{ route('galeri.page', $page) }}" class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:text-blue-600">
-                                                                {{ $page }}
-                                                            </a>
-                                                        @endif
-                                                    @endif
-                                                @endforeach
+                                                {{-- Current Page Number Only --}}
+                                                <span class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-blue-600 bg-blue-50 border border-gray-300">
+                                                    {{ $media->currentPage() }}
+                                                </span>
 
                                                 {{-- Next Page Link --}}
                                                 @if ($media->hasMorePages())
