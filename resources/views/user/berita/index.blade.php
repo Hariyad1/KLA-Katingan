@@ -123,23 +123,22 @@
         function loadNewsData() {
             showLoading();
             
-            fetch('/api/user/news', {
+            axios.get('/api/user/news', {
                 headers: {
                     'Authorization': 'Bearer {{ session("api_token") }}',
                     'Accept': 'application/json'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
+            .then(response => {
                 hideLoading();
-                allNews = data.data || data;
+                allNews = response.data.data || response.data;
                 filteredData = allNews;
                 updateTableDisplay();
             })
             .catch(error => {
                 hideLoading();
                 console.error('Error:', error);
-                Swal.fire('Error!', 'Gagal memuat data berita', 'error');
+                Swal.fire('Error!', error.response?.data?.message || 'Gagal memuat data berita', 'error');
             });
         }
 
@@ -252,18 +251,19 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     showLoading();
-                    fetch(`/api/news/${id}`, {
-                        method: 'DELETE',
+                    axios.post(`/api/news/${id}`, {
+                        _method: 'DELETE',
+                        _token: document.querySelector('meta[name="csrf-token"]').content
+                    }, {
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                             'Accept': 'application/json',
-                            'Authorization': 'Bearer {{ session("api_token") }}'
+                            'Authorization': 'Bearer {{ session("api_token") }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                         }
                     })
-                    .then(response => response.json())
-                    .then(data => {
+                    .then(response => {
                         hideLoading();
-                        if (data.success) {
+                        if (response.data.success) {
                             Swal.fire(
                                 'Dihapus!',
                                 'Berita berhasil dihapus.',
@@ -278,7 +278,7 @@
                         console.error('Error:', error);
                         Swal.fire(
                             'Error!',
-                            'Terjadi kesalahan saat menghapus berita.',
+                            error.response?.data?.message || 'Terjadi kesalahan saat menghapus berita.',
                             'error'
                         );
                     });

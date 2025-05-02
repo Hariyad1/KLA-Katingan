@@ -412,16 +412,14 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     showLoading();
-                    fetch(`/api/news/${id}/approve`, {
-                        method: 'POST',
+                    axios.post(`/api/news/${id}/approve`, {}, {
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Authorization': 'Bearer {{ session("api_token") }}'
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
                         }
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
+                    .then(response => {
+                        if (response.data.success) {
                             Swal.fire(
                                 'Berhasil!',
                                 'Berita berhasil disetujui.',
@@ -438,11 +436,15 @@
                         }
                     })
                     .catch(error => {
+                        console.error('Error:', error);
                         Swal.fire(
                             'Error!',
                             'Terjadi kesalahan saat menyetujui berita.',
                             'error'
                         );
+                    })
+                    .finally(() => {
+                        hideLoading();
                     });
                 }
             });
@@ -460,16 +462,15 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`/api/news/${id}/reject`, {
-                        method: 'POST',
+                    showLoading();
+                    axios.post(`/api/news/${id}/reject`, {}, {
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Authorization': 'Bearer {{ session("api_token") }}'
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Authorization': 'Bearer ' + document.querySelector('meta[name="api-token"]').content
                         }
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
+                    .then(response => {
+                        if (response.data.success) {
                             Swal.fire(
                                 'Berhasil!',
                                 'Berita berhasil ditolak.',
@@ -486,11 +487,15 @@
                         }
                     })
                     .catch(error => {
+                        console.error('Error:', error);
                         Swal.fire(
                             'Error!',
                             'Terjadi kesalahan saat menolak berita.',
                             'error'
                         );
+                    })
+                    .finally(() => {
+                        hideLoading();
                     });
                 }
             });

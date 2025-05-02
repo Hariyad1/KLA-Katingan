@@ -278,30 +278,13 @@
                             window.location.href = '{{ route("user.data-dukung.index") }}';
                         }
                     } else {
-                        const response = await fetch(`/api/data-dukung/${dataDukungId}`, {
-                            method: 'POST',
+                        const response = await axios.post(`/api/data-dukung/${dataDukungId}`, formData, {
                             headers: {
                                 'Accept': 'application/json',
                                 'Authorization': `Bearer ${apiToken}`,
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            },
-                            body: formData
-                        });
-
-                        if (!response.ok) {
-                            const result = await response.json();
-                            if (response.status === 422 && result.errors) {
-                                Object.keys(result.errors).forEach(key => {
-                                    const errorElement = document.getElementById(`${key}_error`);
-                                    if (errorElement) {
-                                        errorElement.textContent = result.errors[key][0];
-                                        errorElement.classList.remove('hidden');
-                                    }
-                                });
-                                throw new Error('Validasi gagal');
                             }
-                            throw new Error(result.message || 'Terjadi kesalahan saat menyimpan data');
-                        }
+                        });
 
                         await Swal.fire({
                             icon: 'success',
@@ -355,19 +338,13 @@
                     });
 
                     if (result.isConfirmed) {
-                        const response = await fetch(`/api/data-dukung/file/${fileId}`, {
-                            method: 'DELETE',
+                        const response = await axios.delete(`/api/data-dukung/file/${fileId}`, {
                             headers: {
                                 'Accept': 'application/json',
-                                'Content-Type': 'application/json',
                                 'Authorization': `Bearer ${apiToken}`,
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             }
                         });
-
-                        if (!response.ok) {
-                            throw new Error('Gagal menghapus file');
-                        }
 
                         document.getElementById(`file-row-${fileId}`).remove();
 
@@ -383,7 +360,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
-                        text: error.message
+                        text: error.response?.data?.message || error.message || 'Gagal menghapus file'
                     });
                 }
             };

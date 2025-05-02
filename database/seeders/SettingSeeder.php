@@ -11,24 +11,124 @@ class SettingSeeder extends Seeder
     {
         $settings = [
             [
-                'key' => 'app_name',
-                'value' => 'Sistem Data Dukung OPD',
+                'name' => 'Video Intro',
+                'page' => 'home',
+                'url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                'image' => null,
+                'content' => 'Video perkenalan aplikasi KLA',
+                'type' => 'video'
             ],
             [
-                'key' => 'app_description',
-                'value' => 'Sistem Informasi Data Dukung Organisasi Perangkat Daerah',
+                'name' => 'Video Tutorial',
+                'page' => 'tutorial',
+                'url' => 'https://www.youtube.com/embed/6ZfuNTqbHE8',
+                'image' => null,
+                'content' => 'Video tutorial penggunaan aplikasi KLA',
+                'type' => 'video'
             ],
             [
-                'key' => 'contact_email',
-                'value' => 'contact@example.com',
+                'name' => 'Video Banner',
+                'page' => 'banner',
+                'url' => 'https://www.youtube.com/embed/jNQXAC9IVRw',
+                'image' => null,
+                'content' => 'Video banner untuk halaman utama',
+                'type' => 'video'
             ],
             [
-                'key' => 'contact_phone',
-                'value' => '021-555-0123',
+                'name' => 'Video Intro',
+                'page' => 'home',
+                'url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                'image' => null,
+                'content' => 'Video perkenalan aplikasi KLA',
+                'type' => 'video'
             ],
             [
-                'key' => 'address',
-                'value' => 'Jl. Contoh No. 123, Kota Example',
+                'name' => 'Video Tutorial',
+                'page' => 'tutorial',
+                'url' => 'https://www.youtube.com/embed/6ZfuNTqbHE8',
+                'image' => null,
+                'content' => 'Video tutorial penggunaan aplikasi KLA',
+                'type' => 'video'
+            ],
+            [
+                'name' => 'Video Banner',
+                'page' => 'banner',
+                'url' => 'https://www.youtube.com/embed/jNQXAC9IVRw',
+                'image' => null,
+                'content' => 'Video banner untuk halaman utama',
+                'type' => 'video'
+            ],
+            [
+                'name' => 'Video Intro',
+                'page' => 'home',
+                'url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                'image' => null,
+                'content' => 'Video perkenalan aplikasi KLA',
+                'type' => 'video'
+            ],
+            [
+                'name' => 'Video Tutorial',
+                'page' => 'tutorial',
+                'url' => 'https://www.youtube.com/embed/6ZfuNTqbHE8',
+                'image' => null,
+                'content' => 'Video tutorial penggunaan aplikasi KLA',
+                'type' => 'video'
+            ],
+            [
+                'name' => 'Video Banner',
+                'page' => 'banner',
+                'url' => 'https://www.youtube.com/embed/jNQXAC9IVRw',
+                'image' => null,
+                'content' => 'Video banner untuk halaman utama',
+                'type' => 'video'
+            ],
+            [
+                'name' => 'Video Intro',
+                'page' => 'home',
+                'url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                'image' => null,
+                'content' => 'Video perkenalan aplikasi KLA',
+                'type' => 'video'
+            ],
+            [
+                'name' => 'Video Tutorial',
+                'page' => 'tutorial',
+                'url' => 'https://www.youtube.com/embed/6ZfuNTqbHE8',
+                'image' => null,
+                'content' => 'Video tutorial penggunaan aplikasi KLA',
+                'type' => 'video'
+            ],
+            [
+                'name' => 'Video Banner',
+                'page' => 'banner',
+                'url' => 'https://www.youtube.com/embed/jNQXAC9IVRw',
+                'image' => null,
+                'content' => 'Video banner untuk halaman utama',
+                'type' => 'video'
+            ],
+            [
+                'name' => 'Video Intro',
+                'page' => 'home',
+                'url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                'image' => null,
+                'content' => 'Video perkenalan aplikasi KLA',
+                'type' => 'video'
+            ],
+            [
+                'name' => 'Video Tutorial',
+                'page' => 'tutorial',
+                'url' => 'https://www.youtube.com/embed/6ZfuNTqbHE8',
+                'image' => null,
+                'content' => 'Video tutorial penggunaan aplikasi KLA',
+                'type' => 'video'
+            ],
+            [
+                'name' => 'Video Banner',
+                'page' => 'banner',
+                'url' => 'https://www.youtube.com/embed/jNQXAC9IVRw',
+                'image' => null,
+                'content' => 'Video banner untuk halaman utama',
+                'type' => 'video'
             ],
         ];
 

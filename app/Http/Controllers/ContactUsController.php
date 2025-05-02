@@ -17,9 +17,9 @@ class ContactUsController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nama' => 'required|string|max:50',
-            'email' => 'required|email|max:50',
-            'subjek' => 'required|string|max:100',
+            'nama' => 'required|string|max:100',
+            'email' => 'required|email|max:100',
+            'subjek' => 'required|string|max:255',
             'isi' => 'required|string'
         ]);
 

@@ -51,20 +51,22 @@
                             </div>
                         </div>
 
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Path</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slideshow</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="mediaTableBody" class="bg-white divide-y divide-gray-200">
-                            </tbody>
-                        </table>
+                        <div class="max-w-full">
+                            <table class="w-full divide-y divide-gray-200 table-fixed">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">No</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">Nama</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">File</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[30%]">Path</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Slideshow</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mediaTableBody" class="bg-white divide-y divide-gray-200">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <div class="flex justify-between items-center mt-4">
@@ -332,26 +334,34 @@
                 
                 const row = `
                     <tr data-media-id="${item.id}" data-media-name="${item.name}">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">${index + 1}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">${item.name}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">${type}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">${item.file}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <td class="px-6 py-4 text-sm w-12">${index + 1}</td>
+                        <td class="px-6 py-4 text-sm w-[20%]">
+                            <div class="break-words" title="${item.name}">${item.name}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm w-[15%]">
+                            <div class="break-words" title="${type}">${type}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm w-[30%]">
+                            <div class="break-words" title="${item.file}">${item.file}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm w-[15%]">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${item.slide_show ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
                                 ${item.slide_show ? 'Yes' : 'No'}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-3">
-                            <a href="/manage/media/${item.id}/edit" class="text-blue-600 hover:text-blue-900">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                            </a>
-                            <button onclick="deleteMedia(${item.id})" class="text-red-600 hover:text-red-900">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
+                        <td class="px-6 py-4 text-sm font-medium w-20">
+                            <div class="flex space-x-3">
+                                <a href="/manage/media/${item.id}/edit" class="text-blue-600 hover:text-blue-900">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </a>
+                                <button onclick="deleteMedia(${item.id})" class="text-red-600 hover:text-red-900">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;

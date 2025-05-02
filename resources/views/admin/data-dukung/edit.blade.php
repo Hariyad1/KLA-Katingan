@@ -488,9 +488,9 @@
                 const selectedKlasterId = klasterSelect.value;
                 
                 if (selectedKlasterId) {
-                    fetch(`/api/klaster/${selectedKlasterId}/indikators`)
-                        .then(response => response.json())
-                        .then(data => {
+                    axios.get(`/api/klaster/${selectedKlasterId}/indikators`)
+                        .then(response => {
+                            const data = response.data;
                             indikatorSelect.innerHTML = '<option value="">Pilih Indikator</option>';
                             
                             data.forEach(indikator => {
@@ -501,6 +501,14 @@
                                     option.selected = true;
                                 }
                                 indikatorSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: 'Gagal memuat data indikator'
                             });
                         });
                 }
@@ -528,26 +536,15 @@
                     const apiToken = document.querySelector('meta[name="api-token"]')?.getAttribute('content');
                     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-                    const formData = new FormData();
-                    formData.append('_method', 'DELETE');
-                    formData.append('_token', csrfToken);
-
-                    const response = await fetch(`/api/data-dukung/file/${id}`, {
-                        method: 'POST',
+                    const response = await axios.delete(`/api/data-dukung/file/${id}`, {
                         headers: {
                             'Accept': 'application/json',
-                            'Authorization': `Bearer ${apiToken}`
-                        },
-                        body: formData,
-                        credentials: 'include'
+                            'Authorization': `Bearer ${apiToken}`,
+                            'X-CSRF-TOKEN': csrfToken
+                        }
                     });
 
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || 'Gagal menghapus file');
-                    }
-
-                    const data = await response.json();
+                    const data = response.data;
                     
                     const fileRow = document.getElementById(`file-row-${id}`);
                     if (fileRow) {
@@ -566,7 +563,7 @@
                     await Swal.fire({
                         icon: 'error',
                         title: 'Error!',
-                        text: error.message || 'Gagal menghapus file. Silakan coba lagi.'
+                        text: error.response?.data?.message || 'Gagal menghapus file. Silakan coba lagi.'
                     });
                 }
             }

@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('setting', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
-            $table->string('page', 100);
-            $table->string('url', 100);
+            $table->string('name', 255);
+            $table->string('page', 255);
+            $table->string('url', 255);
             $table->string('image', 300)->nullable();
             $table->longText('content')->nullable();
             $table->string('type', 500);

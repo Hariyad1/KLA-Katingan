@@ -104,7 +104,7 @@ class KategoriController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:100'
+            'name' => 'required|string|max:255'
         ]);
 
         if ($validator->fails()) {
@@ -235,7 +235,7 @@ class KategoriController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:100'
+            'name' => 'required|string|max:255'
         ]);
 
         if ($validator->fails()) {

@@ -10,7 +10,6 @@ class ImageUploadController extends Controller
 {
     public function upload(Request $request)
     {
-        // Memastikan directory upload ada
         $uploadPath = public_path('images');
         if (!file_exists($uploadPath)) {
             mkdir($uploadPath, 0777, true);
@@ -26,21 +25,18 @@ class ImageUploadController extends Controller
    
             $url = asset('images/' . $fileName);
             
-            // Log untuk debugging
             Log::info('Upload successful. CKEditor params:', [
                 'CKEditor' => $request->input('CKEditor'),
                 'CKEditorFuncNum' => $request->input('CKEditorFuncNum'),
                 'langCode' => $request->input('langCode')
             ]);
             
-            // Jika request berasal dari CKEditor (memiliki parameter CKEditorFuncNum)
             if ($request->has('CKEditorFuncNum')) {
                 $funcNum = $request->input('CKEditorFuncNum');
                 $response = "<script>window.parent.CKEDITOR.tools.callFunction($funcNum, '$url', '');</script>";
                 return response($response)->header('Content-Type', 'text/html');
             }
             
-            // Jika tidak, berikan response JSON standard
             return response()->json(['fileName' => $fileName, 'uploaded'=> 1, 'url' => $url]);
         }
         

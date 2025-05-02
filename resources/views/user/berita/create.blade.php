@@ -2,7 +2,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <div class="pl-4 py-12">
-        <!-- Form tersembunyi untuk upload CKEditor -->
         <form id="ckeditor-form" action="{{ route('upload.image') }}" method="post" enctype="multipart/form-data" style="display: none;">
             @csrf
             <input type="file" name="upload">
@@ -50,7 +49,6 @@
                             <label class="block text-sm font-medium text-gray-700">Gambar Berita</label>
                             <input type="file" name="image" id="imageInput" accept="image/*" class="mt-1 block w-full" required>
                             
-                            <!-- Upload Progress Bar -->
                             <div id="uploadProgress" class="mt-3 hidden">
                                 <div class="flex justify-between mb-1">
                                     <p class="text-xs text-gray-700" id="progressText">0%</p>

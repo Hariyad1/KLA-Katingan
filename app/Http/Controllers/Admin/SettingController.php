@@ -27,9 +27,9 @@ class SettingController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'page' => 'required|string|max:100',
-            'url' => 'required|string|max:100',
+            'name' => 'required|string|max:255',
+            'page' => 'required|string|max:255',
+            'url' => 'required|string|max:255',
             'image' => 'nullable|image|max:51200',
             'content' => 'nullable|string',
             'type' => 'required|string|max:500'

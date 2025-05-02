@@ -118,23 +118,22 @@
         function loadNewsData() {
             showLoading();
             
-            fetch('/api/news', {
+            axios.get('/api/news', {
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': 'Bearer {{ session("api_token") }}'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
+            .then(response => {
                 hideLoading();
-                allNews = data.data || data;
+                allNews = response.data.data || response.data;
                 filteredData = allNews;
                 updateTableDisplay();
             })
             .catch(error => {
                 hideLoading();
                 console.error('Error:', error);
-                Swal.fire('Error!', 'Gagal memuat data berita', 'error');
+                Swal.fire('Error!', error.response?.data?.message || 'Gagal memuat data berita', 'error');
             });
         }
 

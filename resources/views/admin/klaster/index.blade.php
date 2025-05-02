@@ -45,13 +45,13 @@
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 table-fixed">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">KLASTER</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">JUMLAH INDIKATOR</th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">AKSI</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">No</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[50%]">KLASTER</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">JUMLAH INDIKATOR</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">AKSI</th>
                                 </tr>
                             </thead>
                             <tbody id="klasterTableBody" class="bg-white divide-y divide-gray-200">
@@ -115,24 +115,18 @@
                 document.getElementById('loadingSpinner').classList.remove('hidden');
                 
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const apiToken = document.querySelector('meta[name="api-token"]')?.getAttribute('content') || '';
                 
-                const response = await fetch(`/api/klaster?per_page=1000`, {
-                    method: 'GET',
-                    credentials: 'include',
+                const response = await axios.get(`/api/klaster?per_page=1000`, {
                     headers: {
                         'Accept': 'application/json',
-                        'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': csrfToken,
-                        'Authorization': `Bearer ${document.querySelector('meta[name="api-token"]')?.getAttribute('content') || ''}`
+                        'Authorization': `Bearer ${apiToken}`
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Error: ${response.status}`);
-                }
-
-                const data = await response.json();
+                const data = response.data;
                 
                 if (!data.data || data.data.length === 0) {
                     return [];
@@ -141,7 +135,7 @@
                 return data.data;
             } catch (error) {
                 console.error('Error:', error);
-                notyf.error(error.message || 'Gagal memuat data klaster');
+                notyf.error(error.response?.data?.message || error.message || 'Gagal memuat data klaster');
                 return [];
             } finally {
                 document.getElementById('loadingSpinner').classList.add('hidden');
@@ -182,26 +176,28 @@
                 const startingNumber = (currentPage - 1) * perPage + 1;
                 tableBody.innerHTML += `
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4 w-12">
                             <div class="text-sm text-gray-900">${startingNumber + index}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">${klaster.name || '-'}</div>
+                        <td class="px-6 py-4 w-[50%]">
+                            <div class="text-sm font-medium text-gray-900 break-words">${klaster.name || '-'}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4 w-[20%]">
                             <div class="text-sm text-gray-500">${klaster.indikator_count || 0}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                            <a href="/manage/klaster/${klaster.id}/edit" class="text-indigo-600 hover:text-indigo-900 inline-flex items-center" title="Edit Klaster">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                            </a>
-                            <button onclick="confirmDelete(${klaster.id})" class="text-red-600 hover:text-red-900 inline-flex items-center" title="Hapus Klaster">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
+                        <td class="px-6 py-4 w-[20%] text-right text-sm font-medium">
+                            <div class="flex justify-end space-x-3">
+                                <a href="/manage/klaster/${klaster.id}/edit" class="text-indigo-600 hover:text-indigo-900 inline-flex items-center" title="Edit Klaster">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </a>
+                                <button onclick="confirmDelete(${klaster.id})" class="text-red-600 hover:text-red-900 inline-flex items-center" title="Hapus Klaster">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -270,7 +266,7 @@
         async function confirmDelete(id) {
             const result = await Swal.fire({
                 title: 'Apakah Anda yakin?',
-                text: "Klaster yang dihapus tidak dapat dikembalikan!",
+                text: "Klaster yang dihapus tidak dapat dikembalikan dan semua indikator di dalamnya juga akan dihapus!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -282,41 +278,40 @@
             if (result.isConfirmed) {
                 try {
                     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const apiToken = document.querySelector('meta[name="api-token"]')?.getAttribute('content') || '';
                     
-                    const response = await fetch(`/api/klaster/${id}`, {
-                        method: 'DELETE',
-                        credentials: 'include',
+                    await axios.post(`/api/klaster/${id}`, {
+                        _method: 'DELETE',
+                        _token: csrfToken
+                    }, {
                         headers: {
                             'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
                             'X-Requested-With': 'XMLHttpRequest',
-                            'Authorization': `Bearer ${document.querySelector('meta[name="api-token"]')?.getAttribute('content') || ''}`
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Authorization': `Bearer ${apiToken}`
                         }
                     });
 
-                    if (!response.ok) {
-                        if (response.status === 401) {
-                            throw new Error('Sesi telah berakhir. Silakan muat ulang halaman.');
-                        }
-                        if (response.status === 403) {
-                            throw new Error('Anda tidak memiliki izin untuk menghapus klaster ini.');
-                        }
-                        throw new Error('Gagal menghapus klaster');
-                    }
-
-                    const data = await response.json();
+                    notyf.success('Klaster berhasil dihapus');
                     
-                    if (data.success) {
-                        notyf.success('Klaster berhasil dihapus');
-                        allKlasterData = await fetchAllKlaster();
-                        renderTable();
-                    } else {
-                        throw new Error(data.message || 'Gagal menghapus klaster');
-                    }
+                    allKlasterData = await fetchAllKlaster();
+                    renderTable();
                 } catch (error) {
                     console.error('Error:', error);
-                    notyf.error(error.message);
+                    
+                    if (error.response) {
+                        if (error.response.status === 401) {
+                            notyf.error('Sesi telah berakhir. Silakan muat ulang halaman.');
+                        } else if (error.response.status === 403) {
+                            notyf.error('Anda tidak memiliki izin untuk menghapus klaster ini.');
+                        } else if (error.response.status === 422) {
+                            notyf.error('Klaster ini tidak dapat dihapus karena masih memiliki indikator di dalamnya.');
+                        } else {
+                            notyf.error(error.response.data?.message || 'Gagal menghapus klaster');
+                        }
+                    } else {
+                        notyf.error(error.message || 'Gagal menghapus klaster');
+                    }
                 }
             }
         }

@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('agenda', function (Blueprint $table) {
             $table->id();
-            $table->string('title', 100);
+            $table->string('title', 255);
             $table->date('tanggal');
-            $table->string('keterangan', 100);
+            $table->string('keterangan', 255);
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->nullable();
         });

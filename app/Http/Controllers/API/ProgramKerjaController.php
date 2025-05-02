@@ -19,55 +19,44 @@ class ProgramKerjaController extends Controller
             $opd_id = $request->opd_id ?? null;
             $search = $request->search ?? null;
             
-            // Query builder dasar
             $query = ProgramKerja::with('opd');
             
-            // Jika ada filter tahun, tambahkan ke query
             if ($tahun) {
                 $query->where('tahun', $tahun);
             }
             
-            // Jika ada filter OPD, tambahkan ke query
             if ($opd_id) {
                 $query->where('opd_id', $opd_id);
             }
             
-            // Jika ada pencarian, tambahkan ke query dengan optimasi
             if ($search && strlen(trim($search)) >= 2) {
                 try {
-                    // Gunakan full text search jika tersedia, atau fallback ke LIKE
-                    if (config('database.default') === 'mysql') {
-                        // MySQL/MariaDB: Gunakan FULLTEXT jika column di-index (case-insensitive)
-                        $query->whereRaw("MATCH(description) AGAINST(? IN BOOLEAN MODE)", [$search . '*']);
-                    } elseif (config('database.default') === 'pgsql') {
-                        // PostgreSQL: Gunakan ILIKE untuk case-insensitive
-                        $query->whereRaw("description ILIKE ?", ['%' . $search . '%']);
-                    } elseif (config('database.default') === 'sqlite') {
-                        // SQLite: Gunakan COLLATE NOCASE untuk case-insensitive
-                        $query->whereRaw("description LIKE ? COLLATE NOCASE", ['%' . $search . '%']);
-                    } else {
-                        // Fallback ke basic LIKE search dengan lower pada database lain
-                        $query->whereRaw("LOWER(description) LIKE ?", ['%' . strtolower($search) . '%']);
-                    }
+                    $searchTerm = '%' . trim($search) . '%';
+                    
+                    $query->where(function($q) use ($searchTerm, $search) {
+                        $q->where('description', 'like', $searchTerm);
+                        
+                        if (is_numeric($search)) {
+                            $q->orWhere('tahun', 'like', $searchTerm);
+                        }
+                        
+                        $q->orWhereHas('opd', function($opdQuery) use ($searchTerm) {
+                            $opdQuery->where('name', 'like', $searchTerm);
+                        });
+                    });
                 } catch (\Exception $e) {
-                    // Fallback jika query search gagal
                     $query->where('description', 'like', '%' . $search . '%');
-                    Log::warning('Search query failed, fallback to simple LIKE: ' . $e->getMessage());
                 }
             }
             
-            // Konsistenkan jumlah item per halaman
             $perPage = $request->input('per_page', 3);
             if (!is_numeric($perPage) || $perPage < 1) {
-                $perPage = 3; // Default jika nilai tidak valid
+                $perPage = 3;
             }
             
-            // Paginate hasil 
             $programKerjas = $query->latest()->paginate($perPage);
             
-            // Pastikan pagination tidak melampaui batas
             if ($programKerjas->currentPage() > $programKerjas->lastPage() && $programKerjas->lastPage() > 0) {
-                // Kembalikan respons JSON dengan informasi halaman terakhir
                 $lastPageUrl = route('api.program.index', array_merge(
                     $request->except('page'),
                     ['page' => $programKerjas->lastPage()]
@@ -82,7 +71,6 @@ class ProgramKerjaController extends Controller
                 ]);
             }
                 
-            // Selalu gunakan format response yang sama
             $html = view('profil.partials.program-cards', compact('programKerjas'))->render();
             $pagination = view('profil.partials.pagination', compact('programKerjas'))->render();
             
@@ -103,8 +91,7 @@ class ProgramKerjaController extends Controller
             
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat memproses data: ' . $e->getMessage(),
-                'error' => config('app.debug') ? $e->getTraceAsString() : null
+                'message' => 'Terjadi kesalahan saat memproses data'
             ], 500);
         }
     }
@@ -114,8 +101,7 @@ class ProgramKerjaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Validasi data
-        $request->validate([
+            $request->validate([
             'opd_id' => 'required|exists:opds,id',
             'description' => 'required|string',
             'tahun' => 'required|integer|min:2000',

@@ -20,23 +20,19 @@ class ProgramKerjaController extends Controller
     {
         $opds = Opd::all();
         
-        // Ambil tahun-tahun yang sudah ada di database
         $existingYears = ProgramKerja::select('tahun')
             ->distinct()
             ->orderBy('tahun', 'desc')
             ->pluck('tahun')
             ->toArray();
             
-        // Tambahkan tahun saat ini jika belum ada
         $currentYear = (int)date('Y');
         if (!in_array($currentYear, $existingYears)) {
             $existingYears[] = $currentYear;
         }
         
-        // Tambahkan tahun berikutnya sebagai opsi
         $existingYears[] = $currentYear + 1;
         
-        // Urutkan tahun
         sort($existingYears, SORT_NUMERIC);
         $tahun = $existingYears;
         
@@ -67,28 +63,23 @@ class ProgramKerjaController extends Controller
     {
         $opds = Opd::all();
         
-        // Ambil tahun-tahun yang sudah ada di database
         $existingYears = ProgramKerja::select('tahun')
             ->distinct()
             ->orderBy('tahun', 'desc')
             ->pluck('tahun')
             ->toArray();
             
-        // Tambahkan tahun dari program kerja yang sedang diedit jika belum ada
         if (!in_array($programKerja->tahun, $existingYears)) {
             $existingYears[] = $programKerja->tahun;
         }
         
-        // Tambahkan tahun saat ini jika belum ada
         $currentYear = (int)date('Y');
         if (!in_array($currentYear, $existingYears)) {
             $existingYears[] = $currentYear;
         }
         
-        // Tambahkan tahun berikutnya sebagai opsi
         $existingYears[] = $currentYear + 1;
         
-        // Urutkan tahun
         sort($existingYears, SORT_NUMERIC);
         $tahun = $existingYears;
         

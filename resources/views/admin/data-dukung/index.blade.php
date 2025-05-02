@@ -43,78 +43,86 @@
                         <div x-show="isLoading" class="absolute inset-0 bg-white bg-opacity-80 z-10 flex items-center justify-center">
                             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
                         </div>
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">No</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">OPD</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Klaster</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">Indikator</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <template x-for="(item, index) in items" :key="item.id">
+                        <div class="max-w-full">
+                            <table class="w-full divide-y divide-gray-200 table-fixed">
+                                <thead class="bg-gray-50">
                                     <tr>
-                                        <td class="px-6 py-4 w-16" x-text="(currentPage - 1) * perPage + index + 1"></td>
-                                        <td class="px-6 py-4 w-1/6 truncate" x-text="item.opd.name"></td>
-                                        <td class="px-6 py-4 w-1/6 truncate" x-text="item.indikator.klaster.name"></td>
-                                        <td class="px-6 py-4 w-1/4 break-words" x-text="item.indikator.name"></td>
-                                        <td class="px-6 py-4">
-                                            <template x-for="file in item.files" :key="file.id">
-                                                <div class="mb-2 p-2 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-150">
-                                                    <div class="flex items-start gap-2">
-                                                        <div class="flex-shrink-0">
-                                                            <i :class="{
-                                                                    'fas fa-file-pdf text-red-500 text-base': file.original_name.toLowerCase().endsWith('.pdf'),
-                                                                    'fas fa-file-word text-blue-500 text-base': file.original_name.toLowerCase().endsWith('.doc') || file.original_name.toLowerCase().endsWith('.docx'),
-                                                                    'fas fa-file-excel text-green-500 text-base': file.original_name.toLowerCase().endsWith('.xls') || file.original_name.toLowerCase().endsWith('.xlsx'),
-                                                                    'fas fa-file-image text-purple-500 text-base': file.original_name.toLowerCase().endsWith('.jpg') || file.original_name.toLowerCase().endsWith('.jpeg') || file.original_name.toLowerCase().endsWith('.png'),
-                                                                    'fas fa-file text-gray-500 text-base': !file.original_name.toLowerCase().match(/\.(pdf|doc|docx|xls|xlsx|jpg|jpeg|png)$/)
-                                                            }" class="text-lg"></i>
-                                                        </div>
-                                                        <div class="flex-1 min-w-0">
-                                                            <span class="text-sm font-medium text-gray-700 truncate block" :title="file.original_name" x-text="file.original_name.length > 30 ? file.original_name.substring(0, 27) + '...' : file.original_name"></span>
-                                                            <span class="text-xs text-gray-500" x-text="file.size ? formatFileSize(file.size) : 'Ukuran tidak tersedia'"></span>
-                                                        </div>
-                                                        <div class="flex items-center gap-2 flex-shrink-0">
-                                                            <a :href="'/storage/' + file.file" download title="Unduh" class="text-indigo-600 hover:text-indigo-800">
-                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                                                                </svg>
-                                                            </a>
-                                                            <button type="button" @click="confirmDeleteFile(file.id)" class="text-red-600 hover:text-red-900">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">No</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">OPD</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Klaster</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[30%]">Indikator</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[25%]">File</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <template x-for="(item, index) in items" :key="item.id">
+                                        <tr>
+                                            <td class="px-6 py-4 w-12" x-text="(currentPage - 1) * perPage + index + 1"></td>
+                                            <td class="px-6 py-4 w-[15%]">
+                                                <div class="truncate" :title="item.opd.name" x-text="item.opd.name"></div>
+                                            </td>
+                                            <td class="px-6 py-4 w-[15%]">
+                                                <div class="truncate" :title="item.indikator.klaster.name" x-text="item.indikator.klaster.name"></div>
+                                            </td>
+                                            <td class="px-6 py-4 w-[30%]">
+                                                <div class="break-words" :title="item.indikator.name" x-text="item.indikator.name"></div>
+                                            </td>
+                                            <td class="px-6 py-4 w-[25%] max-h-40 overflow-y-auto">
+                                                <template x-for="file in item.files" :key="file.id">
+                                                    <div class="mb-2 p-2 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-150">
+                                                        <div class="flex items-start gap-2">
+                                                            <div class="flex-shrink-0">
+                                                                <i :class="{
+                                                                        'fas fa-file-pdf text-red-500 text-base': file.original_name.toLowerCase().endsWith('.pdf'),
+                                                                        'fas fa-file-word text-blue-500 text-base': file.original_name.toLowerCase().endsWith('.doc') || file.original_name.toLowerCase().endsWith('.docx'),
+                                                                        'fas fa-file-excel text-green-500 text-base': file.original_name.toLowerCase().endsWith('.xls') || file.original_name.toLowerCase().endsWith('.xlsx'),
+                                                                        'fas fa-file-image text-purple-500 text-base': file.original_name.toLowerCase().endsWith('.jpg') || file.original_name.toLowerCase().endsWith('.jpeg') || file.original_name.toLowerCase().endsWith('.png'),
+                                                                        'fas fa-file text-gray-500 text-base': !file.original_name.toLowerCase().match(/\.(pdf|doc|docx|xls|xlsx|jpg|jpeg|png)$/)
+                                                                }" class="text-lg"></i>
+                                                            </div>
+                                                            <div class="flex-1 min-w-0">
+                                                                <span class="text-sm font-medium text-gray-700 truncate block" :title="file.original_name" x-text="file.original_name.length > 30 ? file.original_name.substring(0, 27) + '...' : file.original_name"></span>
+                                                                <span class="text-xs text-gray-500" x-text="file.size ? formatFileSize(file.size) : 'Ukuran tidak tersedia'"></span>
+                                                            </div>
+                                                            <div class="flex items-center gap-2 flex-shrink-0">
+                                                                <a :href="'/storage/' + file.file" download title="Unduh" class="text-indigo-600 hover:text-indigo-800">
+                                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                                    </svg>
+                                                                </a>
+                                                                <button type="button" @click="confirmDeleteFile(file.id)" class="text-red-600 hover:text-red-900">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
+                                                </template>
+                                            </td>
+                                            <td class="px-6 py-4 w-16">
+                                                <div class="flex items-center space-x-2">
+                                                    <a :href="'/manage/data-dukung/' + item.id + '/edit'" class="text-indigo-600 hover:text-indigo-900 inline-flex items-center">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                        </svg>
+                                                    </a>
+                                                    <button type="button" @click="confirmDelete(item.id)" class="text-red-600 hover:text-red-900 inline-flex items-center">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                        </svg>
+                                                    </button>
                                                 </div>
-                                            </template>
-                                        </td>
-                                        <td class="px-6 py-4 w-24">
-                                            <div class="flex items-center space-x-2">
-                                                <a :href="'/manage/data-dukung/' + item.id + '/edit'" class="text-indigo-600 hover:text-indigo-900 inline-flex items-center">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                                    </svg>
-                                                </a>
-                                                <button type="button" @click="confirmDelete(item.id)" class="text-red-600 hover:text-red-900 inline-flex items-center">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <tr x-show="!isLoading && items.length === 0">
+                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                            Tidak ada data dukung
                                         </td>
                                     </tr>
-                                </template>
-                                <tr x-show="!isLoading && items.length === 0">
-                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                                        Tidak ada data dukung
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- Pagination -->
@@ -231,42 +239,15 @@
                         
                         const url = `/api/data-dukung?${params.toString()}`;
                         
-                        const response = await fetch(url, {
+                        const response = await axios.get(url, {
                             headers: {
                                 'Accept': 'application/json',
-                                'Content-Type': 'application/json',
                                 'Authorization': `Bearer ${apiToken}`,
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            },
-                            credentials: 'include'
+                            }
                         });
                         
-                        if (!response.ok) {
-                            const errorText = await response.text();
-                            console.error('Response not OK:', {
-                                status: response.status,
-                                statusText: response.statusText,
-                                body: errorText
-                            });
-                            
-                            if (response.status === 401) {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Sesi Berakhir',
-                                    text: 'Sesi Anda telah berakhir. Silakan login kembali.',
-                                    confirmButtonText: 'Login Ulang'
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        window.location.href = '/login';
-                                    }
-                                });
-                                return;
-                            }
-                            
-                            throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-                        }
-                        
-                        const result = await response.json();
+                        const result = response.data;
                         
                         if (!result.data) {
                             console.error('Invalid response format:', result);
@@ -285,27 +266,38 @@
                             
                             const getAllUrl = `/api/data-dukung?${getAllParams.toString()}`;
                             
-                            const allDataResponse = await fetch(getAllUrl, {
+                            const allDataResponse = await axios.get(getAllUrl, {
                                 headers: {
                                     'Accept': 'application/json',
-                                    'Content-Type': 'application/json',
                                     'Authorization': `Bearer ${apiToken}`,
                                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                },
-                                credentials: 'include'
+                                }
                             });
                             
-                            if (allDataResponse.ok) {
-                                const allDataResult = await allDataResponse.json();
-                                if (allDataResult.data) {
-                                    this.cachedData = Array.isArray(allDataResult.data) 
-                                        ? allDataResult.data 
-                                        : (allDataResult.data.data || []);
-                                }
+                            const allDataResult = allDataResponse.data;
+                            if (allDataResult.data) {
+                                this.cachedData = Array.isArray(allDataResult.data) 
+                                    ? allDataResult.data 
+                                    : (allDataResult.data.data || []);
                             }
                         }
                     } catch (error) {
                         console.error('Detailed error:', error);
+                        
+                        if (error.response && error.response.status === 401) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Sesi Berakhir',
+                                text: 'Sesi Anda telah berakhir. Silakan login kembali.',
+                                confirmButtonText: 'Login Ulang'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '/login';
+                                }
+                            });
+                            return;
+                        }
+                        
                         Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
@@ -339,29 +331,16 @@
                                 const apiToken = document.querySelector('meta[name="api-token"]')?.getAttribute('content');
                                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
                                 
-                                const formData = new FormData();
-                                formData.append('_method', 'DELETE');
-                                formData.append('_token', csrfToken);
-                                
-                                const response = await fetch(`/manage/data-dukung/${id}`, {
-                                    method: 'POST',
+                                await axios.post(`/manage/data-dukung/${id}`, {
+                                    _method: 'DELETE',
+                                    _token: csrfToken
+                                }, {
                                     headers: {
                                         'Accept': 'application/json',
-                                        'Authorization': `Bearer ${apiToken}`
-                                    },
-                                    body: formData,
-                                    credentials: 'include'
+                                        'Authorization': `Bearer ${apiToken}`,
+                                        'X-CSRF-TOKEN': csrfToken
+                                    }
                                 });
-
-                                if (!response.ok) {
-                                    const errorText = await response.text();
-                                    console.error('Delete response not OK:', {
-                                        status: response.status,
-                                        statusText: response.statusText,
-                                        body: errorText
-                                    });
-                                    throw new Error('Gagal menghapus data');
-                                }
 
                                 await this.fetchData();
                                 Swal.fire({
@@ -375,7 +354,7 @@
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Oops...',
-                                    text: error.message || 'Terjadi kesalahan saat menghapus data!'
+                                    text: error.response?.data?.message || error.message || 'Terjadi kesalahan saat menghapus data!'
                                 });
                             }
                         }
@@ -404,30 +383,18 @@
                                     hasCsrfToken: !!csrfToken
                                 });
                                 
-                                const formData = new FormData();
-                                formData.append('_method', 'DELETE');
-                                formData.append('_token', csrfToken);
-                                
-                                const response = await fetch(`/manage/data-dukung/file/${id}`, {
-                                    method: 'POST',
+                                const response = await axios.post(`/manage/data-dukung/file/${id}`, {
+                                    _method: 'DELETE',
+                                    _token: csrfToken
+                                }, {
                                     headers: {
                                         'Accept': 'application/json',
-                                        'Authorization': `Bearer ${apiToken}`
-                                    },
-                                    body: formData,
-                                    credentials: 'include'
+                                        'Authorization': `Bearer ${apiToken}`,
+                                        'X-CSRF-TOKEN': csrfToken
+                                    }
                                 });
 
-                                const responseData = await response.text();
-                                console.log('Delete file response:', {
-                                    status: response.status,
-                                    statusText: response.statusText,
-                                    response: responseData
-                                });
-
-                                if (!response.ok) {
-                                    throw new Error(responseData || 'Gagal menghapus file');
-                                }
+                                console.log('Delete file response:', response.data);
 
                                 Swal.fire({
                                     icon: 'success',
@@ -439,19 +406,11 @@
                                 });
                             } catch (error) {
                                 console.error('Detailed error:', error);
-                                let errorMessage = 'Terjadi kesalahan saat menghapus file!';
-                                
-                                try {
-                                    const errorData = JSON.parse(error.message);
-                                    errorMessage = errorData.message || errorMessage;
-                                } catch (e) {
-                                    errorMessage = error.message || errorMessage;
-                                }
                                 
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Oops...',
-                                    text: errorMessage
+                                    text: error.response?.data?.message || error.message || 'Terjadi kesalahan saat menghapus file!'
                                 });
                             }
                         }

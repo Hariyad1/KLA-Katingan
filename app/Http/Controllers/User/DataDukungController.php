@@ -187,30 +187,49 @@ class DataDukungController extends Controller
     public function list(Request $request)
     {
         $perPage = $request->input('per_page', 10);
-        $search = $request->input('search', '');
-
-        $query = DataDukung::with(['opd', 'indikator.klaster', 'files'])
-            ->where('created_by', Auth::id());
-
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->whereHas('opd', function($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
-                })
-                ->orWhereHas('indikator', function($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
-                })
-                ->orWhereHas('indikator.klaster', function($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
+        
+        try {
+            $query = DataDukung::with(['opd', 'indikator.klaster', 'files'])
+                ->where('created_by', Auth::id())
+                ->latest();
+            
+            if ($request->has('search') && !empty(trim($request->input('search')))) {
+                $search = trim($request->input('search'));
+                $query->where(function($q) use ($search) {
+                    $q->whereHas('opd', function($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%');
+                    });
+                    
+                    $q->orWhereHas('indikator', function($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%');
+                    });
+                    
+                    $q->orWhereHas('indikator.klaster', function($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%');
+                    });
+                    
+                    $q->orWhereHas('files', function($q) use ($search) {
+                        $q->where('original_name', 'like', '%' . $search . '%');
+                    });
+                    
+                    $q->orWhere('description', 'like', '%' . $search . '%');
                 });
-            });
+            }
+            
+            $dataDukung = $query->paginate($perPage);
+            
+            return response()->json([
+                'data' => $dataDukung
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error dalam endpoint list data dukung: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'error' => 'Terjadi kesalahan saat mengambil data: ' . $e->getMessage()
+            ], 500);
         }
-
-        $dataDukung = $query->latest()->paginate($perPage);
-
-        return response()->json([
-            'data' => $dataDukung
-        ]);
     }
 
     public function all(Request $request)

@@ -114,23 +114,19 @@
             try {
                 document.getElementById('loadingSpinner').classList.remove('hidden');
                 
-                const response = await fetch(`/api/opd?per_page=1000`, {
-                    method: 'GET',
-                    credentials: 'include',
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const apiToken = document.querySelector('meta[name="api-token"]')?.getAttribute('content') || '';
+                
+                const response = await axios.get(`/api/opd?per_page=1000`, {
                     headers: {
                         'Accept': 'application/json',
-                        'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Authorization': `Bearer ${document.querySelector('meta[name="api-token"]')?.getAttribute('content') || ''}`
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Authorization': `Bearer ${apiToken}`
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Error: ${response.status}`);
-                }
-
-                const data = await response.json();
+                const data = response.data;
                 
                 if (!data.data || data.data.length === 0) {
                     return [];
@@ -139,7 +135,7 @@
                 return data.data;
             } catch (error) {
                 console.error('Error:', error);
-                notyf.error(error.message || 'Gagal memuat data OPD');
+                notyf.error(error.response?.data?.message || error.message || 'Gagal memuat data OPD');
                 return [];
             } finally {
                 document.getElementById('loadingSpinner').classList.add('hidden');
@@ -268,40 +264,40 @@
 
             if (result.isConfirmed) {
                 try {
-                    const response = await fetch(`/api/opd/${id}`, {
-                        method: 'DELETE',
-                        credentials: 'include',
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const apiToken = document.querySelector('meta[name="api-token"]')?.getAttribute('content') || '';
+                    
+                    await axios.post(`/api/opd/${id}`, {
+                        _method: 'DELETE',
+                        _token: csrfToken
+                    }, {
                         headers: {
                             'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'X-Requested-With': 'XMLHttpRequest',
-                            'Authorization': `Bearer ${document.querySelector('meta[name="api-token"]')?.getAttribute('content') || ''}`
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Authorization': `Bearer ${apiToken}`
                         }
                     });
 
-                    if (!response.ok) {
-                        if (response.status === 401) {
-                            throw new Error('Sesi telah berakhir. Silakan muat ulang halaman.');
-                        }
-                        if (response.status === 403) {
-                            throw new Error('Anda tidak memiliki izin untuk menghapus OPD ini.');
-                        }
-                        throw new Error('Gagal menghapus OPD');
-                    }
-
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        notyf.success('OPD berhasil dihapus');
-                        allOpdData = await fetchAllOpd();
-                        renderTable();
-                    } else {
-                        throw new Error(data.message || 'Gagal menghapus OPD');
-                    }
+                    notyf.success('OPD berhasil dihapus');
+                    allOpdData = await fetchAllOpd();
+                    renderTable();
                 } catch (error) {
                     console.error('Error:', error);
-                    notyf.error(error.message);
+                    
+                    if (error.response) {
+                        if (error.response.status === 401) {
+                            notyf.error('Sesi telah berakhir. Silakan muat ulang halaman.');
+                        } else if (error.response.status === 403) {
+                            notyf.error('Anda tidak memiliki izin untuk menghapus OPD ini.');
+                        } else if (error.response.status === 422) {
+                            notyf.error('OPD ini tidak dapat dihapus karena masih digunakan di data lain.');
+                        } else {
+                            notyf.error(error.response.data?.message || 'Gagal menghapus OPD');
+                        }
+                    } else {
+                        notyf.error(error.message || 'Gagal menghapus OPD');
+                    }
                 }
             }
         }

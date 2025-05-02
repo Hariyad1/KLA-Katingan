@@ -1,22 +1,17 @@
 <x-main-layout>
-    <!-- Header Section dengan Background Image -->
     <div class="relative h-[300px] flex items-center justify-center overflow-hidden">
-        <!-- Background Image dengan Overlay -->
         <div class="absolute inset-0">
             <img src="{{ asset('images/inner-head.png') }}" alt="Header Background" class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-b from-purple-900/50 to-purple-900/70"></div>
         </div>
         
-        <!-- Decorative Elements -->
         <div class="absolute inset-0">
-            <!-- Orange Circle -->
             <div class="absolute left-20 top-20">
                 <svg width="80" height="80" viewBox="0 0 80 80" class="text-orange-500 opacity-80">
                     <circle cx="40" cy="40" r="40" fill="currentColor"/>
                 </svg>
             </div>
             
-            <!-- Stars -->
             <div class="absolute right-32 top-16">
                 <svg width="24" height="24" viewBox="0 0 24 24" class="text-yellow-300 opacity-80">
                     <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -28,7 +23,6 @@
                 </svg>
             </div>
             
-            <!-- Shooting Star -->
             <div class="absolute right-16 top-12">
                 <svg width="100" height="100" viewBox="0 0 100 100" class="text-yellow-300 opacity-80 transform -rotate-45">
                     <path fill="currentColor" d="M50 0 L52 98 L48 98 L50 0 Z"/>
@@ -37,7 +31,6 @@
             </div>
         </div>
         
-        <!-- Content -->
         <div class="relative z-10 text-center">
             <h1 class="text-5xl font-extrabold text-white mb-4 tracking-wide">
                 STRUKTUR ORGANISASI
@@ -52,14 +45,11 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <!-- Struktur Organisasi dengan Hierarki -->
                     <div class="flex flex-col items-center space-y-8">
-                        <!-- Level 1: Kepala Dinas (Paling Atas) -->
                         <div class="flex justify-center">
                             <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
                                 <div class="absolute top-0 right-0">
@@ -77,16 +67,12 @@
                             </div>
                         </div>
 
-                        <!-- Connector Line -->
                         <div class="h-8 w-1 bg-blue-500"></div>
 
-                        <!-- Level 2: Sekretaris di kanan -->
                         <div class="w-full">
                             <div class="grid grid-cols-1 md:grid-cols-5 gap-6 px-4">
-                                <!-- Placeholder kosong di kiri pada tampilan desktop -->
                                 <div class="hidden md:block md:col-span-3"></div>
                                 
-                                <!-- Sekretaris di kanan (tapi tidak terlalu pojok) -->
                                 <div class="justify-self-center md:col-span-2 md:justify-self-start md:pl-4">
                                     <div class="border border-blue-300 rounded-lg overflow-hidden shadow-md relative bg-white text-center w-64 min-w-[16rem] max-w-[16rem]">
                                         <div class="absolute top-0 right-0">
@@ -106,10 +92,8 @@
                             </div>
                         </div>
 
-                        <!-- Connector Line -->
                         <div class="h-8 w-1 bg-blue-500"></div>
 
-                        <!-- Level 3: Kasubag (3 Posisi) -->
                         <div class="w-full">
                             <div class="text-center mb-4">
                                 <h3 class="text-lg font-semibold text-gray-700">Kepala Jabatan</h3>
@@ -162,10 +146,8 @@
                             </div>
                         </div>
 
-                        <!-- Connector Line -->
                         <div class="h-8 w-1 bg-blue-500"></div>
 
-                        <!-- Level 4: Kabid (4 posisi) -->
                         <div class="w-full">
                             <div class="text-center mb-4">
                                 <h3 class="text-lg font-semibold text-gray-700">Kepala Jabatan</h3>
@@ -233,10 +215,8 @@
                             </div>
                         </div>
 
-                        <!-- Connector Line -->
                         <div class="h-8 w-1 bg-blue-500"></div>
 
-                        <!-- Level 5: Kasi -->
                         <div class="w-full">
                             <div class="text-center mb-4">
                                 <h3 class="text-lg font-semibold text-gray-700">Kepala Jabatan</h3>

@@ -32,25 +32,22 @@ class AdminAuthTest extends TestCase
     //     $this->actingAs($user);
 
     //     $response = $this->get('/manage/opd');
-    //     $response->assertStatus(403); // Seharusnya mendapat forbidden
+    //     $response->assertStatus(403);
     // }
 
     public function test_guest_cannot_access_admin_pages()
     {
-        // Coba akses halaman admin tanpa login
         $response = $this->get('/manage/opd');
-        $response->assertRedirect('/login'); // Seharusnya diarahkan ke halaman login
+        $response->assertRedirect('/login');
     }
 
     public function test_wrong_admin_credentials_cannot_login()
     {
-        // Coba login dengan password yang salah
         $response = $this->post('/login', [
             'email' => 'admin@gmail.com',
             'password' => 'wrong-password'
         ]);
 
-        // Verifikasi gagal login
         $response->assertSessionHasErrors();
         $this->assertGuest();
     }

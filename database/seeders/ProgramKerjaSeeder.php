@@ -13,12 +13,11 @@ class ProgramKerjaSeeder extends Seeder
         $opds = Opd::all();
         
         if ($opds->isEmpty()) {
-            return; // Jika tidak ada OPD, keluar dari seeder
+            return;
         }
         
         $currentYear = date('Y');
         
-        // Program kerja untuk tahun saat ini
         $programKerjasTahunIni = [
             [
                 'description' => 'Pembentukan Gugus Tugas KLA tingkat kabupaten/kota dan kecamatan',
@@ -38,7 +37,6 @@ class ProgramKerjaSeeder extends Seeder
             ],
         ];
 
-        // Program kerja untuk tahun sebelumnya
         $programKerjasTahunLalu = [
             [
                 'description' => 'Pengembangan Sekolah Ramah Anak di seluruh wilayah',
@@ -54,7 +52,6 @@ class ProgramKerjaSeeder extends Seeder
             ],
         ];
         
-        // Program kerja untuk 2 tahun sebelumnya
         $programKerjasDuaTahunLalu = [
             [
                 'description' => 'Pengembangan Puskesmas Ramah Anak dan pelayanan kesehatan komprehensif',
@@ -70,14 +67,12 @@ class ProgramKerjaSeeder extends Seeder
             ],
         ];
         
-        // Gabungkan semua program kerja
         $allProgramKerjas = array_merge(
             $programKerjasTahunIni,
             $programKerjasTahunLalu,
             $programKerjasDuaTahunLalu
         );
 
-        // Distribusikan program kerja ke semua OPD yang ada
         foreach ($allProgramKerjas as $index => $program) {
             $opdIndex = $index % count($opds);
             

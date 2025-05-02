@@ -508,10 +508,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin/data-dukung')->name('admin.d
     Route::delete('/file/{file}', [AdminDataDukungController::class, 'destroyFile'])->name('destroy-file');
 });
 
-Route::get('/{url}', [DynamicPageController::class, 'show'])
-    ->where('url', '.*')
-    ->name('dynamic.page');
-
 Route::middleware(['auth', 'admin'])->prefix('manage/program-kerja')->name('admin.program-kerja.')->group(function () {
     Route::get('/', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'index'])->name('index');
     Route::get('/create', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'create'])->name('create');
@@ -520,3 +516,7 @@ Route::middleware(['auth', 'admin'])->prefix('manage/program-kerja')->name('admi
     Route::put('/{programKerja}', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'update'])->name('update');
     Route::delete('/{programKerja}', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'destroy'])->name('destroy');
 });
+
+Route::get('/{url}', [DynamicPageController::class, 'show'])
+    ->where('url', '.*')
+    ->name('dynamic.page');

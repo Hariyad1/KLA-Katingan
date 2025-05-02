@@ -118,24 +118,18 @@
                 document.getElementById('loadingSpinner').classList.remove('hidden');
                 
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const apiToken = document.querySelector('meta[name="api-token"]')?.getAttribute('content') || '';
                 
-                const response = await fetch(`/api/indikator?per_page=1000`, {
-                    method: 'GET',
-                    credentials: 'include',
+                const response = await axios.get(`/api/indikator?per_page=1000`, {
                     headers: {
                         'Accept': 'application/json',
-                        'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': csrfToken,
-                        'Authorization': `Bearer ${document.querySelector('meta[name="api-token"]')?.getAttribute('content') || ''}`
+                        'Authorization': `Bearer ${apiToken}`
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Error: ${response.status}`);
-                }
-
-                const data = await response.json();
+                const data = response.data;
                 
                 if (!data.data || data.data.length === 0) {
                     return [];
@@ -144,7 +138,7 @@
                 return data.data;
             } catch (error) {
                 console.error('Error:', error);
-                notyf.error(error.message || 'Gagal memuat data indikator');
+                notyf.error(error.response?.data?.message || error.message || 'Gagal memuat data indikator');
                 return [];
             } finally {
                 document.getElementById('loadingSpinner').classList.add('hidden');
@@ -277,30 +271,18 @@
             if (result.isConfirmed) {
                 try {
                     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const apiToken = document.querySelector('meta[name="api-token"]')?.getAttribute('content') || '';
                     
-                    const response = await fetch(`/api/indikator/${id}`, {
-                        method: 'DELETE',
-                        credentials: 'include',
+                    const response = await axios.delete(`/api/indikator/${id}`, {
                         headers: {
                             'Accept': 'application/json',
-                            'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': csrfToken,
                             'X-Requested-With': 'XMLHttpRequest',
-                            'Authorization': `Bearer ${document.querySelector('meta[name="api-token"]')?.getAttribute('content') || ''}`
+                            'Authorization': `Bearer ${apiToken}`
                         }
                     });
 
-                    if (!response.ok) {
-                        if (response.status === 401) {
-                            throw new Error('Sesi telah berakhir. Silakan muat ulang halaman.');
-                        }
-                        if (response.status === 403) {
-                            throw new Error('Anda tidak memiliki izin untuk menghapus indikator ini.');
-                        }
-                        throw new Error('Gagal menghapus indikator');
-                    }
-
-                    const data = await response.json();
+                    const data = response.data;
                     
                     if (data.success) {
                         notyf.success('Indikator berhasil dihapus');
@@ -311,7 +293,17 @@
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    notyf.error(error.message);
+                    if (error.response) {
+                        if (error.response.status === 401) {
+                            notyf.error('Sesi telah berakhir. Silakan muat ulang halaman.');
+                        } else if (error.response.status === 403) {
+                            notyf.error('Anda tidak memiliki izin untuk menghapus indikator ini.');
+                        } else {
+                            notyf.error(error.response.data?.message || 'Gagal menghapus indikator');
+                        }
+                    } else {
+                        notyf.error(error.message);
+                    }
                 }
             }
         }

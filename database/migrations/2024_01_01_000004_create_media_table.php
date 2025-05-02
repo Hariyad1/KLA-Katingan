@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('media', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
-            $table->string('file', 200);
-            $table->string('path', 200);
+            $table->string('name', 255);
+            $table->string('file', 255);
+            $table->string('path', 255);
             $table->timestamps();
             $table->integer('slide_show')->nullable()->comment('Status untuk media slideshow (1 = true, 0/null = false)');
             $table->integer('hits')->default(0)->comment('Memunculkan berapa kali file di download');

@@ -97,7 +97,7 @@ class MediaController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:255',
             'file' => 'required|file|max:51200',
             'slide_show' => 'nullable|boolean'
         ]);
@@ -254,7 +254,7 @@ class MediaController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:255',
             'file' => 'nullable|file|max:51200',
             'slide_show' => 'nullable|boolean'
         ]);

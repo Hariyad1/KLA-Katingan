@@ -28,18 +28,24 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <span>Search:</span>
-                            <input type="text" 
-                                id="searchInput" 
-                                placeholder="Cari..." 
-                                class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <div class="relative">
+                                <input type="text" 
+                                    id="searchInput" 
+                                    placeholder="Cari..." 
+                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 pr-8">
+                                <div x-show="isLoading" class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
+                    
                     <div class="overflow-x-auto relative" x-data="dataDukungList()">
                         <!-- Loading Spinner -->
                         <div x-show="isLoading" class="absolute inset-0 bg-white bg-opacity-80 z-10 flex items-center justify-center">
                             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
                         </div>
+                        
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
@@ -167,8 +173,8 @@
                 endNumber: 0,
                 searchQuery: '',
                 perPage: 10,
-                searchTimeout: null,
                 isLoading: true,
+                cachedData: null,
 
                 formatFileSize(bytes) {
                     if (!bytes || bytes === 0) return '0 Bytes';
@@ -179,29 +185,179 @@
                 },
 
                 async init() {
-                    this.perPage = document.getElementById('perPage').value;
-                    await this.fetchData();
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.has('per_page')) {
+                        this.perPage = parseInt(urlParams.get('per_page'));
+                        document.getElementById('perPage').value = this.perPage;
+                    } else {
+                        this.perPage = parseInt(document.getElementById('perPage').value);
+                    }
+                    
+                    if (urlParams.has('search')) {
+                        this.searchQuery = urlParams.get('search');
+                        document.getElementById('searchInput').value = this.searchQuery;
+                    }
+                    
+                    await this.fetchAllData();
                     this.setupListeners();
                 },
 
                 setupListeners() {
                     const searchInput = document.getElementById('searchInput');
                     const perPageSelect = document.getElementById('perPage');
-
+                    
+                    let searchTimeout;
                     searchInput.addEventListener('input', (e) => {
-                        clearTimeout(this.searchTimeout);
-                        this.searchTimeout = setTimeout(() => {
+                        clearTimeout(searchTimeout);
+                        searchTimeout = setTimeout(() => {
                             this.searchQuery = e.target.value;
                             this.currentPage = 1;
-                            this.fetchData();
+                            this.filterData();
+                            this.updateUrl();
                         }, 300);
                     });
-
-                    perPageSelect.addEventListener('change', (e) => {
-                        this.perPage = e.target.value;
-                        this.currentPage = 1;
-                        this.fetchData();
+                    
+                    searchInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            clearTimeout(searchTimeout);
+                            this.searchQuery = e.target.value;
+                            this.currentPage = 1;
+                            this.filterData();
+                            this.updateUrl();
+                        }
                     });
+                    
+                    perPageSelect.addEventListener('change', (e) => {
+                        this.perPage = parseInt(e.target.value);
+                        this.currentPage = 1;
+                        this.filterData();
+                        this.updateUrl();
+                    });
+                },
+                
+                updateUrl() {
+                    const url = new URL(window.location);
+                    
+                    if (this.searchQuery && this.searchQuery.trim() !== '') {
+                        url.searchParams.set('search', this.searchQuery.trim());
+                    } else {
+                        url.searchParams.delete('search');
+                    }
+                    
+                    if (this.perPage !== 10) {
+                        url.searchParams.set('per_page', this.perPage);
+                    } else {
+                        url.searchParams.delete('per_page');
+                    }
+                    
+                    if (this.currentPage > 1) {
+                        url.searchParams.set('page', this.currentPage);
+                    } else {
+                        url.searchParams.delete('page');
+                    }
+                    
+                    window.history.pushState({}, '', url);
+                },
+                
+                filterData() {
+                    if (!this.cachedData) {
+                        this.fetchData();
+                        return;
+                    }
+                    
+                    this.isLoading = true;
+                    
+                    try {
+                        if (this.searchQuery.trim() === '') {
+                            const startIndex = (this.currentPage - 1) * this.perPage;
+                            const endIndex = startIndex + this.perPage;
+                            
+                            this.items = this.cachedData.slice(startIndex, endIndex);
+                            this.totalItems = this.cachedData.length;
+                            this.lastPage = Math.ceil(this.totalItems / this.perPage);
+                            
+                            this.updatePaginationInfo();
+                        } else {
+                            const searchQuery = this.searchQuery.toLowerCase().trim();
+                            const filteredData = this.cachedData.filter(item => {
+                                if (item.opd && item.opd.name && item.opd.name.toLowerCase().includes(searchQuery)) {
+                                    return true;
+                                }
+                                
+                                if (item.indikator && item.indikator.name && item.indikator.name.toLowerCase().includes(searchQuery)) {
+                                    return true;
+                                }
+                                
+                                if (item.indikator && item.indikator.klaster && 
+                                    item.indikator.klaster.name && 
+                                    item.indikator.klaster.name.toLowerCase().includes(searchQuery)) {
+                                    return true;
+                                }
+                                
+                                if (item.files && item.files.length > 0) {
+                                    return item.files.some(file => 
+                                        file.original_name && file.original_name.toLowerCase().includes(searchQuery)
+                                    );
+                                }
+                                
+                                if (item.description && item.description.toLowerCase().includes(searchQuery)) {
+                                    return true;
+                                }
+                                
+                                return false;
+                            });
+                            
+                            const startIndex = (this.currentPage - 1) * this.perPage;
+                            const endIndex = startIndex + this.perPage;
+                            
+                            this.items = filteredData.slice(startIndex, endIndex);
+                            this.totalItems = filteredData.length;
+                            this.lastPage = Math.ceil(this.totalItems / this.perPage) || 1;
+                            
+                            if (this.currentPage > this.lastPage) {
+                                this.currentPage = 1;
+                                this.items = filteredData.slice(0, this.perPage);
+                            }
+                            
+                            this.updatePaginationInfo();
+                        }
+                        
+                        console.log(`Ditemukan ${this.totalItems} data dari ${this.cachedData.length} total data`);
+                    } catch (error) {
+                        console.error('Error filtering data:', error);
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+                
+                updatePaginationInfo() {
+                    this.startNumber = this.items.length > 0 ? 
+                        (this.currentPage - 1) * this.perPage + 1 : 0;
+                    this.endNumber = Math.min(this.startNumber + this.items.length - 1, this.totalItems);
+                },
+
+                async fetchAllData() {
+                    this.isLoading = true;
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                        
+                        const response = await axios.get(`/user/data-dukung/list?per_page=1000`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Cache-Control': 'no-cache'
+                            }
+                        });
+
+                        this.cachedData = response.data.data?.data || [];
+                        console.log(`Cached ${this.cachedData.length} data for searching`);
+                        
+                        this.filterData();
+                    } catch (error) {
+                        console.error('Error fetching all data:', error);
+                        this.fetchData();
+                    }
                 },
 
                 async fetchData() {
@@ -209,30 +365,30 @@
                     try {
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
                         
-                        const response = await fetch(`/user/data-dukung/list?page=${this.currentPage}&per_page=${this.perPage}&search=${this.searchQuery}`, {
-                            method: 'GET',
+                        let apiUrl = `/user/data-dukung/list?page=${this.currentPage}&per_page=${this.perPage}`;
+                        
+                        if (this.searchQuery && this.searchQuery.trim() !== '') {
+                            apiUrl += `&search=${encodeURIComponent(this.searchQuery.trim())}`;
+                        }
+                        
+                        apiUrl += `&_=${new Date().getTime()}`;
+                        
+                        const response = await axios.get(apiUrl, {
                             headers: {
                                 'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken
-                            },
-                            credentials: 'same-origin'
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Cache-Control': 'no-cache'
+                            }
                         });
 
-                        if (!response.ok) {
-                            throw new Error('Gagal mengambil data');
-                        }
-
-                        const result = await response.json();
+                        const result = response.data;
                         
                         if (result.data) {
                             this.items = result.data.data || [];
                             this.currentPage = result.data.current_page || 1;
                             this.lastPage = result.data.last_page || 1;
                             this.totalItems = result.data.total || 0;
-                            this.startNumber = this.items.length > 0 ? 
-                                (this.currentPage - 1) * this.perPage + 1 : 0;
-                            this.endNumber = Math.min(this.startNumber + this.items.length - 1, this.totalItems);
+                            this.updatePaginationInfo();
                         } else {
                             throw new Error('Format data tidak sesuai');
                         }
@@ -241,9 +397,11 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
-                            text: 'Gagal mengambil data: ' + error.message,
+                            text: 'Gagal mengambil data: ' + (error.response?.data?.message || error.message),
                             confirmButtonColor: '#3085d6'
                         });
+                        this.items = [];
+                        this.totalItems = 0;
                     } finally {
                         this.isLoading = false;
                     }
@@ -252,14 +410,16 @@
                 async nextPage() {
                     if (this.currentPage < this.lastPage) {
                         this.currentPage++;
-                        await this.fetchData();
+                        this.filterData();
+                        this.updateUrl();
                     }
                 },
 
                 async previousPage() {
                     if (this.currentPage > 1) {
                         this.currentPage--;
-                        await this.fetchData();
+                        this.filterData();
+                        this.updateUrl();
                     }
                 },
 
@@ -278,24 +438,15 @@
                             try {
                                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
                                 
-                                const formData = new FormData();
-                                formData.append('_method', 'DELETE');
-                                formData.append('_token', csrfToken);
-
-                                const response = await fetch(`/user/data-dukung/${id}`, {
-                                    method: 'POST',
+                                await axios.post(`/user/data-dukung/${id}`, {
+                                    _method: 'DELETE',
+                                    _token: csrfToken
+                                }, {
                                     headers: {
                                         'Accept': 'application/json',
                                         'X-CSRF-TOKEN': csrfToken
-                                    },
-                                    body: formData,
-                                    credentials: 'include'
+                                    }
                                 });
-
-                                if (!response.ok) {
-                                    const errorData = await response.json();
-                                    throw new Error(errorData.message || 'Gagal menghapus data');
-                                }
 
                                 await this.fetchData();
 
@@ -310,7 +461,7 @@
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Oops...',
-                                    text: error.message || 'Terjadi kesalahan saat menghapus data!'
+                                    text: error.response?.data?.message || error.message || 'Terjadi kesalahan saat menghapus data!'
                                 });
                             }
                         }
@@ -332,24 +483,15 @@
                             try {
                                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
                                 
-                                const formData = new FormData();
-                                formData.append('_method', 'DELETE');
-                                formData.append('_token', csrfToken);
-
-                                const response = await fetch(`/user/data-dukung/file/${id}`, {
-                                    method: 'POST',
+                                await axios.post(`/user/data-dukung/file/${id}`, {
+                                    _method: 'DELETE',
+                                    _token: csrfToken
+                                }, {
                                     headers: {
                                         'Accept': 'application/json',
                                         'X-CSRF-TOKEN': csrfToken
-                                    },
-                                    body: formData,
-                                    credentials: 'include'
+                                    }
                                 });
-
-                                if (!response.ok) {
-                                    const errorData = await response.json();
-                                    throw new Error(errorData.message || 'Gagal menghapus file');
-                                }
 
                                 await this.fetchData();
 
@@ -364,7 +506,7 @@
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Oops...',
-                                    text: error.message || 'Terjadi kesalahan saat menghapus file!'
+                                    text: error.response?.data?.message || error.message || 'Terjadi kesalahan saat menghapus file!'
                                 });
                             }
                         }

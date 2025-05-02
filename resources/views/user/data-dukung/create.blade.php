@@ -239,9 +239,9 @@
                         indikatorSelect.innerHTML = '<option value="">Pilih Indikator</option>';
                         
                         if (klasterId) {
-                            fetch(`/api/klaster/${klasterId}/indikators`)
-                                .then(response => response.json())
-                                .then(data => {
+                            axios.get(`/api/klaster/${klasterId}/indikators`)
+                                .then(response => {
+                                    const data = response.data;
                                     data.forEach(indikator => {
                                         const option = document.createElement('option');
                                         option.value = indikator.id;
@@ -251,6 +251,11 @@
                                 })
                                 .catch(error => {
                                     console.error('Error fetching indikators:', error);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'Gagal memuat data indikator'
+                                    });
                                 });
                         }
                     }

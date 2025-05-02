@@ -96,9 +96,9 @@ class AgendaController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:100',
+            'title' => 'required|string|max:255',
             'tanggal' => 'required|date',
-            'keterangan' => 'required|string|max:100'
+            'keterangan' => 'required|string|max:255'
         ]);
 
         if ($validator->fails()) {
@@ -207,7 +207,7 @@ class AgendaController extends Controller
             $agenda = Agenda::findOrFail($id);
             
             $validator = Validator::make($request->all(), [
-                'title' => 'required|string|max:100',
+                'title' => 'required|string|max:255',
                 'tanggal' => 'required|date',
                 'keterangan' => 'required|string'
             ]);

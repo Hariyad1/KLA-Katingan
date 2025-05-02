@@ -1,22 +1,17 @@
 <x-main-layout>
-    <!-- Header Section dengan Background Image -->
     <div class="relative h-[300px] flex items-center justify-center overflow-hidden">
-        <!-- Background Image dengan Overlay -->
         <div class="absolute inset-0">
             <img src="{{ asset('images/inner-head.png') }}" alt="Header Background" class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-b from-purple-900/50 to-purple-900/70"></div>
         </div>
         
-        <!-- Decorative Elements -->
         <div class="absolute inset-0">
-            <!-- Orange Circle -->
             <div class="absolute left-20 top-20">
                 <svg width="80" height="80" viewBox="0 0 80 80" class="text-orange-500 opacity-80">
                     <circle cx="40" cy="40" r="40" fill="currentColor"/>
                 </svg>
             </div>
             
-            <!-- Stars -->
             <div class="absolute right-32 top-16">
                 <svg width="24" height="24" viewBox="0 0 24 24" class="text-yellow-300 opacity-80">
                     <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -28,7 +23,6 @@
                 </svg>
             </div>
             
-            <!-- Shooting Star -->
             <div class="absolute right-16 top-12">
                 <svg width="100" height="100" viewBox="0 0 100 100" class="text-yellow-300 opacity-80 transform -rotate-45">
                     <path fill="currentColor" d="M50 0 L52 98 L48 98 L50 0 Z"/>
@@ -37,7 +31,6 @@
             </div>
         </div>
         
-        <!-- Content -->
         <div class="relative z-10 text-center">
             <h1 class="text-5xl font-extrabold text-white mb-4 tracking-wide">
                 PROGRAM KERJA
@@ -373,7 +366,21 @@
                 
                 try {
                     const url = new URL(href, window.location.origin);
+                    
+                    if (searchInput.value.trim()) {
+                        url.searchParams.set('search', searchInput.value.trim());
+                    }
+                    
+                    if (tahunSelect.value) {
+                        url.searchParams.set('tahun', tahunSelect.value);
+                    }
+                    
+                    if (opdSelect.value) {
+                        url.searchParams.set('opd_id', opdSelect.value);
+                    }
+                    
                     const apiUrl = `${baseUrl}/api/program-kerja${url.search}`;
+                    console.log('Pagination URL:', apiUrl);
                     
                     fetchData(apiUrl);
                     
@@ -413,13 +420,11 @@
     </script>
     @endpush
 
-    <!-- Main Content -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <div class="prose max-w-none">
-                        <!-- Filter Section -->
                         <div class="mb-8 bg-gray-50 p-6 rounded-lg">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="text-xl font-bold text-gray-800">Filter Program Kerja</h3>
@@ -431,36 +436,33 @@
                                 </a>
                             </div>
                             <form action="{{ route('profil.program') }}" method="GET" id="filterForm" class="flex flex-wrap items-end gap-4">
-                                <!-- Filter Tahun -->
-                                <div class="flex-grow md:flex-grow-0 min-w-[150px]">
-                                    <label for="tahun" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
-                                    <select id="tahun" name="tahun" class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
-                                        <option value="">Semua Tahun</option>
-                                        @foreach($tahunList as $t)
-                                            <option value="{{ $t }}" {{ $tahun == $t ? 'selected' : '' }}>{{ $t }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                
-                                <!-- Filter OPD -->
-                                <div class="flex-grow md:flex-grow-0 min-w-[200px]">
-                                    <label for="opd_id" class="block text-sm font-medium text-gray-700 mb-1">OPD</label>
-                                    <select id="opd_id" name="opd_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
-                                        <option value="">Semua OPD</option>
-                                        @foreach($opds as $o)
-                                            <option value="{{ $o->id }}" {{ $opd_id == $o->id ? 'selected' : '' }}>{{ $o->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                
-                                <!-- Pencarian -->
-                                <div class="flex-grow">
-                                    <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Kata Kunci</label>
-                                    <div class="flex gap-2">
-                                        <div class="relative flex-grow">
+                                <div class="grid grid-cols-10 gap-4 w-full">
+                                    <div class="col-span-10 md:col-span-2">
+                                        <label for="tahun" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
+                                        <select id="tahun" name="tahun" class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                                            <option value="">Semua Tahun</option>
+                                            @foreach($tahunList as $t)
+                                                <option value="{{ $t }}" {{ $tahun == $t ? 'selected' : '' }}>{{ $t }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-span-10 md:col-span-3">
+                                        <label for="opd_id" class="block text-sm font-medium text-gray-700 mb-1">OPD</label>
+                                        <select id="opd_id" name="opd_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                                            <option value="">Semua OPD</option>
+                                            @foreach($opds as $o)
+                                                <option value="{{ $o->id }}" {{ $opd_id == $o->id ? 'selected' : '' }}>{{ $o->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-span-10 md:col-span-5 flex gap-2 items-end">
+                                        <div class="flex-grow">
+                                            <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Kata Kunci</label>
                                             <input type="text" id="search" name="search" value="{{ $search ?? request('search') }}" placeholder="Cari program kerja..." class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 pl-3">
                                         </div>
-                                        <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors flex items-center gap-2">
+                                        <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors flex items-center gap-2 h-[38px]">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                             </svg>
@@ -471,7 +473,6 @@
                             </form>
                         </div>
 
-                        <!-- Program Kerja Section -->
                         <div class="mt-8">
                             <div class="flex items-center gap-4 mb-6">
                                 <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -489,9 +490,7 @@
                                 </h2>
                             </div>
                             
-                            <!-- Program Card Container -->
                             <div id="program-container" class="space-y-6 mt-6">
-                                <!-- Loading Indicator -->
                                 <div id="searchLoader" class="search-loader-container hidden py-10 flex justify-center items-center">
                                     <div class="search-loader"></div>
                                     <span class="ml-2 text-gray-600">Memuat data...</span>
@@ -499,7 +498,6 @@
                                 @include('profil.partials.program-cards', ['programKerjas' => $programKerjas])
                             </div>
 
-                            <!-- Pagination Container -->
                             <div id="pagination-container" class="mt-6">
                                 @include('profil.partials.pagination', ['programKerjas' => $programKerjas])
                             </div>

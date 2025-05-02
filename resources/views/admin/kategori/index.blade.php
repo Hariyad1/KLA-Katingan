@@ -1,5 +1,4 @@
 <x-app-layout>
-    <!-- Tambahkan header -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <x-slot name="header">

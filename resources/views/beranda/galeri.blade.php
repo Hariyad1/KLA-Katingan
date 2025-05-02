@@ -1,22 +1,17 @@
 <x-main-layout>
-    <!-- Header Section dengan Background Image -->
     <div class="relative h-[300px] flex items-center justify-center overflow-hidden">
-        <!-- Background Image dengan Overlay -->
         <div class="absolute inset-0">
             <img src="{{ asset('images/inner-head.png') }}" alt="Header Background" class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-b from-purple-900/70 to-purple-900/90"></div>
         </div>
         
-        <!-- Decorative Elements -->
         <div class="absolute inset-0">
-            <!-- Orange Circle -->
             <div class="absolute left-20 top-20">
                 <svg width="80" height="80" viewBox="0 0 80 80" class="text-orange-500 opacity-80">
                     <circle cx="40" cy="40" r="40" fill="currentColor"/>
                 </svg>
             </div>
             
-            <!-- Stars -->
             <div class="absolute right-32 top-16">
                 <svg width="24" height="24" viewBox="0 0 24 24" class="text-yellow-300 opacity-80">
                     <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -28,7 +23,6 @@
                 </svg>
             </div>
             
-            <!-- Shooting Star -->
             <div class="absolute right-16 top-12">
                 <svg width="100" height="100" viewBox="0 0 100 100" class="text-yellow-300 opacity-80 transform -rotate-45">
                     <path fill="currentColor" d="M50 0 L52 98 L48 98 L50 0 Z"/>
@@ -37,7 +31,6 @@
             </div>
         </div>
         
-        <!-- Content -->
         <div class="relative z-10 text-center">
             <h1 class="text-5xl font-extrabold text-white mb-4 tracking-wide">
                 GALERI
@@ -50,7 +43,6 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     <div 
         x-data="{
             isOpen: false,
@@ -85,7 +77,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <!-- Grid Gallery -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($media->take(12) as $index => $item)
                             <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
@@ -99,7 +90,6 @@
                                     <h3 class="text-white font-semibold text-lg">{{ $item->name }}</h3>
                                 </div>
 
-                                <!-- Lightbox trigger -->
                                 <button 
                                     @click="openLightbox({{ $index }})"
                                     class="absolute inset-0 w-full h-full cursor-pointer bg-black/0 hover:bg-black/10 transition-colors duration-200"
@@ -109,7 +99,6 @@
                         @endforeach
                     </div>
 
-                    <!-- Pagination -->
                     <div class="mt-8">
                         <div class="flex items-center justify-center space-x-1">
                             @if ($media->hasPages())
@@ -203,7 +192,6 @@
             </div>
         </div>
 
-        <!-- Lightbox Modal -->
         <div 
             x-show="isOpen" 
             x-transition:enter="transition ease-out duration-300"
@@ -218,28 +206,24 @@
             @keydown.arrow-right.window="nextImage"
             style="display: none;">
             
-            <!-- Close Button -->
             <button @click="closeLightbox" class="absolute top-4 right-4 text-white hover:text-gray-300 z-50">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
 
-            <!-- Previous Button -->
             <button @click="prevImage" class="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-50">
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
             </button>
 
-            <!-- Next Button -->
             <button @click="nextImage" class="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-50">
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
             </button>
 
-            <!-- Image Container -->
             <div class="relative max-w-7xl mx-auto px-4 w-full">
                 <template x-if="currentImage">
                     <img :src="currentImage.path" 

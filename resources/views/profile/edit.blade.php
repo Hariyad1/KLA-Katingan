@@ -1,5 +1,4 @@
 <x-app-layout>
-    <!-- Tambahkan header -->
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -8,10 +7,8 @@
         </div>
     </x-slot>
 
-    <!-- Hapus flex dan ml-60 -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <!-- Profile Information Card -->
             <div class="bg-white overflow-hidden shadow-sm rounded-lg">
                 <div class="p-6 border-b border-gray-200">
                     <div class="flex items-center mb-4">
@@ -31,7 +28,6 @@
                 </div>
             </div>
 
-            <!-- Update Password Card -->
             <div class="bg-white overflow-hidden shadow-sm rounded-lg">
                 <div class="p-6 border-b border-gray-200">
                     <div class="flex items-center mb-4">
@@ -51,7 +47,6 @@
                 </div>
             </div>
 
-            <!-- Delete Account Card -->
             <div class="bg-white overflow-hidden shadow-sm rounded-lg">
                 <div class="p-6 border-b border-gray-200">
                     <div class="flex items-center mb-4">

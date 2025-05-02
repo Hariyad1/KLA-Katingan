@@ -25,7 +25,6 @@ class KlasterController extends Controller
 
         $klasters = $query->paginate($perPage);
 
-        // Transform data untuk memastikan format yang konsisten
         $klasters->through(function ($klaster) {
             return [
                 'id' => $klaster->id,
@@ -51,7 +50,6 @@ class KlasterController extends Controller
                 ], 422);
             }
             
-            // Hapus klaster
             $klaster->delete();
             
             DB::commit();
