@@ -211,7 +211,6 @@
                 `;
             });
 
-            // Update pagination UI
             document.getElementById('prevPage').disabled = currentPage === 1;
             document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
             

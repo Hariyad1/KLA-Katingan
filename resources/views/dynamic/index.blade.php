@@ -94,6 +94,11 @@
         .dynamic-content p {
             margin-top: 1.5em !important;
             margin-bottom: 1.5em !important;
+            font-family: Arial, sans-serif !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            color: #333 !important;
+            display: block !important;
         }
 
         .dynamic-content p:empty {
@@ -125,6 +130,10 @@
         .dynamic-content h6 {
             margin-top: 1.5em !important;
             margin-bottom: 0.75em !important;
+            font-weight: bold !important;
+            font-family: Arial, sans-serif !important;
+            color: #222 !important;
+            line-height: 1.2 !important;
         }
 
         .dynamic-content blockquote,
@@ -137,11 +146,13 @@
 
         .dynamic-content * {
             line-height: 1.6 !important;
+            font-family: Arial, sans-serif !important;
         }
 
         .dynamic-content img {
             margin-top: 1.5em !important;
             margin-bottom: 1.5em !important;
+            max-width: 100% !important;
         }
 
         .dynamic-content iframe {
@@ -169,8 +180,12 @@
         }
         
         .dynamic-content p span {
-            display: inline-block !important;
-            width: 100% !important;
+            display: inline !important;
+            width: auto !important;
+            font-family: inherit !important;
+            font-size: inherit !important;
+            line-height: inherit !important;
+            color: inherit !important;
         }
         
         .dynamic-content > div,
@@ -203,6 +218,55 @@
         .dynamic-content p[style*="text-indent"] {
             text-indent: 2em !important;
         }
+        
+        .dynamic-content a {
+            color: #0066cc !important;
+            text-decoration: underline !important;
+        }
+        
+        .dynamic-content strong, 
+        .dynamic-content b {
+            font-weight: bold !important;
+        }
+        
+        .dynamic-content em, 
+        .dynamic-content i {
+            font-style: italic !important;
+        }
+        
+        .dynamic-content table {
+            border-collapse: collapse !important;
+            width: auto !important;
+            margin: 1.5em 0 !important;
+        }
+        
+        .dynamic-content th, 
+        .dynamic-content td {
+            border: 1px solid #ddd !important;
+            padding: 8px !important;
+            text-align: left !important;
+        }
+        
+        .dynamic-content th {
+            background-color: #f2f2f2 !important;
+            font-weight: bold !important;
+        }
+        
+        .dynamic-content code, 
+        .dynamic-content pre {
+            font-family: monospace !important;
+            background-color: #f5f5f5 !important;
+            padding: 2px 4px !important;
+            border-radius: 3px !important;
+        }
+        
+        /* Mengganti penyajian teks untuk memastikan konsistensi dengan editor */
+        .dynamic-content h1 { font-size: 2em !important; }
+        .dynamic-content h2 { font-size: 1.5em !important; }
+        .dynamic-content h3 { font-size: 1.17em !important; }
+        .dynamic-content h4 { font-size: 1em !important; }
+        .dynamic-content h5 { font-size: 0.83em !important; }
+        .dynamic-content h6 { font-size: 0.67em !important; }
     </style>
     @endpush
 </x-main-layout>

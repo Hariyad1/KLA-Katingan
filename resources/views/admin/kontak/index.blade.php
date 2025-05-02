@@ -178,7 +178,6 @@
                 filteredData = window.allContacts;
                 updateTableDisplay();
                 
-                // Add event for search input with debounce
                 const searchInput = document.getElementById('searchInput');
                 if (searchInput) {
                     searchInput.removeEventListener('input', handleSearchDebounce);
@@ -395,11 +394,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadContactData();
             
-            // Replace direct event with debounced search
             const searchInput = document.getElementById('searchInput');
             searchInput.removeEventListener('input', handleSearch);
             
-            // Create debounced search handler
             let searchTimeout;
             window.handleSearchDebounce = function() {
                 clearTimeout(searchTimeout);
@@ -410,7 +407,6 @@
             
             searchInput.addEventListener('input', handleSearchDebounce);
             
-            // Add Enter key handler
             searchInput.addEventListener('keyup', function(e) {
                 if (e.key === 'Enter') {
                     clearTimeout(searchTimeout);

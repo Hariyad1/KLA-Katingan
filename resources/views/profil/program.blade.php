@@ -52,217 +52,456 @@
         </div>
     </div>
 
+    @push('styles')
+    <style>
+        .program-content {
+            max-width: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .program-content p {
+            margin-top: 1.5em !important;
+            margin-bottom: 1.5em !important;
+        }
+
+        .program-content p:empty {
+            min-height: 1em !important;
+            display: block !important;
+        }
+
+        .program-content ul, 
+        .program-content ol {
+            margin-top: 1.25em !important;
+            margin-bottom: 1.25em !important;
+            padding-left: 2em !important;
+            list-style-position: outside !important;
+        }
+
+        .program-content ul {
+            list-style-type: disc !important;
+        }
+        
+        .program-content ol {
+            list-style-type: decimal !important;
+        }
+
+        .program-content h1, 
+        .program-content h2, 
+        .program-content h3, 
+        .program-content h4, 
+        .program-content h5, 
+        .program-content h6 {
+            margin-top: 1.5em !important;
+            margin-bottom: 0.75em !important;
+            font-weight: 600 !important;
+        }
+        
+        .program-content h1 { font-size: 1.875rem !important; }
+        .program-content h2 { font-size: 1.5rem !important; }
+        .program-content h3 { font-size: 1.25rem !important; }
+        .program-content h4 { font-size: 1.125rem !important; }
+        
+        .program-content blockquote,
+        .program-content pre,
+        .program-content figure,
+        .program-content table {
+            margin-top: 1.5em !important;
+            margin-bottom: 1.5em !important;
+        }
+
+        .program-content * {
+            line-height: 1.6 !important;
+        }
+        
+        .program-content table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
+        
+        .program-content table th,
+        .program-content table td {
+            border: 1px solid #e2e8f0 !important;
+            padding: 0.5rem !important;
+        }
+        
+        .program-content table th {
+            background-color: #f8fafc !important;
+            font-weight: 600 !important;
+        }
+        
+        .program-content ul li,
+        .program-content ol li {
+            display: list-item !important;
+            margin-bottom: 0.5em !important;
+        }
+        
+        .program-content ul > li::marker,
+        .program-content ol > li::marker {
+            display: inline-block !important;
+        }
+        
+        .program-content li ul,
+        .program-content li ol {
+            margin-top: 0.5em !important;
+        }
+
+        /* Loading Indicator */
+        .search-loader-container {
+            transition: all 0.3s ease;
+        }
+        
+        .search-loader {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #9333ea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    @endpush
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: "{{ session('success') }}",
+                    confirmButtonColor: '#9333ea',
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            @endif
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search');
+            const tahunSelect = document.getElementById('tahun');
+            const opdSelect = document.getElementById('opd_id');
+            const filterForm = document.getElementById('filterForm');
+            const programContainer = document.getElementById('program-container');
+            const paginationContainer = document.getElementById('pagination-container');
+            const searchLoader = document.getElementById('searchLoader');
+            
+            const baseUrl = window.location.origin;
+            
+            function fetchData(url) {
+                searchLoader.classList.remove('hidden');
+                
+                console.log('Fetching data from:', url);
+                
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    cache: 'no-store'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    updateUI(data);
+                    
+                    if (!url.includes('/api/')) {
+                        const browserUrl = new URL(url);
+                        window.history.pushState({}, '', browserUrl.toString());
+                    } else {
+                        const browserUrl = new URL(window.location.pathname, window.location.origin);
+                        const apiUrl = new URL(url, window.location.origin);
+                        
+                        apiUrl.searchParams.forEach((value, key) => {
+                            browserUrl.searchParams.set(key, value);
+                        });
+                        
+                        window.history.pushState({}, '', browserUrl.toString());
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Gagal memuat data. Silakan coba lagi.',
+                        confirmButtonColor: '#9333ea'
+                    });
+                })
+                .finally(() => {
+                    searchLoader.classList.add('hidden');
+                });
+            }
+            
+            function updateUI(data) {
+                if (programContainer) programContainer.innerHTML = '';
+                if (paginationContainer) paginationContainer.innerHTML = '';
+                
+                if (!data.success) {
+                    handleErrorResponse(data);
+                    return;
+                }
+                
+                if (data.html && programContainer) {
+                    programContainer.innerHTML = data.html;
+                }
+                
+                if (data.pagination && paginationContainer) {
+                    paginationContainer.innerHTML = data.pagination;
+                }
+                
+                initializeEventHandlers();
+                
+                if (searchInput.value.trim()) {
+                    console.log(`Ditemukan ${data.total || 0} hasil untuk: "${searchInput.value.trim()}"`);
+                }
+            }
+            
+            function handleErrorResponse(data) {
+                console.warn('API Error:', data.message || 'Unknown error');
+                
+                if (data.redirect_to) {
+                    console.log('Redirecting to:', data.redirect_to);
+                    fetchData(data.redirect_to);
+                    return;
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: data.message || 'Terjadi kesalahan saat memproses permintaan',
+                    confirmButtonColor: '#9333ea'
+                });
+            }
+            
+            function buildApiUrl() {
+                const params = new URLSearchParams();
+                
+                if (tahunSelect.value) params.append('tahun', tahunSelect.value);
+                if (opdSelect.value) params.append('opd_id', opdSelect.value);
+                if (searchInput.value.trim()) params.append('search', searchInput.value.trim());
+                
+                return `${baseUrl}/api/program-kerja?${params.toString()}`;
+            }
+            
+            function initializeEventHandlers() {
+                document.querySelectorAll('.delete-program').forEach(button => {
+                    button.addEventListener('click', handleDelete);
+                });
+                
+                document.querySelectorAll('.pagination-link').forEach(link => {
+                    link.addEventListener('click', handlePaginationClick);
+                });
+            }
+            
+            function handleDelete(e) {
+                const programId = this.getAttribute('data-id');
+                
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Program kerja ini akan dihapus secara permanen!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        searchLoader.classList.remove('hidden');
+                        
+                        fetch(`${baseUrl}/api/program-kerja/${programId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                showSuccessMessage('Program Kerja berhasil dihapus.');
+                                fetchData(buildApiUrl());
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: 'Gagal menghapus program kerja',
+                                    confirmButtonColor: '#9333ea'
+                                });
+                                searchLoader.classList.add('hidden');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Delete error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Gagal menghapus program kerja. Silakan coba lagi.',
+                                confirmButtonColor: '#9333ea'
+                            });
+                            searchLoader.classList.add('hidden');
+                        });
+                    }
+                });
+            }
+            
+            function handlePaginationClick(e) {
+                e.preventDefault();
+                
+                const href = this.getAttribute('href');
+                if (!href) return;
+                
+                try {
+                    const url = new URL(href, window.location.origin);
+                    const apiUrl = `${baseUrl}/api/program-kerja${url.search}`;
+                    
+                    fetchData(apiUrl);
+                    
+                    programContainer.scrollIntoView({ behavior: 'smooth' });
+                } catch (error) {
+                    console.error('Pagination error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan saat navigasi. Silakan coba lagi.',
+                        confirmButtonColor: '#9333ea'
+                    });
+                }
+            }
+            
+            function showSuccessMessage(message) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: message,
+                    confirmButtonColor: '#9333ea',
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            }
+            
+            filterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                fetchData(buildApiUrl());
+            });
+            
+            tahunSelect.addEventListener('change', () => fetchData(buildApiUrl()));
+            opdSelect.addEventListener('change', () => fetchData(buildApiUrl()));
+            
+            initializeEventHandlers();
+        });
+    </script>
+    @endpush
+
     <!-- Main Content -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <div class="prose max-w-none">
-                        {{-- <h2 class="text-3xl font-bold text-blue-700 mb-6 text-center">Program Kerja Kabupaten/Kota Layak Anak (KLA)</h2>
-                        
-                        <div class="mb-10">
-                            <h3 class="text-2xl font-bold text-gray-800 mb-4">A. Prinsip</h3>
-                            <p class="mb-4">Prinsip Kebijakan KLA disusun dengan mengacu pada prinsip dasar hak Anak menurut KHA dan kaidah reformasi birokrasi sebagai berikut:</p>
-                            
-                            <div class="bg-blue-50 rounded-lg p-6 mb-4">
-                                <ol class="list-decimal pl-6 space-y-3">
-                                    <li class="text-gray-700"><span class="font-medium">Nondiskriminasi</span>, yaitu tidak membedakan suku, ras, agama, jenis kelamin, bahasa, paham politik, asal kebangsaan, status ekonomi, kondisi fisik maupun psikis Anak, atau faktor lainnya;</li>
-                                    <li class="text-gray-700"><span class="font-medium">Kepentingan terbaik bagi Anak</span>, yaitu menjadikan Anak sebagai pertimbangan utama dalam setiap pengambilan kebijakan serta pengembangan program dan kegiatan;</li>
-                                    <li class="text-gray-700"><span class="font-medium">Hak untuk hidup, kelangsungan hidup, dan perkembangan Anak</span>, yaitu menjamin hak untuk hidup, kelangsungan hidup, dan perkembangan Anak semaksimal mungkin;</li>
-                                    <li class="text-gray-700"><span class="font-medium">Penghargaan terhadap pandangan Anak</span>, yaitu mengakui dan memastikan bahwa setiap Anak diberikan kesempatan untuk mengekspresikan pandangannya secara bebas, independen, dan santun terhadap segala sesuatu hal yang mempengaruhi dirinya, diberi bobot, dan dipertimbangkan dalam pengambilan keputusan; dan</li>
-                                    <li class="text-gray-700"><span class="font-medium">Tata pemerintahan yang baik</span>, yaitu transparansi, akuntabilitas, partisipasi, keterbukaan informasi, dan supremasi hukum.</li>
-                                </ol>
+                        <!-- Filter Section -->
+                        <div class="mb-8 bg-gray-50 p-6 rounded-lg">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-gray-800">Filter Program Kerja</h3>
+                                <a href="{{ route('profil.program.create') }}" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    Tambah Program Kerja
+                                </a>
                             </div>
+                            <form action="{{ route('profil.program') }}" method="GET" id="filterForm" class="flex flex-wrap items-end gap-4">
+                                <!-- Filter Tahun -->
+                                <div class="flex-grow md:flex-grow-0 min-w-[150px]">
+                                    <label for="tahun" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
+                                    <select id="tahun" name="tahun" class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                                        <option value="">Semua Tahun</option>
+                                        @foreach($tahunList as $t)
+                                            <option value="{{ $t }}" {{ $tahun == $t ? 'selected' : '' }}>{{ $t }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                
+                                <!-- Filter OPD -->
+                                <div class="flex-grow md:flex-grow-0 min-w-[200px]">
+                                    <label for="opd_id" class="block text-sm font-medium text-gray-700 mb-1">OPD</label>
+                                    <select id="opd_id" name="opd_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                                        <option value="">Semua OPD</option>
+                                        @foreach($opds as $o)
+                                            <option value="{{ $o->id }}" {{ $opd_id == $o->id ? 'selected' : '' }}>{{ $o->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                
+                                <!-- Pencarian -->
+                                <div class="flex-grow">
+                                    <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Kata Kunci</label>
+                                    <div class="flex gap-2">
+                                        <div class="relative flex-grow">
+                                            <input type="text" id="search" name="search" value="{{ $search ?? request('search') }}" placeholder="Cari program kerja..." class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 pl-3">
+                                        </div>
+                                        <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors flex items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                            Cari
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                        
-                        <div class="mb-10">
-                            <h3 class="text-2xl font-bold text-gray-800 mb-4">B. Arah Kebijakan</h3>
-                            <p class="mb-4">Rumusan perencanaan komprehensif Kebijakan KLA termuat dalam 6 (enam) arah kebijakan yaitu:</p>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                                <div class="bg-gray-50 rounded-lg p-6">
-                                    <div class="flex items-center gap-4 mb-4">
-                                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                            </svg>
-                                        </div>
-                                        <h4 class="text-xl font-semibold text-gray-800">Penguatan Kelembagaan</h4>
-                                    </div>
-                                    <p class="text-gray-700">Mengoptimalkan potensi dalam penguatan kelembagaan KLA untuk mendukung implementasi program.</p>
+
+                        <!-- Program Kerja Section -->
+                        <div class="mt-8">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                                    </svg>
                                 </div>
-                                
-                                <div class="bg-gray-50 rounded-lg p-6">
-                                    <div class="flex items-center gap-4 mb-4">
-                                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                            </svg>
-                                        </div>
-                                        <h4 class="text-xl font-semibold text-gray-800">Hak Sipil dan Kebebasan</h4>
-                                    </div>
-                                    <p class="text-gray-700">Mewujudkan pemenuhan hak sipil dan kebebasan bagi setiap anak tanpa diskriminasi.</p>
-                                </div>
-                                
-                                <div class="bg-gray-50 rounded-lg p-6">
-                                    <div class="flex items-center gap-4 mb-4">
-                                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                                            </svg>
-                                        </div>
-                                        <h4 class="text-xl font-semibold text-gray-800">Lingkungan Keluarga</h4>
-                                    </div>
-                                    <p class="text-gray-700">Menguatkan lingkungan keluarga dan pengasuhan alternatif untuk memastikan tumbuh kembang optimal anak.</p>
-                                </div>
-                                
-                                <div class="bg-gray-50 rounded-lg p-6">
-                                    <div class="flex items-center gap-4 mb-4">
-                                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                                            </svg>
-                                        </div>
-                                        <h4 class="text-xl font-semibold text-gray-800">Kesehatan dan Kesejahteraan</h4>
-                                    </div>
-                                    <p class="text-gray-700">Memastikan terpenuhinya hak kesehatan dasar dan kesejahteraan anak melalui layanan kesehatan yang berkualitas.</p>
-                                </div>
-                                
-                                <div class="bg-gray-50 rounded-lg p-6">
-                                    <div class="flex items-center gap-4 mb-4">
-                                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                                        </svg>
-                                        </div>
-                                        <h4 class="text-xl font-semibold text-gray-800">Pendidikan dan Kebudayaan</h4>
-                                    </div>
-                                    <p class="text-gray-700">Mengutamakan pemenuhan hak anak atas pendidikan, pemanfaatan waktu luang, dan kegiatan budaya.</p>
-                                </div>
-                                
-                                <div class="bg-gray-50 rounded-lg p-6">
-                                    <div class="flex items-center gap-4 mb-4">
-                                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                        </svg>
-                                        </div>
-                                        <h4 class="text-xl font-semibold text-gray-800">Perlindungan Khusus</h4>
-                                    </div>
-                                    <p class="text-gray-700">Memastikan pelayanan bagi anak yang memerlukan perlindungan khusus dengan pendekatan terintegrasi.</p>
-                                </div>
+                                <h2 class="text-2xl font-bold text-gray-800">
+                                    Program Kerja Kabupaten/Kota Layak Anak (KLA) 
+                                    @if($tahun)
+                                        Tahun {{ $tahun }}
+                                    @else
+                                        (Semua Tahun)
+                                    @endif
+                                </h2>
                             </div>
-                        </div>
-                        
-                        <div class="mb-6">
-                            <h3 class="text-2xl font-bold text-gray-800 mb-4">C. Strategi</h3>
-                            <p class="mb-4">Perwujudan Kebijakan KLA dilaksanakan berdasarkan 3 (tiga) strategi utama, yaitu:</p>
                             
-                            <div class="bg-green-50 rounded-lg p-6">
-                                <ol class="list-decimal pl-6 space-y-4">
-                                    <li class="text-gray-700">
-                                        <span class="font-medium">Peningkatan sumber daya manusia dan penguatan peran kelembagaan</span> pemerintah pusat dan pemerintah daerah dalam pencegahan dan penyediaan layanan.
-                                    </li>
-                                    <li class="text-gray-700">
-                                        <span class="font-medium">Peningkatan peran:</span>
-                                        <ul class="list-disc pl-6 mt-2 space-y-1">
-                                            <li>Orang perseorangan</li>
-                                            <li>Lembaga Perlindungan Anak</li>
-                                            <li>Lembaga kesejahteraan sosial</li>
-                                            <li>Organisasi kemasyarakatan</li>
-                                            <li>Lembaga pendidikan</li>
-                                            <li>Media massa</li>
-                                            <li>Dunia usaha</li>
-                                            <li>Anak</li>
-                                        </ul>
-                                        <p class="mt-2">melalui advokasi, fasilitasi, sosialisasi, dan edukasi.</p>
-                                    </li>
-                                    <li class="text-gray-700">
-                                        <span class="font-medium">Peningkatan sarana dan prasarana</span> yang mendukung pemenuhan hak anak dan perlindungan khusus anak.
-                                    </li>
-                                </ol>
+                            <!-- Program Card Container -->
+                            <div id="program-container" class="space-y-6 mt-6">
+                                <!-- Loading Indicator -->
+                                <div id="searchLoader" class="search-loader-container hidden py-10 flex justify-center items-center">
+                                    <div class="search-loader"></div>
+                                    <span class="ml-2 text-gray-600">Memuat data...</span>
+                                </div>
+                                @include('profil.partials.program-cards', ['programKerjas' => $programKerjas])
                             </div>
-                        </div> --}}
-                        
-                        <div class="mt-12">
-                            
-                            <div class="bg-gray-50 rounded-lg p-8">
-                                <div class="flex items-center gap-4 mb-6">
-                                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                                        </svg>
-                                    </div>
-                                    <h2 class="text-2xl font-bold text-gray-800">Program Kerja Kabupaten/Kota Layak Anak (KLA)</h2>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <ul class="space-y-4">
-                                        <li class="flex items-start gap-3">
-                                            <svg class="w-5 h-5 text-purple-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                            </svg>
-                                            <span class="text-gray-700">Pembentukan Gugus Tugas KLA tingkat kabupaten/kota dan kecamatan</span>
-                                        </li>
-                                        <li class="flex items-start gap-3">
-                                            <svg class="w-5 h-5 text-purple-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                            </svg>
-                                            <span class="text-gray-700">Pelatihan peningkatan kapasitas SDM pengelola KLA</span>
-                                        </li>
-                                        <li class="flex items-start gap-3">
-                                            <svg class="w-5 h-5 text-purple-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                            </svg>
-                                            <span class="text-gray-700">Sosialisasi KLA kepada masyarakat dan pemangku kepentingan</span>
-                                        </li>
-                                        <li class="flex items-start gap-3">
-                                            <svg class="w-5 h-5 text-purple-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                            </svg>
-                                            <span class="text-gray-700">Pembentukan Forum Anak di tingkat desa/kelurahan</span>
-                                        </li>
-                                        <li class="flex items-start gap-3">
-                                            <svg class="w-5 h-5 text-purple-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                            </svg>
-                                            <span class="text-gray-700">Pendataan anak yang memerlukan perlindungan khusus</span>
-                                        </li>
-                                    </ul>
-                                    
-                                <ul class="space-y-4">
-                                    <li class="flex items-start gap-3">
-                                            <svg class="w-5 h-5 text-purple-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                            </svg>
-                                            <span class="text-gray-700">Pengembangan Sekolah Ramah Anak di seluruh wilayah</span>
-                                        </li>
-                                        <li class="flex items-start gap-3">
-                                            <svg class="w-5 h-5 text-purple-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                            </svg>
-                                            <span class="text-gray-700">Pembangunan Ruang Publik Ramah Anak di setiap kecamatan</span>
-                                        </li>
-                                        <li class="flex items-start gap-3">
-                                            <svg class="w-5 h-5 text-purple-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                        </svg>
-                                            <span class="text-gray-700">Pengembangan Puskesmas Ramah Anak dan pelayanan kesehatan komprehensif</span>
-                                    </li>
-                                    <li class="flex items-start gap-3">
-                                            <svg class="w-5 h-5 text-purple-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                        </svg>
-                                            <span class="text-gray-700">Pengembangan sistem perlindungan anak terintegrasi</span>
-                                    </li>
-                                    <li class="flex items-start gap-3">
-                                            <svg class="w-5 h-5 text-purple-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                        </svg>
-                                            <span class="text-gray-700">Pembentukan kawasan ramah anak di seluruh wilayah desa/kelurahan</span>
-                                    </li>
-                                </ul>
-                                </div>
+
+                            <!-- Pagination Container -->
+                            <div id="pagination-container" class="mt-6">
+                                @include('profil.partials.pagination', ['programKerjas' => $programKerjas])
                             </div>
                         </div>
                     </div>

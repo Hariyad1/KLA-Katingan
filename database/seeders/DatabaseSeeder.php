@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             VoteSeeder::class,
             MediaSeeder::class,
+            ProgramKerjaSeeder::class,
         ]);
     }
 }

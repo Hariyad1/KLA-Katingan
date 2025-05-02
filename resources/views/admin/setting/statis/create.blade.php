@@ -170,6 +170,65 @@
                     }
                 });
             });
+
+            var token = '{{ csrf_token() }}';
+            
+            var uploadUrl = '{{ route("upload.image") }}?_token=' + token;
+            
+            CKEDITOR.replace('content', {
+                height: 400,
+                filebrowserUploadUrl: uploadUrl,
+                filebrowserImageUploadUrl: uploadUrl,
+                filebrowserImageBrowseUrl: false,
+                uploadUrl: uploadUrl,
+                toolbar: [
+                    { name: 'document', items: [ 'Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates' ] },
+                    { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo' ] },
+                    { name: 'editing', items: [ 'Find', 'Replace', '-', 'SelectAll', '-', 'Scayt' ] },
+                    { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'CopyFormatting', 'RemoveFormat' ] },
+                    '/',
+                    { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl' ] },
+                    { name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
+                    { name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'SpecialChar' ] },
+                    '/',
+                    { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+                    { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
+                    { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
+                ],
+                allowedContent: true,
+                extraPlugins: 'wysiwygarea',
+                enterMode: CKEDITOR.ENTER_P,
+                shiftEnterMode: CKEDITOR.ENTER_BR,
+                autoParagraph: false,
+                fillEmptyBlocks: false,
+                entities: false,
+                basicEntities: false,
+                entities_latin: false,
+                entities_greek: false,
+                entities_additional: '',
+                htmlEncodeOutput: false,
+                forceSimpleAmpersand: true,
+                removeDialogTabs: 'image:advanced;image:link;link:advanced;link:target'
+            });
+            
+            CKEDITOR.on('dialogDefinition', function(ev) {
+                var dialogName = ev.data.name;
+                var dialogDefinition = ev.data.definition;
+                
+                if (dialogName == 'image') {
+                    dialogDefinition.removeContents('advanced');
+                    
+                    var infoTab = dialogDefinition.getContents('info');
+                    
+                    var uploadTab = dialogDefinition.getContents('Upload');
+                    if (uploadTab) {
+                        var uploadField = uploadTab.get('upload');
+                        if (uploadField) {
+                            uploadField.action = uploadUrl;
+                        }
+                    }
+                }
+            });
         });
 
         function toggleFields() {
@@ -177,40 +236,6 @@
             document.getElementById('contentField').style.display = 'block';
             document.getElementById('urlField').style.display = 'block';
         }
-
-        CKEDITOR.replace('content', {
-            height: 400,
-            removeButtons: 'PasteFromWord',
-            toolbar: [
-                { name: 'document', items: [ 'Source', '-', 'Preview', 'Print', '-', 'Templates' ] },
-                { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo' ] },
-                { name: 'editing', items: [ 'Find', 'Replace', '-', 'SelectAll', '-', 'Scayt' ] },
-                { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'CopyFormatting', 'RemoveFormat' ] },
-                '/',
-                { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl' ] },
-                { name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
-                { name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'SpecialChar' ] },
-                '/',
-                { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
-                { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
-                { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
-            ],
-            filebrowserUploadMethod: 'form',
-            filebrowserUploadUrl: '{{ route("upload.image") }}',
-            allowedContent: true,
-            extraPlugins: 'wysiwygarea',
-            enterMode: CKEDITOR.ENTER_P,
-            shiftEnterMode: CKEDITOR.ENTER_BR,
-            autoParagraph: false,
-            fillEmptyBlocks: false,
-            entities: false,
-            basicEntities: false,
-            entities_latin: false,
-            entities_greek: false,
-            entities_additional: '',
-            htmlEncodeOutput: false,
-            forceSimpleAmpersand: true
-        });
 
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';

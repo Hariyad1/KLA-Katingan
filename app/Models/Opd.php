@@ -17,4 +17,9 @@ class Opd extends Model
     {
         return $this->hasMany(DataDukung::class);
     }
+    
+    public function programKerjas()
+    {
+        return $this->hasMany(ProgramKerja::class);
+    }
 } 

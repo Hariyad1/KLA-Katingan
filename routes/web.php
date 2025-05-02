@@ -26,6 +26,8 @@ use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\KlasterController;
 use App\Http\Controllers\User\DataDukungController;
 use App\Http\Controllers\Admin\DataDukungController as AdminDataDukungController;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 require __DIR__ . '/auth.php';
 
@@ -223,6 +225,13 @@ Route::prefix('profil')->group(function () {
     })->name('profil.program');
 });
 
+Route::get('/profil/program-kerja', [App\Http\Controllers\ProfilController::class, 'program'])->name('profil.program');
+Route::get('/profil/program-kerja/tambah', [App\Http\Controllers\ProfilController::class, 'create'])->name('profil.program.create');
+Route::post('/profil/program-kerja', [App\Http\Controllers\ProfilController::class, 'store'])->name('profil.program.store');
+Route::get('/profil/program-kerja/{id}/edit', [App\Http\Controllers\ProfilController::class, 'edit'])->name('profil.program.edit');
+Route::put('/profil/program-kerja/{id}', [App\Http\Controllers\ProfilController::class, 'update'])->name('profil.program.update');
+Route::delete('/profil/program-kerja/{id}', [App\Http\Controllers\ProfilController::class, 'destroy'])->name('profil.program.destroy');
+
 Route::prefix('pemenuhan-hak-anak')->group(function () {
     // Route::get('/', function () {
     //     return view('pemenuhan-hak-anak.index');
@@ -254,15 +263,72 @@ Route::get('/berita', function () {
     
     return view('beranda.berita', compact('news', 'categories'));
 })->name('berita');
+    
+Route::get('/berita/kategori/{kategori}', function ($kategori) {
+    if (config('database.default') === 'pgsql') {
+        $kategoriModel = Kategori::whereRaw("LOWER(REPLACE(name, ' ', '-')) = ?", [strtolower($kategori)])
+                        ->orWhereRaw("LOWER(name) LIKE ?", ['%' . str_replace('-', ' ', strtolower($kategori)) . '%'])
+                        ->first();
+    } else {
+        $kategoriModel = Kategori::whereRaw("LOWER(REPLACE(name, ' ', '-')) = ?", [strtolower($kategori)])
+                        ->orWhereRaw("LOWER(name) LIKE ?", ['%' . str_replace('-', ' ', strtolower($kategori)) . '%'])
+                        ->first();
+    }
+    
+    if (!$kategoriModel) {
+        $kategoriModel = Kategori::all()->first(function($cat) use ($kategori) {
+            return Str::slug($cat->name) === $kategori;
+        });
+    }
 
-Route::get('/berita/kategori/{kategori}/halaman/{page}', function ($kategori, $page) {
     $query = News::with(['kategori', 'creator'])
                 ->where('status', 1)
-                ->whereHas('kategori', function($q) use ($kategori) {
-                    $cleanKategori = str_replace('-', ' ', $kategori);
-                    $q->whereRaw('LOWER(name) = ?', [strtolower($cleanKategori)]);
-                })
                 ->latest();
+                
+    if ($kategoriModel) {
+        $query->where('kategori_id', $kategoriModel->id);
+    } else {
+        $query->whereHas('kategori', function($q) use ($kategori) {
+            $cleanKategori = str_replace('-', ' ', $kategori);
+            $q->whereRaw("LOWER(name) LIKE ?", ['%' . strtolower($cleanKategori) . '%']);
+        });
+    }
+    
+    $news = $query->paginate(6);
+    $categories = Kategori::withCount('news')->get();
+    
+    return view('beranda.berita', compact('news', 'categories', 'kategori'));
+})->name('berita.kategori');
+
+Route::get('/berita/kategori/{kategori}/halaman/{page}', function ($kategori, $page) {
+    if (config('database.default') === 'pgsql') {
+        $kategoriModel = Kategori::whereRaw("LOWER(REPLACE(name, ' ', '-')) = ?", [strtolower($kategori)])
+                        ->orWhereRaw("LOWER(name) LIKE ?", ['%' . str_replace('-', ' ', strtolower($kategori)) . '%'])
+                        ->first();
+    } else {
+        $kategoriModel = Kategori::whereRaw("LOWER(REPLACE(name, ' ', '-')) = ?", [strtolower($kategori)])
+                        ->orWhereRaw("LOWER(name) LIKE ?", ['%' . str_replace('-', ' ', strtolower($kategori)) . '%'])
+                        ->first();
+    }
+    
+    if (!$kategoriModel) {
+        $kategoriModel = Kategori::all()->first(function($cat) use ($kategori) {
+            return Str::slug($cat->name) === $kategori;
+        });
+    }
+    
+    $query = News::with(['kategori', 'creator'])
+                ->where('status', 1)
+                ->latest();
+                
+    if ($kategoriModel) {
+        $query->where('kategori_id', $kategoriModel->id);
+    } else {
+        $query->whereHas('kategori', function($q) use ($kategori) {
+            $cleanKategori = str_replace('-', ' ', $kategori);
+            $q->whereRaw("LOWER(name) LIKE ?", ['%' . strtolower($cleanKategori) . '%']);
+        });
+    }
     
     $news = $query->paginate(6, ['*'], 'page', $page);
     $categories = Kategori::withCount('news')->get();
@@ -273,21 +339,6 @@ Route::get('/berita/kategori/{kategori}/halaman/{page}', function ($kategori, $p
     
     return view('beranda.berita', compact('news', 'categories', 'kategori'));
 })->name('berita.kategori.page');
-
-Route::get('/berita/kategori/{kategori}', function ($kategori) {
-    $query = News::with(['kategori', 'creator'])
-                ->where('status', 1)
-                ->whereHas('kategori', function($q) use ($kategori) {
-                    $cleanKategori = str_replace('-', ' ', $kategori);
-                    $q->whereRaw('LOWER(name) = ?', [strtolower($cleanKategori)]);
-                })
-                ->latest();
-    
-    $news = $query->paginate(6);
-    $categories = Kategori::withCount('news')->get();
-    
-    return view('beranda.berita', compact('news', 'categories', 'kategori'));
-})->name('berita.kategori');
 
 Route::get('/berita/halaman/{page}', function ($page) {
     $query = News::with(['kategori', 'creator'])
@@ -460,3 +511,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin/data-dukung')->name('admin.d
 Route::get('/{url}', [DynamicPageController::class, 'show'])
     ->where('url', '.*')
     ->name('dynamic.page');
+
+Route::middleware(['auth', 'admin'])->prefix('manage/program-kerja')->name('admin.program-kerja.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'store'])->name('store');
+    Route::get('/{programKerja}/edit', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'edit'])->name('edit');
+    Route::put('/{programKerja}', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'update'])->name('update');
+    Route::delete('/{programKerja}', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'destroy'])->name('destroy');
+});

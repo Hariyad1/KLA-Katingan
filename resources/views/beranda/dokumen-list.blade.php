@@ -195,7 +195,6 @@ function hidePreviewLoading() {
 }
 
 function fetchPage(url) {
-    // console.log('Fetching URL:', url);
     
     fetch(url, {
         headers: {
@@ -203,11 +202,9 @@ function fetchPage(url) {
         }
     })
     .then(response => {
-        // console.log('Response status:', response.status);
         return response.text();
     })
     .then(html => {
-        // console.log('Received HTML');
         const container = document.getElementById('dokumen-list-container');
         if (container) {
             container.innerHTML = html;
@@ -245,6 +242,5 @@ function closePreviewModal() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // console.log('DOM fully loaded');
 });
 </script> 

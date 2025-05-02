@@ -77,9 +77,16 @@
     <script src="{{ asset('ckeditor/ckeditor.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            var token = '{{ csrf_token() }}';
+            
+            var uploadUrl = '{{ route("upload.image") }}?_token=' + token;
+            
             CKEDITOR.replace('content', {
                 height: 400,
-                removeButtons: 'PasteFromWord',
+                filebrowserUploadUrl: uploadUrl,
+                filebrowserImageUploadUrl: uploadUrl,
+                filebrowserImageBrowseUrl: false,
+                uploadUrl: uploadUrl,
                 toolbar: [
                     { name: 'document', items: [ 'Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates' ] },
                     { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo' ] },
@@ -94,8 +101,6 @@
                     { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
                     { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
                 ],
-                filebrowserUploadMethod: 'form',
-                filebrowserUploadUrl: '{{ route("upload.image") }}',
                 allowedContent: true,
                 extraPlugins: 'wysiwygarea',
                 enterMode: CKEDITOR.ENTER_P,
@@ -105,10 +110,30 @@
                 entities: false,
                 basicEntities: false,
                 entities_latin: false,
-                entities_greek: false,  
+                entities_greek: false,
                 entities_additional: '',
                 htmlEncodeOutput: false,
-                forceSimpleAmpersand: true
+                forceSimpleAmpersand: true,
+                removeDialogTabs: 'image:advanced;image:link;link:advanced;link:target'
+            });
+            
+            CKEDITOR.on('dialogDefinition', function(ev) {
+                var dialogName = ev.data.name;
+                var dialogDefinition = ev.data.definition;
+                
+                if (dialogName == 'image') {
+                    dialogDefinition.removeContents('advanced');
+                    
+                    var infoTab = dialogDefinition.getContents('info');
+                    
+                    var uploadTab = dialogDefinition.getContents('Upload');
+                    if (uploadTab) {
+                        var uploadField = uploadTab.get('upload');
+                        if (uploadField) {
+                            uploadField.action = uploadUrl;
+                        }
+                    }
+                }
             });
 
             document.getElementById('createForm').addEventListener('submit', function(e) {
