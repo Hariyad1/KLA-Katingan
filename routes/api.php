@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Klaster;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AgendaController;
 use App\Http\Controllers\API\ContactController;
@@ -14,9 +17,6 @@ use App\Http\Controllers\API\DataDukungController;
 use App\Http\Controllers\API\KlasterController;
 use App\Http\Controllers\API\IndikatorController;
 use App\Http\Controllers\API\OpdController;
-use Illuminate\Http\Request;
-use App\Models\Klaster;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProgramKerjaController;
 
 Route::post('register', [AuthController::class, 'register']);
@@ -31,14 +31,15 @@ Route::post('/statistic', [StatisticController::class, 'store']);
 Route::post('/statistic/update-activity', [StatisticController::class, 'updateActivity']);
 Route::get('contact', [ContactController::class, 'index']);
 Route::post('contact', [ContactController::class, 'store']);
+Route::get('/program-kerja', [ProgramKerjaController::class, 'index'])->name('api.program.index');
+Route::put('/program-kerja/{id}', [ProgramKerjaController::class, 'update'])->name('api.program.update');
+Route::delete('/program-kerja/{id}', [ProgramKerjaController::class, 'destroy'])->name('api.program.destroy');
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
-
-
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('agenda', AgendaController::class)->except(['index']);
@@ -67,12 +68,3 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 Route::get('/klaster/{klaster}/indikators', function (Klaster $klaster) {
     return $klaster->indikators;
 });
-
-/*
-|--------------------------------------------------------------------------
-| Program Kerja Routes (KLA)
-|--------------------------------------------------------------------------
-*/
-Route::get('/program-kerja', [ProgramKerjaController::class, 'index'])->name('api.program.index');
-Route::put('/program-kerja/{id}', [ProgramKerjaController::class, 'update'])->name('api.program.update');
-Route::delete('/program-kerja/{id}', [ProgramKerjaController::class, 'destroy'])->name('api.program.destroy');

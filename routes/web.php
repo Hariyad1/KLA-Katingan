@@ -9,25 +9,25 @@
 use App\Models\Media;
 use App\Models\News;
 use App\Models\Agenda;
-use App\Http\Controllers\ProfileController;
+use App\Models\Kategori;
+use App\Models\Setting;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\DynamicPageController;
 use App\Http\Controllers\ContactUsController;
-use App\Models\Kategori;
 use App\Http\Controllers\Admin\SettingController;
-use App\Models\Setting;
 use App\Http\Controllers\WelcomeController;
-use Illuminate\Http\Request;
-use PhpOffice\PhpWord\IOFactory as WordIOFactory;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use Dompdf\Dompdf;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\KlasterController;
 use App\Http\Controllers\User\DataDukungController;
 use App\Http\Controllers\Admin\DataDukungController as AdminDataDukungController;
-use Illuminate\Support\Str;
+use Dompdf\Dompdf;
+use PhpOffice\PhpWord\IOFactory as WordIOFactory;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\ProfileController;
 
 require __DIR__ . '/auth.php';
 
