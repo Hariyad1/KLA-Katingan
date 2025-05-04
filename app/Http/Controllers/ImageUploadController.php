@@ -5,25 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ImageUploadController extends Controller
 {
     public function upload(Request $request)
     {
-        $uploadPath = public_path('images');
-        if (!file_exists($uploadPath)) {
-            mkdir($uploadPath, 0777, true);
-        }
-        
         if($request->hasFile('upload')) {
             $originName = $request->file('upload')->getClientOriginalName();
             $fileName = pathinfo($originName, PATHINFO_FILENAME);
             $extension = $request->file('upload')->getClientOriginalExtension();
             $fileName = Str::slug($fileName) . '_' . time() . '.' . $extension;
         
-            $request->file('upload')->move($uploadPath, $fileName);
-   
-            $url = asset('images/' . $fileName);
+            $path = $request->file('upload')->storeAs('public/ckeditor-images', $fileName);
+            
+            $url = Storage::url($path);
             
             Log::info('Upload successful. CKEditor params:', [
                 'CKEditor' => $request->input('CKEditor'),
