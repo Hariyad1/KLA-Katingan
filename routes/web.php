@@ -212,9 +212,9 @@ Route::prefix('profil')->group(function () {
         return view('profil.index');
     })->name('profil');
     
-    Route::get('/struktur-organisasi', function () {
-        return view('profil.struktur');
-    })->name('profil.struktur');
+    // Route::get('/struktur-organisasi', function () {
+    //     return view('profil.struktur');
+    // })->name('profil.struktur');
     
     Route::get('/visi-misi', function () {
         return view('profil.visi-misi');

@@ -45,11 +45,11 @@
                          class="absolute z-50 w-40 rounded-xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden"
                          style="margin-top: -2px;">
                         <div class="py-1">
-                            <a href="{{ route('profil.struktur') }}" 
+                            {{-- <a href="{{ route('profil.struktur') }}" 
                                class="group relative block px-3 py-1.5 text-xs text-gray-800 hover:text-blue-600 transition-colors duration-200">
                                 <span class="relative z-10">Struktur Organisasi</span>
                                 <div class="absolute inset-0 h-full w-full bg-blue-100/80 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></div>
-                            </a>
+                            </a> --}}
                             <a href="{{ route('profil.visi-misi') }}" 
                                class="group relative block px-3 py-1.5 text-xs text-gray-800 hover:text-blue-600 transition-colors duration-200">
                                 <span class="relative z-10">Visi dan Misi</span>
@@ -185,7 +185,7 @@
                     </svg>
                 </button>
                 <div x-show="subOpen" class="px-4 py-2 bg-gray-50">
-                    <a href="{{ route('profil.struktur') }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Struktur Organisasi</a>
+                    {{-- <a href="{{ route('profil.struktur') }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Struktur Organisasi</a> --}}
                     <a href="{{ route('profil.visi-misi') }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Visi dan Misi</a>
                     <a href="{{ route('profil.program') }}" class="block px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Program Kerja</a>
                 </div>

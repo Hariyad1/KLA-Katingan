@@ -15,7 +15,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <!-- Search dan Filter -->
-                    <div class="mb-4 flex justify-between items-center">
+                    <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
                         <div class="flex items-center gap-2">
                             <span>Show</span>
                             <select id="perPage" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -26,13 +26,13 @@
                             </select>
                             <span>entries</span>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
                             <span>Search:</span>
-                            <div class="relative">
+                            <div class="relative w-full sm:w-auto">
                                 <input type="text" 
                                     id="searchInput" 
                                     placeholder="Cari..." 
-                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 pr-8">
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 pr-8">
                                 <div x-show="isLoading" class="absolute right-2 top-1/2 transform -translate-y-1/2">
                                     <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
                                 </div>
@@ -46,90 +46,92 @@
                             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
                         </div>
                         
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">No</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">OPD</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Klaster</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">Indikator</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200" id="dataDukungTable">
-                                <template x-if="!isLoading && items.length === 0">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 table-fixed">
+                                <thead class="bg-gray-50">
                                     <tr>
-                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                                            Tidak ada data dukung yang tersedia
-                                        </td>
+                                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">No</th>
+                                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">OPD</th>
+                                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Klaster</th>
+                                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">Indikator</th>
+                                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
+                                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Aksi</th>
                                     </tr>
-                                </template>
-                                <template x-for="(item, index) in items" :key="item.id">
-                                    <tr>
-                                        <td class="px-6 py-4 w-16" x-text="startNumber + index"></td>
-                                        <td class="px-6 py-4 w-1/6 truncate" x-text="item.opd?.name"></td>
-                                        <td class="px-6 py-4 w-1/6 truncate" x-text="item.indikator?.klaster?.name"></td>
-                                        <td class="px-6 py-4 w-1/4 break-words" x-text="item.indikator?.name"></td>
-                                        <td class="px-6 py-4">
-                                            <template x-for="file in item.files" :key="file.id">
-                                                <div class="mb-2 p-2 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                                                    <div class="flex items-start gap-2">
-                                                        <div class="flex-shrink-0">
-                                                            <i :class="{
-                                                                'fas fa-file-pdf text-red-500 text-base': file.original_name.toLowerCase().endsWith('.pdf'),
-                                                                'fas fa-file-word text-blue-500 text-base': file.original_name.toLowerCase().endsWith('.doc') || file.original_name.toLowerCase().endsWith('.docx'),
-                                                                'fas fa-file-excel text-green-500 text-base': file.original_name.toLowerCase().endsWith('.xls') || file.original_name.toLowerCase().endsWith('.xlsx'),
-                                                                'fas fa-file-image text-purple-500 text-base': file.original_name.toLowerCase().endsWith('.jpg') || file.original_name.toLowerCase().endsWith('.jpeg') || file.original_name.toLowerCase().endsWith('.png'),
-                                                                'fas fa-file text-gray-500 text-base': !file.original_name.toLowerCase().match(/\.(pdf|doc|docx|xls|xlsx|jpg|jpeg|png)$/)
-                                                            }"></i>
-                                                        </div>
-                                                        <div class="flex-1 min-w-0">
-                                                            <a :href="'/storage/' + file.file.replace('public/', '')" 
-                                                               :download="file.original_name" 
-                                                               class="text-indigo-600 hover:text-indigo-900 text-sm block truncate"
-                                                               :title="file.original_name"
-                                                               x-text="file.original_name.length > 25 ? file.original_name.substring(0, 22) + '...' : file.original_name">
-                                                            </a>
-                                                            <span class="text-xs text-gray-500 block mt-0.5" x-text="formatFileSize(file.size || 0)"></span>
-                                                        </div>
-                                                        <div class="flex-shrink-0">
-                                                            <button type="button" 
-                                                                    @click="confirmDeleteFile(file.id)"
-                                                                    class="text-red-600 hover:text-red-800 p-1">
-                                                                <i class="fas fa-trash text-sm"></i>
-                                                            </button>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="dataDukungTable">
+                                    <template x-if="!isLoading && items.length === 0">
+                                        <tr>
+                                            <td colspan="6" class="px-3 py-4 text-center text-gray-500">
+                                                Tidak ada data dukung yang tersedia
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-for="(item, index) in items" :key="item.id">
+                                        <tr>
+                                            <td class="px-3 py-4 w-12 whitespace-nowrap" x-text="startNumber + index"></td>
+                                            <td class="px-3 py-4 w-1/6 break-words max-w-[150px]" x-text="item.opd?.name"></td>
+                                            <td class="px-3 py-4 w-1/6 break-words max-w-[150px]" x-text="item.indikator?.klaster?.name"></td>
+                                            <td class="px-3 py-4 w-1/4 break-words max-w-[200px]" x-text="item.indikator?.name"></td>
+                                            <td class="px-3 py-4 max-w-[250px]">
+                                                <template x-for="file in item.files" :key="file.id">
+                                                    <div class="mb-2 p-2 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                                                        <div class="flex items-start gap-2">
+                                                            <div class="flex-shrink-0">
+                                                                <i :class="{
+                                                                    'fas fa-file-pdf text-red-500 text-base': file.original_name.toLowerCase().endsWith('.pdf'),
+                                                                    'fas fa-file-word text-blue-500 text-base': file.original_name.toLowerCase().endsWith('.doc') || file.original_name.toLowerCase().endsWith('.docx'),
+                                                                    'fas fa-file-excel text-green-500 text-base': file.original_name.toLowerCase().endsWith('.xls') || file.original_name.toLowerCase().endsWith('.xlsx'),
+                                                                    'fas fa-file-image text-purple-500 text-base': file.original_name.toLowerCase().endsWith('.jpg') || file.original_name.toLowerCase().endsWith('.jpeg') || file.original_name.toLowerCase().endsWith('.png'),
+                                                                    'fas fa-file text-gray-500 text-base': !file.original_name.toLowerCase().match(/\.(pdf|doc|docx|xls|xlsx|jpg|jpeg|png)$/)
+                                                                }"></i>
+                                                            </div>
+                                                            <div class="flex-1 min-w-0">
+                                                                <a :href="'/storage/' + file.file.replace('public/', '')" 
+                                                                :download="file.original_name" 
+                                                                class="text-indigo-600 hover:text-indigo-900 text-sm block break-words"
+                                                                :title="file.original_name"
+                                                                x-text="file.original_name">
+                                                                </a>
+                                                                <span class="text-xs text-gray-500 block mt-0.5" x-text="formatFileSize(file.size || 0)"></span>
+                                                            </div>
+                                                            <div class="flex-shrink-0">
+                                                                <button type="button" 
+                                                                        @click="confirmDeleteFile(file.id)"
+                                                                        class="text-red-600 hover:text-red-800 p-1">
+                                                                    <i class="fas fa-trash text-sm"></i>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
+                                                </template>
+                                            </td>
+                                            <td class="px-3 py-4 text-sm font-medium w-20 whitespace-nowrap">
+                                                <div class="flex items-center space-x-1">
+                                                    <a :href="`/user/data-dukung/${item.id}/edit`" 
+                                                    class="text-indigo-600 hover:text-indigo-900 inline-flex items-center" 
+                                                    title="Edit">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                        </svg>
+                                                    </a>
+                                                    <button type="button" 
+                                                            @click="confirmDelete(item.id)"
+                                                            class="text-red-600 hover:text-red-900 inline-flex items-center" 
+                                                            title="Hapus">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                        </svg>
+                                                    </button>
                                                 </div>
-                                            </template>
-                                        </td>
-                                        <td class="px-6 py-4 text-sm font-medium w-24">
-                                            <div class="flex items-center space-x-2">
-                                                <a :href="`/user/data-dukung/${item.id}/edit`" 
-                                                   class="text-indigo-600 hover:text-indigo-900 inline-flex items-center" 
-                                                   title="Edit">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                                    </svg>
-                                                </a>
-                                                <button type="button" 
-                                                        @click="confirmDelete(item.id)"
-                                                        class="text-red-600 hover:text-red-900 inline-flex items-center" 
-                                                        title="Hapus">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
 
                         <!-- Pagination -->
-                        <div class="mt-4 flex items-center justify-between">
+                        <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                             <div class="text-sm text-gray-700">
                                 Showing 
                                 <span x-text="totalItems === 0 ? '0' : startNumber"></span> 
