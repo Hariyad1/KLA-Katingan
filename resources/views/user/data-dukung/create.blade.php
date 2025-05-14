@@ -32,9 +32,9 @@
                         @csrf
                         <div class="grid grid-cols-1 gap-6">
                             <div>
-                                <label for="opd_id" class="block text-sm font-medium text-gray-700">OPD</label>
+                                <label for="opd_id" class="block text-sm font-medium text-gray-700">Perangkat Daerah</label>
                                 <select name="opd_id" id="opd_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
-                                    <option value="">Pilih OPD</option>
+                                    <option value="">Pilih Perangkat Daerah</option>
                                     @foreach($opds as $opd)
                                         <option value="{{ $opd->id }}" {{ old('opd_id') == $opd->id ? 'selected' : '' }}>{{ $opd->name }}</option>
                                     @endforeach
@@ -219,7 +219,7 @@
             if (typeof jQuery !== 'undefined') {
                 $(document).ready(function() {
                     $('#opd_id').select2({
-                        placeholder: 'Pilih OPD',
+                        placeholder: 'Pilih Perangkat Daerah',
                         allowClear: true,
                         width: '100%'
                     });

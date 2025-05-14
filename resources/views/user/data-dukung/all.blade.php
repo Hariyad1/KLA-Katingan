@@ -5,13 +5,18 @@
         </h2>
     </x-slot>
 
-    <!-- Hidden data container -->
     <div id="dataDukungContainer" 
          data-items="{{ json_encode($dataDukungs->items()) }}" 
          data-total="{{ $dataDukungs->total() }}" 
          data-last-page="{{ $dataDukungs->lastPage() }}" 
          data-per-page="{{ $dataDukungs->perPage() }}" 
          style="display: none;"></div>
+
+    @if(request()->ajax())
+        <script>
+            window.dataDukungItems = @json($dataDukungs->items());
+        </script>
+    @endif
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -29,9 +34,9 @@
                             </select>
                         </div>
                         <div>
-                            <label for="opd_filter" class="block text-sm font-medium text-gray-700 mb-1">OPD</label>
+                            <label for="opd_filter" class="block text-sm font-medium text-gray-700 mb-1">Perangkat Daerah</label>
                             <select id="opd_filter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                <option value="">Semua OPD</option>
+                                <option value="">Semua Perangkat Daerah</option>
                                 @foreach($opds as $opd)
                                     <option value="{{ $opd->id }}">{{ $opd->name }}</option>
                                 @endforeach
@@ -58,7 +63,7 @@
                             <thead>
                                 <tr class="text-left">
                                     <th class="bg-gray-50 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs w-16">No</th>
-                                    <th class="bg-gray-50 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs w-1/6">OPD</th>
+                                    <th class="bg-gray-50 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs w-1/6">Perangkat Daerah</th>
                                     <th class="bg-gray-50 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs w-1/6">Klaster</th>
                                     <th class="bg-gray-50 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs w-1/4">Indikator</th>
                                     <th class="bg-gray-50 sticky top-0 border-b border-gray-200 px-6 py-3 text-gray-600 font-bold tracking-wider uppercase text-xs">File</th>
@@ -195,6 +200,12 @@
                             entriesSelect.value = serverPerPage.toString();
                             perPage = serverPerPage;
                         }
+                        
+                        if (totalItems > allDataDukung.length) {
+                            fetchAllPages(lastPage);
+                        } else {
+                            filterData();
+                        }
                     } catch (parseError) {
                         console.error('Error parsing data:', parseError);
                         throw new Error('Gagal memuat data');
@@ -202,11 +213,52 @@
                 } else {
                     throw new Error('Tidak ada data yang tersedia');
                 }
-                
-                filterData();
             } catch (error) {
                 console.error('Error fetching data:', error);
                 showError('Gagal memuat data. Silakan coba lagi nanti.');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        async function fetchAllPages(lastPage) {
+            try {
+                showLoading(true);
+                
+                const baseUrl = window.location.pathname;
+                const currentParams = new URLSearchParams(window.location.search);
+                let allResults = [...allDataDukung];
+                
+                for (let page = 2; page <= lastPage; page++) {
+                    const pageParams = new URLSearchParams(currentParams);
+                    pageParams.set('page', page);
+                    
+                    const response = await fetch(`${baseUrl}?${pageParams.toString()}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Error fetching page ${page}`);
+                    }
+                    
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const container = doc.getElementById('dataDukungContainer');
+                    
+                    if (container) {
+                        const pageItems = JSON.parse(container.dataset.items);
+                        allResults = [...allResults, ...pageItems];
+                    }
+                }
+                
+                allDataDukung = allResults;
+                filterData();
+            } catch (error) {
+                console.error('Error fetching all pages:', error);
+                filterData();
             } finally {
                 showLoading(false);
             }

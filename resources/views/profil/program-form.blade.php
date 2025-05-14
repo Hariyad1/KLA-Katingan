@@ -33,7 +33,7 @@
         
         <div class="relative z-10 text-center">
             <h1 class="text-5xl font-extrabold text-white mb-4 tracking-wide">
-                TAMBAH PROGRAM KERJA
+                TAMBAH PROGRAM KERJA/KEGIATAN
             </h1>
             <div class="flex items-center justify-center text-white text-lg font-medium">
                 <a href="{{ route('home') }}" class="hover:text-yellow-300 transition-colors">Beranda</a>
@@ -68,14 +68,14 @@
                                 
                                 <!-- OPD -->
                                 <div>
-                                    <label for="input_opd_id" class="block text-sm font-medium text-gray-700 mb-1">OPD <span class="text-red-500">*</span></label>
+                                    <label for="input_opd_id" class="block text-sm font-medium text-gray-700 mb-1">Perangkat Daerah <span class="text-red-500">*</span></label>
                                     <select id="input_opd_id" name="opd_id" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
-                                        <option value="">Pilih OPD</option>
+                                        <option value="">Pilih Perangkat Daerah</option>
                                         @foreach($opds as $o)
                                             <option value="{{ $o->id }}" {{ old('opd_id') == $o->id ? 'selected' : '' }}>{{ $o->name }}</option>
                                         @endforeach
                                     </select>
-                                    <p class="mt-1 text-sm text-gray-500">Pilih Organisasi Perangkat Daerah (OPD) terkait</p>
+                                    <p class="mt-1 text-sm text-gray-500">Pilih Perangkat Daerah terkait</p>
                                 </div>
                                 
                                 <!-- Tahun -->

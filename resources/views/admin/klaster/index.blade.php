@@ -19,10 +19,10 @@
                         <div class="flex items-center gap-2">
                             <label for="entries" class="text-sm text-gray-700">Show</label>
                             <select id="entries" class="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                <option>10</option>
-                                <option>25</option>
-                                <option>50</option>
-                                <option>100</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
                             </select>
                             <span class="text-sm text-gray-700">entries</span>
                         </div>
@@ -107,7 +107,7 @@
         let currentPage = 1;
         let totalPages = 1;
         let searchQuery = '';
-        const perPage = 10;
+        let perPage = 10;
         let allKlasterData = [];
 
         async function fetchAllKlaster() {
@@ -218,6 +218,7 @@
                     allKlasterData = await fetchAllKlaster();
                 }
                 
+                perPage = parseInt(document.getElementById('entries').value);
                 renderTable();
             } catch (error) {
                 console.error('Error:', error);
@@ -234,7 +235,8 @@
             }
         }
 
-        document.getElementById('entries').addEventListener('change', () => {
+        document.getElementById('entries').addEventListener('change', (e) => {
+            perPage = parseInt(e.target.value);
             currentPage = 1;
             renderTable();
         });

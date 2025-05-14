@@ -2,7 +2,7 @@
     <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
         {{-- Informasi Jumlah Item - Pojok Kiri --}}
         <div class="text-sm text-gray-600">
-            Menampilkan {{ $programKerjas->firstItem() }} hingga {{ $programKerjas->lastItem() }} dari {{ $programKerjas->total() }} program kerja
+            Menampilkan {{ $programKerjas->firstItem() }} hingga {{ $programKerjas->lastItem() }} dari {{ $programKerjas->total() }} program kerja/kegiatan
         </div>
         
         {{-- Tombol Pagination - Pojok Kanan --}}
@@ -57,6 +57,6 @@
     </div>
 @else
     <div class="text-sm text-gray-600">
-        Tidak ada program kerja yang ditemukan
+        Tidak ada program kerja/kegiatan yang ditemukan
     </div>
 @endif 

@@ -162,6 +162,8 @@ class DataDukungController extends Controller
 
     public function all(Request $request)
     {
+        $perPage = $request->input('per_page', 10);
+        
         $query = DataDukung::with(['opd', 'indikator.klaster', 'files'])
             ->orderBy('created_at', 'desc');
 
@@ -193,7 +195,7 @@ class DataDukungController extends Controller
             });
         }
 
-        $dataDukungs = $query->paginate(10);
+        $dataDukungs = $query->paginate($perPage)->withQueryString();
         $opds = Opd::orderBy('name')->get();
         $klasters = Klaster::orderBy('name')->get();
 

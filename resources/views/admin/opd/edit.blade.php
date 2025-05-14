@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Edit OPD') }}
+                {{ __('Edit Perangkat Daerah') }}
             </h2>
         </div>
     </x-slot>
@@ -15,7 +15,7 @@
                         @csrf
                         @method('PUT')
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700">Nama OPD</label>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Nama Perangkat Daerah</label>
                             <input type="text" name="name" id="name" value="{{ old('name', $opd->name) }}" 
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('name') border-red-500 @enderror">
                             @error('name')

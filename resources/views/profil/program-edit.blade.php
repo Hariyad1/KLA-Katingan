@@ -33,12 +33,12 @@
         
         <div class="relative z-10 text-center">
             <h1 class="text-5xl font-extrabold text-white mb-4 tracking-wide">
-                EDIT PROGRAM KERJA
+                EDIT PROGRAM KERJA/KEGIATAN
             </h1>
             <div class="flex items-center justify-center text-white text-lg font-medium">
                 <a href="{{ route('home') }}" class="hover:text-yellow-300 transition-colors">Beranda</a>
                 <span class="mx-3 text-yellow-300">•</span>
-                <a href="{{ route('profil.program') }}" class="hover:text-yellow-300 transition-colors">Program Kerja</a>
+                <a href="{{ route('profil.program') }}" class="hover:text-yellow-300 transition-colors">Program Kerja/Kegiatan</a>
                 <span class="mx-3 text-yellow-300">•</span>
                 <span class="text-yellow-300">Edit Program</span>
             </div>
@@ -51,7 +51,7 @@
                 <div class="p-6">
                     <div class="prose max-w-none">
                         <div class="bg-purple-50 p-8 rounded-lg border border-purple-200">
-                            <h3 class="text-2xl font-bold text-purple-800 mb-6">Form Edit Program Kerja</h3>
+                            <h3 class="text-2xl font-bold text-purple-800 mb-6">Form Edit Program Kerja/Kegiatan</h3>
                             
                             @if($errors->any())
                                 <div class="mb-6 p-4 bg-red-100 border border-red-200 text-red-700 rounded-md">
@@ -68,14 +68,14 @@
                                 @method('PUT')
                                 
                                 <div>
-                                    <label for="input_opd_id" class="block text-sm font-medium text-gray-700 mb-1">OPD <span class="text-red-500">*</span></label>
+                                    <label for="input_opd_id" class="block text-sm font-medium text-gray-700 mb-1">Perangkat Daerah <span class="text-red-500">*</span></label>
                                     <select id="input_opd_id" name="opd_id" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
-                                        <option value="">Pilih OPD</option>
+                                        <option value="">Pilih Perangkat Daerah</option>
                                         @foreach($opds as $o)
                                             <option value="{{ $o->id }}" {{ (old('opd_id', $programKerja->opd_id) == $o->id) ? 'selected' : '' }}>{{ $o->name }}</option>
                                         @endforeach
                                     </select>
-                                    <p class="mt-1 text-sm text-gray-500">Pilih Organisasi Perangkat Daerah (OPD) terkait</p>
+                                    <p class="mt-1 text-sm text-gray-500">Pilih Perangkat Daerah terkait</p>
                                 </div>
                                 
                                 <div>
@@ -96,11 +96,11 @@
                                             <option value="{{ $nextYear }}" {{ (old('tahun', $programKerja->tahun) == $nextYear) ? 'selected' : '' }}>{{ $nextYear }}</option>
                                         @endif
                                     </select>
-                                    <p class="mt-1 text-sm text-gray-500">Pilih tahun pelaksanaan program kerja</p>
+                                    <p class="mt-1 text-sm text-gray-500">Pilih tahun pelaksanaan program kerja/kegiatan</p>
                                 </div>
                                 
                                 <div>
-                                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Program Kerja <span class="text-red-500">*</span></label>
+                                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Program Kerja/Kegiatan <span class="text-red-500">*</span></label>
                                     <textarea id="description" name="description" rows="5" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">{{ old('description', $programKerja->description) }}</textarea>
                                 </div>
                                 
@@ -116,8 +116,8 @@
                         </div>
 
                         <div class="mt-8 bg-red-50 p-8 rounded-lg border border-red-200">
-                            <h3 class="text-2xl font-bold text-red-800 mb-6">Hapus Program Kerja</h3>
-                            <p class="text-red-600 mb-4">Perhatian: Tindakan ini akan menghapus program kerja secara permanen dan tidak dapat dikembalikan.</p>
+                            <h3 class="text-2xl font-bold text-red-800 mb-6">Hapus Program Kerja/Kegiatan</h3>
+                            <p class="text-red-600 mb-4">Perhatian: Tindakan ini akan menghapus program kerja/kegiatan secara permanen dan tidak dapat dikembalikan.</p>
                             
                             <form action="{{ route('profil.program.destroy', $programKerja->id) }}" method="POST" id="delete-form">
                                 @csrf
@@ -125,7 +125,7 @@
                                 
                                 <div class="flex justify-start">
                                     <button type="button" id="confirm-delete" class="px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
-                                        Hapus Program Kerja
+                                        Hapus Program Kerja/Kegiatan
                                     </button>
                                 </div>
                             </form>
@@ -184,7 +184,7 @@
         document.getElementById('confirm-delete').addEventListener('click', function() {
             Swal.fire({
                 title: 'Apakah Anda yakin?',
-                text: "Program kerja ini akan dihapus secara permanen!",
+                text: "Program kerja/kegiatan ini akan dihapus secara permanen!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',

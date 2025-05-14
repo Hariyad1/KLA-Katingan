@@ -2,11 +2,11 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Manajemen OPD') }}
+                {{ __('Manajemen Perangkat Daerah') }}
             </h2>
             <a href="{{ route('admin.opd.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                 <i class="fas fa-plus mr-2"></i>
-                <span>Tambah OPD</span>
+                <span>Tambah Perangkat Daerah</span>
             </a>
         </div>
     </x-slot>
@@ -19,10 +19,10 @@
                         <div class="flex items-center gap-2">
                             <label for="entries" class="text-sm text-gray-700">Show</label>
                             <select id="entries" class="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                <option>10</option>
-                                <option>25</option>
-                                <option>50</option>
-                                <option>100</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
                             </select>
                             <span class="text-sm text-gray-700">entries</span>
                         </div>
@@ -49,7 +49,7 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama OPD</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Perangkat Daerah</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Dibuat</th>
                                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
@@ -107,7 +107,7 @@
         let currentPage = 1;
         let totalPages = 1;
         let searchQuery = '';
-        const perPage = 10;
+        let perPage = 10;
         let allOpdData = [];
 
         async function fetchAllOpd() {
@@ -135,7 +135,7 @@
                 return data.data;
             } catch (error) {
                 console.error('Error:', error);
-                notyf.error(error.response?.data?.message || error.message || 'Gagal memuat data OPD');
+                notyf.error(error.response?.data?.message || error.message || 'Gagal memuat data Perangkat Daerah');
                 return [];
             } finally {
                 document.getElementById('loadingSpinner').classList.add('hidden');
@@ -164,7 +164,7 @@
                 tableBody.innerHTML = `
                     <tr>
                         <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                            Tidak ada data OPD
+                            Tidak ada data Perangkat Daerah
                         </td>
                     </tr>
                 `;
@@ -184,12 +184,12 @@
                             ${new Date(opd.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                            <a href="/manage/opd/${opd.id}/edit" class="text-indigo-600 hover:text-indigo-900 inline-flex items-center" title="Edit OPD">
+                            <a href="/manage/opd/${opd.id}/edit" class="text-indigo-600 hover:text-indigo-900 inline-flex items-center" title="Edit Perangkat Daerah">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                             </a>
-                            <button onclick="confirmDelete(${opd.id})" class="text-red-600 hover:text-red-900 inline-flex items-center" title="Hapus OPD">
+                            <button onclick="confirmDelete(${opd.id})" class="text-red-600 hover:text-red-900 inline-flex items-center" title="Hapus Perangkat Daerah">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                 </svg>
@@ -214,14 +214,16 @@
                     allOpdData = await fetchAllOpd();
                 }
                 
+                perPage = parseInt(document.getElementById('entries').value);
                 renderTable();
             } catch (error) {
-                notyf.error('Gagal memuat data OPD');
+                notyf.error('Gagal memuat data Perangkat Daerah');
                 console.error('Error:', error);
             }
         }
 
-        document.getElementById('entries').addEventListener('change', () => {
+        document.getElementById('entries').addEventListener('change', (e) => {
+            perPage = parseInt(e.target.value);
             currentPage = 1;
             renderTable();
         });
@@ -253,7 +255,7 @@
         async function confirmDelete(id) {
             const result = await Swal.fire({
                 title: 'Apakah Anda yakin?',
-                text: "OPD yang dihapus tidak dapat dikembalikan!",
+                text: "Perangkat Daerah yang dihapus tidak dapat dikembalikan!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -279,7 +281,7 @@
                         }
                     });
 
-                    notyf.success('OPD berhasil dihapus');
+                    notyf.success('Perangkat Daerah berhasil dihapus');
                     allOpdData = await fetchAllOpd();
                     renderTable();
                 } catch (error) {
@@ -289,14 +291,14 @@
                         if (error.response.status === 401) {
                             notyf.error('Sesi telah berakhir. Silakan muat ulang halaman.');
                         } else if (error.response.status === 403) {
-                            notyf.error('Anda tidak memiliki izin untuk menghapus OPD ini.');
+                            notyf.error('Anda tidak memiliki izin untuk menghapus Perangkat Daerah ini.');
                         } else if (error.response.status === 422) {
-                            notyf.error('OPD ini tidak dapat dihapus karena masih digunakan di data lain.');
+                            notyf.error('Perangkat Daerah ini tidak dapat dihapus karena masih digunakan di data lain.');
                         } else {
-                            notyf.error(error.response.data?.message || 'Gagal menghapus OPD');
+                            notyf.error(error.response.data?.message || 'Gagal menghapus Perangkat Daerah');
                         }
                     } else {
-                        notyf.error(error.message || 'Gagal menghapus OPD');
+                        notyf.error(error.message || 'Gagal menghapus Perangkat Daerah');
                     }
                 }
             }
