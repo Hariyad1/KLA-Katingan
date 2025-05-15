@@ -2389,6 +2389,377 @@
                 ]
             }
         },
+        "/api/program-kerja": {
+            "get": {
+                "tags": [
+                    "Program Kerja"
+                ],
+                "summary": "Menampilkan daftar program kerja",
+                "description": "Menampilkan daftar program kerja dengan filter dan pencarian",
+                "operationId": "getProgramKerjaList",
+                "parameters": [
+                    {
+                        "name": "tahun",
+                        "in": "query",
+                        "description": "Filter berdasarkan tahun program kerja (opsional)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "opd_id",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Perangkat Daerah (OPD) (opsional)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Kata kunci pencarian pada deskripsi atau nama OPD",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Halaman yang diminta (contoh=1,2,3,dst)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Jumlah item per halaman (contoh=10)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 3
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar program kerja berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "html": {
+                                            "description": "Rendered HTML untuk program kerja",
+                                            "type": "string"
+                                        },
+                                        "pagination": {
+                                            "description": "Rendered HTML untuk pagination",
+                                            "type": "string"
+                                        },
+                                        "total": {
+                                            "description": "Total data program kerja",
+                                            "type": "integer"
+                                        },
+                                        "current_page": {
+                                            "description": "Halaman saat ini",
+                                            "type": "integer"
+                                        },
+                                        "last_page": {
+                                            "description": "Halaman terakhir",
+                                            "type": "integer"
+                                        },
+                                        "per_page": {
+                                            "description": "Jumlah data per halaman",
+                                            "type": "integer"
+                                        },
+                                        "from": {
+                                            "description": "Indeks data pertama pada halaman ini",
+                                            "type": "integer"
+                                        },
+                                        "to": {
+                                            "description": "Indeks data terakhir pada halaman ini",
+                                            "type": "integer"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "description": "Data program kerja dalam format terstruktur",
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "opd_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "opd_name": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    },
+                                                    "tahun": {
+                                                        "type": "integer"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Terjadi kesalahan pada server",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Terjadi kesalahan saat memproses data"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/program-kerja/{id}": {
+            "put": {
+                "tags": [
+                    "Program Kerja"
+                ],
+                "summary": "Memperbarui program kerja",
+                "description": "Memperbarui data program kerja yang sudah ada",
+                "operationId": "updateProgramKerja",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID program kerja yang akan diperbarui",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "opd_id",
+                                    "description",
+                                    "tahun"
+                                ],
+                                "properties": {
+                                    "opd_id": {
+                                        "description": "ID OPD (Perangkat Daerah)",
+                                        "type": "integer"
+                                    },
+                                    "description": {
+                                        "description": "Deskripsi program kerja",
+                                        "type": "string"
+                                    },
+                                    "tahun": {
+                                        "description": "Tahun program kerja",
+                                        "type": "integer",
+                                        "minimum": 2000
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Program kerja berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Program Kerja berhasil diperbarui"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "opd_id": {
+                                                    "type": "integer"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                },
+                                                "tahun": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Program kerja tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No query results for model [App\\\\Models\\\\ProgramKerja]."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "opd_id": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "description": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "tahun": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Program Kerja"
+                ],
+                "summary": "Menghapus program kerja",
+                "description": "Menghapus data program kerja",
+                "operationId": "deleteProgramKerja",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID program kerja yang akan dihapus",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Program kerja berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Program Kerja berhasil dihapus"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Program kerja tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No query results for model [App\\\\Models\\\\ProgramKerja]."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/setting": {
             "get": {
                 "tags": [
@@ -2449,7 +2820,7 @@
                                     },
                                     "url": {
                                         "type": "string",
-                                        "example": "https://example.com"
+                                        "example": "https://example.com / pemenuhan-hak-anak/klaster-1"
                                     },
                                     "image": {
                                         "type": "string",
@@ -2460,7 +2831,7 @@
                                     },
                                     "type": {
                                         "type": "string",
-                                        "example": "link"
+                                        "example": "video / statis"
                                     }
                                 },
                                 "type": "object"
@@ -3062,7 +3433,7 @@
                     },
                     "url": {
                         "type": "string",
-                        "example": "https://example.com"
+                        "example": "https://example.com / pemenuhan-hak-anak/klaster-1"
                     },
                     "image": {
                         "type": "string",
@@ -3075,7 +3446,7 @@
                     },
                     "type": {
                         "type": "string",
-                        "example": "link"
+                        "example": "video / statis"
                     },
                     "created_at": {
                         "type": "string",
@@ -3167,6 +3538,10 @@
         {
             "name": "Kategori",
             "description": "Kategori"
+        },
+        {
+            "name": "Program Kerja",
+            "description": "Program Kerja"
         }
     ]
 }

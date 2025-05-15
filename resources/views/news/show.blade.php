@@ -102,9 +102,11 @@
         }
 
         .news-content img {
-            margin-top: 1.5em !important;
-            margin-bottom: 1.5em !important;
             max-width: 100% !important;
+            height: auto !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+            margin: 0.25em !important;
         }
 
         .news-content iframe {
@@ -229,6 +231,51 @@
         .news-content h4 { font-size: 1em !important; }
         .news-content h5 { font-size: 0.83em !important; }
         .news-content h6 { font-size: 0.67em !important; }
+
+        /* Menambahkan aturan baru untuk format konten yang lebih baik */
+        .news-content p img {
+            display: inline !important;
+            vertical-align: middle !important;
+            margin: 0 0.5em !important;
+        }
+
+        .news-content figure {
+            display: inline-block !important;
+            margin: 0.5em !important;
+            max-width: 100% !important;
+        }
+
+        .news-content figure img {
+            margin: 0 !important;
+        }
+
+        .news-content p:has(img) {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            gap: 0.5em !important;
+        }
+
+        /* Memastikan konten tampil seperti di editor */
+        .news-content [style*="text-align: center"] {
+            text-align: center !important;
+            display: block !important;
+        }
+
+        .news-content [style*="text-align: right"] {
+            text-align: right !important;
+            display: block !important;
+        }
+
+        .news-content [style*="text-align: left"] {
+            text-align: left !important;
+            display: block !important;
+        }
+
+        .news-content [style*="text-align: justify"] {
+            text-align: justify !important;
+            display: block !important;
+        }
     </style>
     @endpush
 </x-main-layout> 

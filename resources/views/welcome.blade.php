@@ -5,10 +5,10 @@
             <!-- Main Slider Container -->
             <div class="flex flex-col lg:flex-row">
                 <!-- Static Content - Responsive -->
-                <div class="w-full lg:w-[320px] relative overflow-hidden">
+                <div class="w-full lg:w-[320px] relative overflow-hidden lg:h-[500px]">
                     <div class="absolute inset-0 flex items-center justify-center">
                         <img src="{{ asset('images/bg-slider-tp1.png') }}" alt="Children Playing" 
-                             class="w-full h-full object-cover lg:object-contain lg:object-bottom">
+                             class="w-full h-full object-contain">
                     </div>
                     <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/70 lg:via-transparent lg:to-black/60"></div>
                     <div class="absolute inset-x-0 p-8 text-center h-full flex flex-col items-center justify-center lg:justify-start lg:top-[5%]">
@@ -91,7 +91,7 @@
                             <div class="absolute inset-0">
                                 <img src="{{ $slide->path }}" 
                                      alt="{{ $slide->name }}" 
-                                     class="w-full h-full object-cover animate-kenburns">
+                                     class="w-full h-full object-contain animate-kenburns">
                             </div>
                             <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></div>
                             <div class="absolute bottom-0 left-0 right-0 p-6 lg:p-12 text-center">
@@ -141,10 +141,10 @@
     <style>
         @keyframes kenburns {
             0% {
-                transform: scale(1.2) translate(0);
+                transform: scale(1.1);
             }
             100% {
-                transform: scale(1) translate(0);
+                transform: scale(1);
             }
         }
 

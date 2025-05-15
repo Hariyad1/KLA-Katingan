@@ -5,7 +5,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Pengaturan Video') }}
+                {{ __('Video') }}
             </h2>
             <a href="{{ route('admin.setting.video.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,7 +45,6 @@
                                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
                                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Halaman</th>
                                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
-                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
                                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
                                     {{-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gambar</th> --}}
                                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Aksi</th>
@@ -134,8 +133,7 @@
             
             filteredData = allSettings.filter(setting => 
                 setting.name.toLowerCase().includes(searchQuery) ||
-                setting.page.toLowerCase().includes(searchQuery) ||
-                setting.type.toLowerCase().includes(searchQuery)
+                setting.page.toLowerCase().includes(searchQuery)
             );
 
             currentPage = 1;
@@ -220,9 +218,6 @@
                     </td>
                     <td class="px-3 py-3">
                         <div class="text-sm text-gray-900 break-words max-w-[200px]" title="${setting.url || '-'}">${setting.url || '-'}</div>
-                    </td>
-                    <td class="px-3 py-3">
-                        <div class="text-sm text-gray-900">${setting.type || '-'}</div>
                     </td>
                     <td class="px-3 py-3">
                         ${setting.content ? `<div class="text-sm text-gray-900 break-words max-w-[200px] max-h-20 overflow-y-auto">${setting.content}</div>` : '-'}

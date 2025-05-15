@@ -27,11 +27,20 @@ class ProgramKerjaController extends Controller
             ->toArray();
             
         $currentYear = (int)date('Y');
+        $previousYear = $currentYear - 1;
+        $nextYear = $currentYear + 1;
+        
         if (!in_array($currentYear, $existingYears)) {
             $existingYears[] = $currentYear;
         }
         
-        $existingYears[] = $currentYear + 1;
+        if (!in_array($previousYear, $existingYears)) {
+            $existingYears[] = $previousYear;
+        }
+        
+        if (!in_array($nextYear, $existingYears)) {
+            $existingYears[] = $nextYear;
+        }
         
         sort($existingYears, SORT_NUMERIC);
         $tahun = $existingYears;
@@ -74,11 +83,20 @@ class ProgramKerjaController extends Controller
         }
         
         $currentYear = (int)date('Y');
+        $previousYear = $currentYear - 1;
+        $nextYear = $currentYear + 1;
+        
         if (!in_array($currentYear, $existingYears)) {
             $existingYears[] = $currentYear;
         }
         
-        $existingYears[] = $currentYear + 1;
+        if (!in_array($previousYear, $existingYears)) {
+            $existingYears[] = $previousYear;
+        }
+        
+        if (!in_array($nextYear, $existingYears)) {
+            $existingYears[] = $nextYear;
+        }
         
         sort($existingYears, SORT_NUMERIC);
         $tahun = $existingYears;

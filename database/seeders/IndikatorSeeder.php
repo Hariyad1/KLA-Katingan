@@ -16,7 +16,7 @@ class IndikatorSeeder extends Seeder
     public function run()
     {
         // Klaster 1 : Hak Sipil dan Kebebasan
-        $klaster1 = Klaster::where('name', 'Hak Sipil dan Kebebasan')->first();
+        $klaster1 = Klaster::where('name', 'Klaster 1 - Hak Sipil dan Kebebasan')->first();
         
         $indikators1 = [
             [
@@ -34,7 +34,7 @@ class IndikatorSeeder extends Seeder
         ];
 
         // Klaster 2 : Lingkungan Keluarga dan Pengasuhan Alternatif
-        $klaster2 = Klaster::where('name', 'Lingkungan Keluarga dan Pengasuhan Alternatif')->first();
+        $klaster2 = Klaster::where('name', 'Klaster 2 - Lingkungan Keluarga dan Pengasuhan Alternatif')->first();
         
         $indikators2 = [
             [
@@ -52,7 +52,7 @@ class IndikatorSeeder extends Seeder
         ];
 
         // Klaster 3 : Kesehatan Dasar dan Kesejahteraan
-        $klaster3 = Klaster::where('name', 'Kesehatan Dasar dan Kesejahteraan')->first();
+        $klaster3 = Klaster::where('name', 'Klaster 3 - Kesehatan Dasar dan Kesejahteraan')->first();
         
         $indikators3 = [
             [
@@ -82,11 +82,19 @@ class IndikatorSeeder extends Seeder
             [
                 'klaster_id' => $klaster3->id,
                 'name' => 'Jumlah anak dari keluarga miskin yang memperoleh akses peningkatan kesejahteraan'
-            ]
+            ],
+            [
+                'klaster_id' => $klaster3->id,
+                'name' => 'Persentase rumah tangga dengan akses air bersih'
+            ],
+            [
+                'klaster_id' => $klaster3->id,
+                'name' => 'Tersedia kawasan tanpa rokok'
+            ]         
         ];
 
         // Klaster 4 : Pendidikan, Pemanfaatan Waktu Luang, dan Kegiatan Budaya
-        $klaster4 = Klaster::where('name', 'Pendidikan, Pemanfaatan Waktu Luang, dan Kegiatan Budaya')->first();
+        $klaster4 = Klaster::where('name', 'Klaster 4 - Pendidikan, Pemanfaatan Waktu Luang, dan Kegiatan Budaya')->first();
         
         $indikators4 = [
             [
@@ -112,7 +120,7 @@ class IndikatorSeeder extends Seeder
         ];
 
         // Klaster 5 : Perlindungan Khusus
-        $klaster5 = Klaster::where('name', 'Perlindungan Khusus')->first();
+        $klaster5 = Klaster::where('name', 'Klaster 5 - Perlindungan Khusus')->first();
         
         $indikators5 = [
             [
@@ -133,10 +141,8 @@ class IndikatorSeeder extends Seeder
             ]
         ];
 
-        // Menggabungkan semua indikator
         $allIndikators = array_merge($indikators1, $indikators2, $indikators3, $indikators4, $indikators5);
-        
-        // Insert ke database
+
         foreach ($allIndikators as $indikator) {
             Indikator::create($indikator);
         }

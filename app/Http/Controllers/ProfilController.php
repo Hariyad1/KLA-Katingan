@@ -27,7 +27,7 @@ class ProfilController extends Controller
         
         if ($search && strlen(trim($search)) >= 2) {
             if (config('database.default') === 'mysql') {
-                $query->whereRaw("MATCH(description) AGAINST(? IN BOOLEAN MODE)", [$search . '*']);
+                $query->whereRaw("LOWER(description) LIKE ?", ['%' . strtolower($search) . '%']);
             } elseif (config('database.default') === 'pgsql') {
                 $query->whereRaw("description ILIKE ?", ['%' . $search . '%']);
             } elseif (config('database.default') === 'sqlite') {
@@ -69,9 +69,23 @@ class ProfilController extends Controller
             ->pluck('tahun')
             ->toArray();
         
-        if (empty($tahunList)) {
-            $tahunList = [date('Y')];
+        $currentYear = (int)date('Y');
+        $previousYear = $currentYear - 1;
+        $nextYear = $currentYear + 1;
+        
+        if (!in_array($currentYear, $tahunList)) {
+            $tahunList[] = $currentYear;
         }
+        
+        if (!in_array($previousYear, $tahunList)) {
+            $tahunList[] = $previousYear;
+        }
+        
+        if (!in_array($nextYear, $tahunList)) {
+            $tahunList[] = $nextYear;
+        }
+        
+        sort($tahunList, SORT_NUMERIC);
         
         return view('profil.program-form', compact('opds', 'tahunList'));
     }
@@ -111,9 +125,27 @@ class ProfilController extends Controller
             ->pluck('tahun')
             ->toArray();
         
-        if (empty($tahunList)) {
-            $tahunList = [date('Y')];
+        $currentYear = (int)date('Y');
+        $previousYear = $currentYear - 1;
+        $nextYear = $currentYear + 1;
+        
+        if (!in_array($programKerja->tahun, $tahunList)) {
+            $tahunList[] = $programKerja->tahun;
         }
+        
+        if (!in_array($currentYear, $tahunList)) {
+            $tahunList[] = $currentYear;
+        }
+        
+        if (!in_array($previousYear, $tahunList)) {
+            $tahunList[] = $previousYear;
+        }
+        
+        if (!in_array($nextYear, $tahunList)) {
+            $tahunList[] = $nextYear;
+        }
+        
+        sort($tahunList, SORT_NUMERIC);
         
         return view('profil.program-edit', compact('programKerja', 'opds', 'tahunList'));
     }

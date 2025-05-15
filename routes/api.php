@@ -26,7 +26,6 @@ Route::get('media', [MediaController::class, 'index']);
 Route::get('media/slideshow', [MediaController::class, 'getSlideshow']);
 Route::get('news', [NewsController::class, 'index']);
 Route::get('setting', [SettingController::class, 'index']);
-Route::post('submit-vote', [VoteController::class, 'store']);
 Route::post('/statistic', [StatisticController::class, 'store']);
 Route::post('/statistic/update-activity', [StatisticController::class, 'updateActivity']);
 Route::get('contact', [ContactController::class, 'index']);
@@ -48,7 +47,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('news', NewsController::class)->except(['index']);
     Route::apiResource('statistic', StatisticController::class)->except(['store', 'updateActivity']);
     Route::apiResource('contact', ContactController::class)->except(['index', 'store']);
-    Route::apiResource('vote', VoteController::class);
     Route::apiResource('data-dukung', DataDukungController::class);
     Route::apiResource('klaster', KlasterController::class);
     Route::apiResource('indikator', IndikatorController::class);

@@ -85,16 +85,6 @@
                                         @foreach($tahunList as $t)
                                             <option value="{{ $t }}" {{ (old('tahun', $programKerja->tahun) == $t) ? 'selected' : '' }}>{{ $t }}</option>
                                         @endforeach
-                                        @php
-                                            $currentYear = (int)date('Y');
-                                            $nextYear = $currentYear + 1;
-                                        @endphp
-                                        @if(!in_array($currentYear, $tahunList))
-                                            <option value="{{ $currentYear }}" {{ (old('tahun', $programKerja->tahun) == $currentYear) ? 'selected' : '' }}>{{ $currentYear }}</option>
-                                        @endif
-                                        @if(!in_array($nextYear, $tahunList))
-                                            <option value="{{ $nextYear }}" {{ (old('tahun', $programKerja->tahun) == $nextYear) ? 'selected' : '' }}>{{ $nextYear }}</option>
-                                        @endif
                                     </select>
                                     <p class="mt-1 text-sm text-gray-500">Pilih tahun pelaksanaan program kerja/kegiatan</p>
                                 </div>

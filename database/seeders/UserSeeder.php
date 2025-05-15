@@ -18,6 +18,13 @@ class UserSeeder extends Seeder
              'status' => 1,
          ]);
 
+         User::create([
+            'name' => 'Admin',
+            'email' => 'admin@kla-katingan.go.id',
+            'password' => Hash::make('admin'),
+            'status' => 1,
+        ]);
+
         // Create Regular User
         User::create([
             'name' => 'User Demo',
@@ -26,7 +33,14 @@ class UserSeeder extends Seeder
             'status' => 0,
         ]);
 
+        User::create([
+            'name' => 'User KLA',
+            'email' => 'user@kla-katingan.go.id',
+            'password' => Hash::make('user'),
+            'status' => 0,
+        ]);
+
         // Create some demo users
-        User::factory(3)->create(['status' => 0]);
+        // User::factory(3)->create(['status' => 0]);
     }
 } 
