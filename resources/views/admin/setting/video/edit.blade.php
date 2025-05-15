@@ -34,7 +34,7 @@
                         </div>
 
                         <div>
-                            <label for="page" class="block text-sm font-medium text-gray-700">Halaman</label>
+                            <label for="page" class="block text-sm font-medium text-gray-700">Halaman (contoh: video)</label>
                             <input type="text" name="page" id="page" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             <p class="text-red-500 text-xs mt-1" id="pageError"></p>
                         </div>
@@ -42,7 +42,7 @@
                         <input type="hidden" name="type" id="type" value="video">
 
                         <div id="urlField">
-                            <label for="url" class="block text-sm font-medium text-gray-700">URL</label>
+                            <label for="url" class="block text-sm font-medium text-gray-700">URL (contoh: https://www.youtube.com/watch?v=example)</label>
                             <input type="text" name="url" id="url" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             <p class="text-red-500 text-xs mt-1" id="urlError"></p>
                         </div>

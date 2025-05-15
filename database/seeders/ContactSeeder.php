@@ -11,16 +11,10 @@ class ContactSeeder extends Seeder
     {
         $contacts = [
             [
-                'name' => 'Pusat Bantuan',
-                'email' => 'help@example.com',
+                'name' => 'Lorem ipsum dolor sit amet',
+                'email' => 'lorem@example.com',
                 'phone' => '021-555-0123',
-                'message' => 'Silakan hubungi kami jika ada pertanyaan',
-            ],
-            [
-                'name' => 'Admin Sistem',
-                'email' => 'admin@example.com',
-                'phone' => '021-555-0124',
-                'message' => 'Bantuan teknis sistem',
+                'message' => 'Lorem ipsum dolor sit amet',
             ],
         ];
 

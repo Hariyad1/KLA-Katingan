@@ -11,18 +11,11 @@ class AgendaSeeder extends Seeder
     {
         $agendas = [
             [
-                'title' => 'Rapat Koordinasi OPD',
-                'description' => 'Rapat koordinasi seluruh OPD terkait program kerja 2024',
+                'title' => 'Lorem ipsum dolor sit amet',
+                'description' => 'Lorem ipsum dolor sit amet',
                 'date' => '2024-03-25',
                 'time' => '09:00:00',
-                'location' => 'Ruang Rapat Utama',
-            ],
-            [
-                'title' => 'Workshop Data Dukung',
-                'description' => 'Pelatihan penggunaan sistem data dukung untuk admin OPD',
-                'date' => '2024-03-27',
-                'time' => '13:00:00',
-                'location' => 'Aula Diklat',
+                'location' => 'Lorem ipsum dolor sit amet',
             ],
         ];
 

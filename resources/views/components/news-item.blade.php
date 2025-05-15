@@ -14,7 +14,7 @@
             </h3>
             <p class="text-gray-600 text-sm mt-2">{{ \Carbon\Carbon::parse($item->created_at)->format('d F Y') }}</p>
             <p class="text-gray-700 mt-2 line-clamp-3">{{ Str::limit(strip_tags($item->content), 150) }}</p>
-            <a href="{{ route('news.show', $item->id) }}" class="text-blue-600 hover:text-blue-800 mt-2 inline-block">... selanjutnya</a>
+            <a href="{{ route('news.show', $item->id) }}" class="text-blue-600 hover:text-blue-800 mt-2 inline-block">... selengkapnya</a>
         </div>
     </div>
     @endforeach

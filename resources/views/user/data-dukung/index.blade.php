@@ -28,7 +28,7 @@
                         </div>
                         <div class="flex items-center gap-2 w-full sm:w-auto">
                             <span>Search:</span>
-                            <div class="relative w-full sm:w-auto">
+                            <div class="relative w-full sm:w-auto" x-data="{ isLoading: false }">
                                 <input type="text" 
                                     id="searchInput" 
                                     placeholder="Cari..." 
@@ -325,7 +325,6 @@
                             this.updatePaginationInfo();
                         }
                         
-                        console.log(`Ditemukan ${this.totalItems} data dari ${this.cachedData.length} total data`);
                     } catch (error) {
                         console.error('Error filtering data:', error);
                     } finally {
@@ -353,7 +352,6 @@
                         });
 
                         this.cachedData = response.data.data?.data || [];
-                        console.log(`Cached ${this.cachedData.length} data for searching`);
                         
                         this.filterData();
                     } catch (error) {

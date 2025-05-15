@@ -114,7 +114,7 @@
                 entities_additional: '',
                 htmlEncodeOutput: false,
                 forceSimpleAmpersand: true,
-                removeDialogTabs: 'image:advanced;image:link;link:advanced;link:target'
+                removeDialogTabs: 'image:advanced;image:link;image:Link;link:advanced;link:target'
             });
             
             CKEDITOR.on('dialogDefinition', function(ev) {

@@ -1,11 +1,11 @@
 <x-main-layout>
     <div class="min-h-screen flex items-center justify-center">
         <div class="max-w-2xl mx-auto text-center px-4">
-            <div class="mb-8">
+            {{-- <div class="mb-8">
                 <img src="{{ asset('images/404.svg') }}" 
                      alt="Page Not Found" 
                      class="w-full max-w-md mx-auto">
-            </div>
+            </div> --}}
 
             <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-4">
                 Oops! Halaman Tidak Ditemukan

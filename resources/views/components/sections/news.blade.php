@@ -40,7 +40,7 @@
                         </p>
                         <a href="{{ route('news.show', ['title' => Str::slug($item->title)]) }}" 
                             class="inline-flex items-center mt-3 text-indigo-600 hover:text-indigo-800 transition-colors">
-                            ... selanjutnya
+                            ... selengkapnya
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                             </svg>

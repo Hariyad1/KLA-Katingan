@@ -4,7 +4,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Tambah Pengaturan Statis') }}
+                {{ __('Tambah Pengaturan Baru') }}
             </h2>
             <a href="{{ route('admin.setting.statis.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -41,7 +41,7 @@
                         </div>
 
                         <div>
-                            <label for="page" class="block text-sm font-medium text-gray-700">Halaman</label>
+                            <label for="page" class="block text-sm font-medium text-gray-700">Halaman (contoh: klaster)</label>
                             <input type="text" name="page" id="page" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             <p class="text-red-500 text-xs mt-1" id="pageError"></p>
                         </div>
@@ -208,7 +208,7 @@
                 entities_additional: '',
                 htmlEncodeOutput: false,
                 forceSimpleAmpersand: true,
-                removeDialogTabs: 'image:advanced;image:link;link:advanced;link:target'
+                removeDialogTabs: 'image:advanced;image:link;image:Link;link:advanced;link:target'
             });
             
             CKEDITOR.on('dialogDefinition', function(ev) {

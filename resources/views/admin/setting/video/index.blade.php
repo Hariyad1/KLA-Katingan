@@ -38,17 +38,17 @@
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 table-fixed">
+                        <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">No</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Nama</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Halaman</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[30%]">URL</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%]">Tipe</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">Deskripsi</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">No</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Halaman</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
                                     {{-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gambar</th> --}}
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Aksi</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="settingsTableBody" class="bg-white divide-y divide-gray-200 relative">
@@ -209,25 +209,25 @@
             settings.forEach((setting, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="px-6 py-4 w-10">
+                    <td class="px-3 py-3">
                         <div class="text-sm text-gray-900">${startIndex + index + 1}</div>
                     </td>
-                    <td class="px-6 py-4 w-[15%]">
-                        <div class="text-sm text-gray-900 break-words" title="${setting.name || '-'}">${setting.name || '-'}</div>
+                    <td class="px-3 py-3">
+                        <div class="text-sm text-gray-900 break-words max-w-[150px]" title="${setting.name || '-'}">${setting.name || '-'}</div>
                     </td>
-                    <td class="px-6 py-4 w-[15%]">
-                        <div class="text-sm text-gray-900 break-words" title="${setting.page || '-'}">${setting.page || '-'}</div>
+                    <td class="px-3 py-3">
+                        <div class="text-sm text-gray-900 break-words max-w-[150px]" title="${setting.page || '-'}">${setting.page || '-'}</div>
                     </td>
-                    <td class="px-6 py-4 w-[30%]">
-                        <div class="text-sm text-gray-900 break-words" title="${setting.url || '-'}">${setting.url || '-'}</div>
+                    <td class="px-3 py-3">
+                        <div class="text-sm text-gray-900 break-words max-w-[200px]" title="${setting.url || '-'}">${setting.url || '-'}</div>
                     </td>
-                    <td class="px-6 py-4 w-[10%]">
+                    <td class="px-3 py-3">
                         <div class="text-sm text-gray-900">${setting.type || '-'}</div>
                     </td>
-                    <td class="px-6 py-4 w-[20%]">
-                        ${setting.content ? `<div class="text-sm text-gray-900 break-words max-h-20 overflow-y-auto">${setting.content}</div>` : '-'}
+                    <td class="px-3 py-3">
+                        ${setting.content ? `<div class="text-sm text-gray-900 break-words max-w-[200px] max-h-20 overflow-y-auto">${setting.content}</div>` : '-'}
                     </td>
-                    <td class="px-6 py-4 w-20">
+                    <td class="px-3 py-3 w-20">
                         <div class="flex space-x-3">
                             <a href="/manage/setting/video/edit/${setting.id}" class="text-blue-600 hover:text-blue-900">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

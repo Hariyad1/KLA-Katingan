@@ -60,13 +60,13 @@
                                         <tr>
                                             <td class="px-6 py-4 w-12" x-text="(currentPage - 1) * perPage + index + 1"></td>
                                             <td class="px-6 py-4 w-[15%]">
-                                                <div class="truncate" :title="item.opd.name" x-text="item.opd.name"></div>
+                                                <div class="break-words" x-text="item.opd.name"></div>
                                             </td>
                                             <td class="px-6 py-4 w-[15%]">
-                                                <div class="truncate" :title="item.indikator.klaster.name" x-text="item.indikator.klaster.name"></div>
+                                                <div class="break-words" x-text="item.indikator.klaster.name"></div>
                                             </td>
                                             <td class="px-6 py-4 w-[30%]">
-                                                <div class="break-words" :title="item.indikator.name" x-text="item.indikator.name"></div>
+                                                <div class="break-words" x-text="item.indikator.name"></div>
                                             </td>
                                             <td class="px-6 py-4 w-[25%] max-h-40 overflow-y-auto">
                                                 <template x-for="file in item.files" :key="file.id">

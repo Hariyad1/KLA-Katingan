@@ -22,7 +22,6 @@ class DatabaseSeeder extends Seeder
             KategoriSeeder::class,
             NewsSeeder::class,
             SettingSeeder::class,
-            VoteSeeder::class,
             MediaSeeder::class,
             DocumentMediaSeeder::class,
             ProgramKerjaSeeder::class,

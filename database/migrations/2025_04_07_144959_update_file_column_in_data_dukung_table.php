@@ -9,7 +9,6 @@ return new class extends Migration
     public function up()
     {
         Schema::table('data_dukung_files', function (Blueprint $table) {
-            // Ubah kolom file menjadi nullable
             $table->string('file')->nullable()->change();
         });
     }
@@ -17,7 +16,6 @@ return new class extends Migration
     public function down()
     {
         Schema::table('data_dukung_files', function (Blueprint $table) {
-            // Kembalikan kolom file menjadi not null
             $table->string('file')->nullable(false)->change();
         });
     }

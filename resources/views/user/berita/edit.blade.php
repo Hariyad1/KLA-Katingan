@@ -2,6 +2,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <div class="pl-4 py-12">
+        <form id="ckeditor-form" action="{{ route('upload.image') }}" method="post" enctype="multipart/form-data" style="display: none;">
+            @csrf
+            <input type="file" name="upload">
+        </form>
+        
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
@@ -45,23 +50,15 @@
                             @if($news->image)
                                 <div class="mt-2">
                                     @php
-                                        $imagePaths = [
-                                            asset('storage/' . $news->image),
-                                            asset($news->image),
-                                            url($news->image),
-                                            $news->image
-                                        ];
+                                        $imagePath = str_replace('storage/', '', $news->image);
                                     @endphp
-
-                                    @foreach($imagePaths as $index => $path)
-                                        <img src="{{ $path }}" 
-                                             alt="Gambar Berita" 
-                                             class="h-32 w-auto {{ $index > 0 ? 'hidden' : '' }}"
-                                             onerror="this.classList.add('hidden'); document.getElementById('img-{{ $index + 1 }}')?.classList.remove('hidden');"
-                                             id="img-{{ $index }}">
-                                    @endforeach
-
-                                    <p id="img-{{ count($imagePaths) }}" class="hidden text-red-500 mt-2">
+                                    
+                                    <img src="{{ asset('storage/' . $imagePath) }}" 
+                                         alt="Gambar Berita" 
+                                         class="h-32 w-auto"
+                                         onerror="this.style.display='none'; document.getElementById('image-error').style.display='block';">
+                                    
+                                    <p id="image-error" style="display:none;" class="text-red-500 mt-2">
                                         Gambar tidak dapat ditampilkan. Upload gambar baru.
                                     </p>
                                 </div>
@@ -87,9 +84,17 @@
     <script src="{{ asset('ckeditor/ckeditor.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            var token = '{{ csrf_token() }}';
+            
+            var uploadUrl = '{{ route("upload.image") }}?_token=' + token;
+            
             CKEDITOR.replace('content', {
                 height: 400,
-                removeButtons: 'PasteFromWord',
+                filebrowserUploadUrl: uploadUrl,
+                filebrowserImageUploadUrl: uploadUrl,
+                filebrowserImageBrowseUrl: false,
+                uploadUrl: uploadUrl,
+                removeDialogTabs: 'image:advanced;image:link;image:Link;link:advanced;link:target',
                 toolbar: [
                     { name: 'document', items: [ 'Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates' ] },
                     { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo' ] },
@@ -104,8 +109,6 @@
                     { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
                     { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
                 ],
-                filebrowserUploadMethod: 'form',
-                filebrowserUploadUrl: '{{ route("upload.image") }}',
                 allowedContent: true,
                 extraPlugins: 'wysiwygarea',
                 enterMode: CKEDITOR.ENTER_P,
@@ -119,6 +122,7 @@
                 entities_additional: '',
                 htmlEncodeOutput: false,
                 forceSimpleAmpersand: true
+                
             });
 
             document.getElementById('editForm').addEventListener('submit', function(e) {
