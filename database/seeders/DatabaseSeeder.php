@@ -16,15 +16,7 @@ class DatabaseSeeder extends Seeder
             KlasterSeeder::class,
             IndikatorSeeder::class,
             OpdSeeder::class,
-            DataDukungSeeder::class,
-            AgendaSeeder::class,
-            ContactSeeder::class,
             KategoriSeeder::class,
-            NewsSeeder::class,
-            SettingSeeder::class,
-            MediaSeeder::class,
-            DocumentMediaSeeder::class,
-            ProgramKerjaSeeder::class,
         ]);
     }
 }
