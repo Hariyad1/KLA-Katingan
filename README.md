@@ -51,14 +51,39 @@ php artisan key:generate
 php artisan migrate
 ```
 
-8. Compile asset:
+8. Buat symbolic link untuk storage:
+```bash
+php artisan storage:link
+```
+
+9. Compile asset:
 ```bash
 npm run dev
 ```
 
-9. Jalankan server:
+10. Jalankan server:
 ```bash
 php artisan serve
+```
+
+## Deployment
+
+1. Build asset untuk production:
+```bash
+npm run build
+```
+
+2. Pastikan symbolic link storage sudah dibuat:
+```bash
+php artisan storage:link
+```
+
+3. Optimasi Laravel:
+```bash
+php artisan optimize
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 ```
 
 ## Struktur Proyek
@@ -69,7 +94,7 @@ php artisan serve
 - `routes/` - Definisi route aplikasi
 - `public/` - File-file publik yang dapat diakses langsung
 
-## Pengembangan```
+## Pengembangan
 
 ## Kontribusi
 
