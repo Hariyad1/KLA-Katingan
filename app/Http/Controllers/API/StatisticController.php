@@ -70,20 +70,22 @@ class StatisticController extends Controller
      *         )
      *     )
      * )
-     */
-    public function store(Request $request)
+     */    public function store(Request $request)
     {
         $agent = new Agent();
         $ip = $request->ip();
+        $browser = $agent->browser();
+        $userAgent = $request->header('User-Agent');
         
         $existingRecord = Statistic::where('ip', $ip)
+            ->where('browser', $browser)
             ->whereDate('created_at', today())
             ->first();
             
         if (!$existingRecord) {
             $statistic = new Statistic();
             $statistic->ip = $ip;
-            $statistic->browser = $agent->browser();
+            $statistic->browser = $browser;
             $statistic->os = $agent->platform();
             $statistic->last_activity = now();
             $statistic->save();
@@ -195,12 +197,14 @@ class StatisticController extends Controller
             'browser_stats' => $browserStats,
             'os_stats' => $osStats
         ]);
-    }
-
-    public function updateActivity(Request $request)
+    }    public function updateActivity(Request $request)
     {
         $ip = $request->ip();
+        $agent = new Agent();
+        $browser = $agent->browser();
+        
         $record = Statistic::where('ip', $ip)
+            ->where('browser', $browser)
             ->whereDate('created_at', today())
             ->first();
         

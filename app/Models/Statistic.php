@@ -60,9 +60,7 @@ class Statistic extends Model
             ->selectRaw('COUNT(*) as count')
             ->groupBy('os')
             ->get();
-    }
-
-    public static function updateActivity($ip)
+    }    public static function updateActivity($ip)
     {
         $record = self::where('ip', $ip)
             ->whereDate('created_at', today())
@@ -79,7 +77,6 @@ class Statistic extends Model
     public static function getOnlineVisitors()
     {
         return self::where('last_activity', '>=', now()->subMinutes(5))
-            ->distinct('ip')
             ->count();
     }
 } 
