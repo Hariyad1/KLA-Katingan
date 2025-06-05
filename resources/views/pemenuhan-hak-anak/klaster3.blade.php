@@ -38,16 +38,16 @@
         </div>
         
         <!-- Content -->
-        <div class="relative z-10 text-center">
-            <h1 class="text-5xl font-extrabold text-white mb-4 tracking-wide">
+        <div class="relative z-10 text-center px-4 sm:px-6 md:px-8">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4 md:mb-6 tracking-wide mx-auto max-w-4xl">
                 KESEHATAN DASAR DAN KESEJAHTERAAN
             </h1>
-            <div class="flex items-center justify-center text-white text-lg font-medium">
-                <a href="{{ route('home') }}" class="hover:text-yellow-300 transition-colors">Beranda</a>
-                <span class="mx-3 text-yellow-300">•</span>
-                <a href="#" class="hover:text-yellow-300 transition-colors">Pemenuhan Hak Anak</a>
-                <span class="mx-3 text-yellow-300">•</span>
-                <span class="text-yellow-300">Klaster 3</span>
+            <div class="flex flex-wrap items-center justify-center text-white text-base md:text-lg font-medium px-2">
+                <a href="{{ route('home') }}" class="hover:text-yellow-300 transition-colors px-1">Beranda</a>
+                <span class="mx-2 md:mx-3 text-yellow-300">•</span>
+                <a href="#" class="hover:text-yellow-300 transition-colors px-1">Pemenuhan Hak Anak</a>
+                <span class="mx-2 md:mx-3 text-yellow-300">•</span>
+                <span class="text-yellow-300 px-1">Klaster 3</span>
             </div>
         </div>
     </div>

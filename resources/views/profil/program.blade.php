@@ -31,16 +31,16 @@
             </div>
         </div>
         
-        <div class="relative z-10 text-center">
-            <h1 class="text-5xl font-extrabold text-white mb-4 tracking-wide">
+        <div class="relative z-10 text-center px-4 py-8">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-wide mx-4">
                 PROGRAM KERJA/KEGIATAN
             </h1>
-            <div class="flex items-center justify-center text-white text-lg font-medium">
-                <a href="{{ route('home') }}" class="hover:text-yellow-300 transition-colors">Beranda</a>
-                <span class="mx-3 text-yellow-300">•</span>
-                <a href="#" class="hover:text-yellow-300 transition-colors">Profil</a>
-                <span class="mx-3 text-yellow-300">•</span>
-                <span class="text-yellow-300">Program Kerja/Kegiatan</span>
+            <div class="flex items-center justify-center text-white text-base md:text-lg font-medium space-x-2 md:space-x-3">
+                <a href="{{ route('home') }}" class="hover:text-yellow-300 transition-colors px-1">Beranda</a>
+                <span class="text-yellow-300">•</span>
+                <a href="#" class="hover:text-yellow-300 transition-colors px-1">Profil</a>
+                <span class="text-yellow-300">•</span>
+                <span class="text-yellow-300 px-1">Program Kerja/Kegiatan</span>
             </div>
         </div>
     </div>
@@ -426,7 +426,7 @@
                 <div class="p-6">
                     <div class="prose max-w-none">
                         <div class="mb-8 bg-gray-50 p-6 rounded-lg">
-                            <div class="flex justify-between items-center mb-4">
+                            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 px-4">
                                 <h3 class="text-xl font-bold text-gray-800">Filter Program Kerja/Kegiatan</h3>
                                 <a href="{{ route('profil.program.create') }}" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors flex items-center gap-2">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

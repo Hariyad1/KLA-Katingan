@@ -60,9 +60,12 @@ class Statistic extends Model
             ->selectRaw('COUNT(*) as count')
             ->groupBy('os')
             ->get();
-    }    public static function updateActivity($ip)
+    }
+    
+    public static function updateActivity($ip, $sessionId)
     {
         $record = self::where('ip', $ip)
+            ->where('browser', 'LIKE', '%' . $sessionId . '%')
             ->whereDate('created_at', today())
             ->first();
         
@@ -79,4 +82,4 @@ class Statistic extends Model
         return self::where('last_activity', '>=', now()->subMinutes(5))
             ->count();
     }
-} 
+}

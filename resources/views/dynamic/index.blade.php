@@ -31,42 +31,43 @@
             </div>
         </div>
         
-        <div class="relative z-10 text-center">
-            <h1 class="text-5xl font-extrabold text-white mb-4 tracking-wide uppercase">
+        <div class="relative z-10 text-center px-4 sm:px-6 md:px-8">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4 md:mb-6 tracking-wide uppercase mx-auto max-w-5xl">
                 {{ $setting->name }}
             </h1>
-            <div class="flex items-center justify-center text-white text-lg font-medium">
-                <a href="{{ route('home') }}" class="hover:text-yellow-300 transition-colors">Beranda</a>
+            <div class="flex flex-wrap items-center justify-center text-white text-base md:text-lg font-medium px-2">
+                <a href="{{ route('home') }}" class="hover:text-yellow-300 transition-colors px-1">Beranda</a>
                 @foreach(explode('/', trim(request()->path(), '/')) as $segment)
-                    <span class="mx-3 text-yellow-300">•</span>
-                    <span class="capitalize {{ $loop->last ? 'text-yellow-300' : '' }}">
+                    <span class="mx-2 md:mx-3 text-yellow-300">•</span>
+                    <span class="capitalize px-1 {{ $loop->last ? 'text-yellow-300' : '' }}">
                         {{ str_replace('-', ' ', $segment) }}
                     </span>
                 @endforeach
             </div>
         </div>
-    </div>
-
-    <div class="py-12">
+    </div>    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <div class="dynamic-content prose max-w-none">
-                        @foreach($allSettings as $content)
-                            @if($content['image'])
-                                <div class="mb-6 flex justify-center">
-                                    <img src="{{ asset($content['image']) }}" 
-                                         alt="{{ $content['name'] }}" 
-                                         class="max-w-2xl w-full h-auto rounded-lg shadow-md object-cover">
+            @if(isset($allSettings) && count($allSettings) > 0)
+                @foreach($allSettings as $content)
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
+                        <div class="p-6">
+                            <div class="prose max-w-none">
+                                @if(isset($content['image']) && $content['image'])
+                                    <div class="mb-6">
+                                        <img src="{{ asset($content['image']) }}" 
+                                             alt="{{ $content['name'] ?? '' }}" 
+                                             class="w-full h-auto rounded-lg object-cover">
+                                    </div>
+                                @endif
+
+                                <div class="space-y-4">
+                                    {!! $content['content'] !!}
                                 </div>
-                            @endif
-                            <div class="mb-8">
-                                {!! $content['content'] !!}
                             </div>
-                        @endforeach
+                        </div>
                     </div>
-                </div>
-            </div>
+                @endforeach
+            @endif
         </div>
     </div>
 

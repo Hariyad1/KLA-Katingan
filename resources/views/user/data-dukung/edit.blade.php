@@ -432,7 +432,7 @@
             }
 
             if (file.size > 50 * 1024 * 1024) {
-                error.textContent = 'Ukuran file maksimal 50MB';
+                error.textContent = 'Ukuran file maksimal 25MB';
                 error.classList.remove('hidden');
                 input.value = '';
                 preview.classList.add('hidden');

@@ -76,7 +76,7 @@
                                     </div>
                                 </div>
 
-                                <p class="mt-4 text-sm text-gray-500">Format file: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG. Maksimal 50MB per file.</p>
+                                <p class="mt-4 text-sm text-gray-500">Format file: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG. Maksimal 25MB per file.</p>
                                 
                               <div id="selectedFiles" class="mt-4 space-y-2"></div>
                                 

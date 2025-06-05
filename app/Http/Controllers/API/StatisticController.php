@@ -77,24 +77,21 @@ class StatisticController extends Controller
         $browser = $agent->browser();
         $userAgent = $request->header('User-Agent');
         
-        $existingRecord = Statistic::where('ip', $ip)
-            ->where('browser', $browser)
-            ->whereDate('created_at', today())
-            ->first();
-            
-        if (!$existingRecord) {
-            $statistic = new Statistic();
-            $statistic->ip = $ip;
-            $statistic->browser = $browser;
-            $statistic->os = $agent->platform();
-            $statistic->last_activity = now();
-            $statistic->save();
-        } else {
-            $existingRecord->last_activity = now();
-            $existingRecord->save();
-        }
-
-        return response()->json(['status' => 'success']);
+        $sessionId = substr(md5($userAgent . time() . rand(1000, 9999)), 0, 10);
+        
+        $browserWithSession = $browser . ' [' . $sessionId . ']';
+        
+        $statistic = new Statistic();
+        $statistic->ip = $ip;
+        $statistic->browser = $browserWithSession;
+        $statistic->os = $agent->platform();
+        $statistic->last_activity = now();
+        $statistic->save();
+        
+        return response()->json([
+            'status' => 'success',
+            'session_id' => $sessionId
+        ]);
     }
 
     /**
@@ -200,19 +197,29 @@ class StatisticController extends Controller
     }    public function updateActivity(Request $request)
     {
         $ip = $request->ip();
-        $agent = new Agent();
-        $browser = $agent->browser();
+        $sessionId = $request->input('session_id');
+        
+        if (empty($sessionId)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Session ID is required'
+            ], 400);
+        }
         
         $record = Statistic::where('ip', $ip)
-            ->where('browser', $browser)
+            ->where('browser', 'LIKE', '%' . $sessionId . '%')
             ->whereDate('created_at', today())
             ->first();
         
         if ($record) {
             $record->last_activity = now();
             $record->save();
+            return response()->json(['status' => 'success']);
         }
         
-        return response()->json(['status' => 'success']);
+        return response()->json([
+            'status' => 'error', 
+            'message' => 'Session not found'
+        ], 404);
     }
-} 
+}

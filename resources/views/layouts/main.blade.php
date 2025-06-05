@@ -49,36 +49,76 @@
 
     <script>
         function recordVisitorStatistics() {
-            // console.log('Memulai pencatatan statistik pengunjung...');
+
+            let sessionId = localStorage.getItem('visitor_session_id');
             
-            axios.post('/api/statistic', {}, {
+            if (!sessionId) {
+                axios.post('/api/statistic', {}, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.data.session_id) {
+                        localStorage.setItem('visitor_session_id', response.data.session_id);
+                        sessionId = response.data.session_id;
+                        
+                        setupActivityUpdates(sessionId);
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error mencatat statistik:', error);
+                });
+            } else {
+                setupActivityUpdates(sessionId);
+            }
+        }
+        
+        function setupActivityUpdates(sessionId) {
+            updateActivity(sessionId);
+            
+            setInterval(() => {
+                updateActivity(sessionId);
+            }, 120000);
+        }
+        
+        function updateActivity(sessionId) {
+            axios.post('/api/statistic/update-activity', {
+                session_id: sessionId
+            }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 }
-            })
-            .then(response => {
-                // console.log('✅ Statistik berhasil dicatat:', response.data);
-                
-                setInterval(() => {
-                    axios.post('/api/statistic/update-activity', {}, {
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        }
-                    });
-                }, 120000);
-            })
-            .catch(error => {
-                console.error('❌ Error mencatat statistik:', error);
+            }).catch(error => {
+                if (error.response && (error.response.status === 404 || error.response.status === 400)) {
+                    localStorage.removeItem('visitor_session_id');
+                    recordVisitorStatistics();
+                } else {
+                    console.error('❌ Error updating activity:', error);
+                }
             });
         }
 
+        window.addEventListener('beforeunload', () => {
+            const expiry = Date.now() + (10 * 60 * 1000);
+            localStorage.setItem('visitor_session_expiry', expiry);
+        });
+        
         document.addEventListener('DOMContentLoaded', function() {
+            const sessionExpiry = localStorage.getItem('visitor_session_expiry');
+            if (sessionExpiry && Date.now() > parseInt(sessionExpiry)) {
+                localStorage.removeItem('visitor_session_id');
+                localStorage.removeItem('visitor_session_expiry');
+            }
+            
             recordVisitorStatistics();
         });
     </script>
 
     @stack('scripts')
 </body>
-</html> 
+</html>
