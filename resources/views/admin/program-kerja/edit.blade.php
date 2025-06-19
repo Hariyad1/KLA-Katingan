@@ -11,20 +11,25 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <form action="{{ route('admin.program-kerja.update', $programKerja) }}" method="POST">
+                    <form action="{{ route('admin.program-kerja.update', $programKerja) }}" method="POST" id="editForm">
                         @csrf
                         @method('PUT')
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- OPD -->
                             <div>
-                                <label for="opd_id" class="block text-sm font-medium text-gray-700">Perangkat Daerah</label>
-                                <select name="opd_id" id="opd_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <label for="opd_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Perangkat Daerah <span class="text-red-500">*</span>
+                                </label>
+                                <select name="opd_id" id="opd_id" required
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">Pilih Perangkat Daerah</option>
                                     @foreach($opds as $opd)
-                                        <option value="{{ $opd->id }}" {{ (old('opd_id', $programKerja->opd_id) == $opd->id) ? 'selected' : '' }}>{{ $opd->name }}</option>
+                                        <option value="{{ $opd->id }}" {{ (old('opd_id', $programKerja->opd_id) == $opd->id) ? 'selected' : '' }}>
+                                            {{ $opd->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 @error('opd_id')
@@ -34,35 +39,130 @@
                             
                             <!-- Tahun -->
                             <div>
-                                <label for="tahun" class="block text-sm font-medium text-gray-700">Tahun</label>
-                                <select name="tahun" id="tahun" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <label for="tahun" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Tahun <span class="text-red-500">*</span>
+                                </label>
+                                <select name="tahun" id="tahun" required
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     @foreach($tahun as $t)
-                                        <option value="{{ $t }}" {{ (old('tahun', $programKerja->tahun) == $t) ? 'selected' : '' }}>{{ $t }}</option>
+                                        <option value="{{ $t }}" {{ (old('tahun', $programKerja->tahun) == $t) ? 'selected' : '' }}>
+                                            {{ $t }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 @error('tahun')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
-                            </div>
-                            
-                            <!-- Deskripsi -->
-                            <div class="md:col-span-2">
-                                <label for="description" class="block text-sm font-medium text-gray-700">Deskripsi Program Kerja</label>
-                                <textarea name="description" id="description" rows="5" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ old('description', $programKerja->description) }}</textarea>
+                            </div>                            <div class="md:col-span-2">
+                                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Deskripsi Program Kerja <span class="text-red-500">*</span>
+                                </label>                                <textarea name="description" id="description" rows="6" required
+                                          placeholder="Masukkan deskripsi program kerja..."
+                                          class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ old('description', $programKerja->description) }}</textarea>
                                 @error('description')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                    <p class="mt-2 text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
                         
-                        <div class="mt-6 flex justify-end">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
-                                Perbarui
+                        <div class="mt-8 flex items-center justify-end space-x-4">
+                            <a href="{{ route('admin.program-kerja.index') }}" 
+                               class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                                Batal
+                            </a>
+                            <button type="submit" 
+                                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Perbarui Program Kerja
                             </button>
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
+            </div>        </div>
     </div>
-</x-app-layout> 
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script src="{{ asset('ckeditor/ckeditor.js') }}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    
+    <script>
+        const notyf = new Notyf({
+            duration: 4000,
+            position: {
+                x: 'right',
+                y: 'top',
+            }
+        });
+
+        // Initialize CKEditor
+        let editor;
+        CKEDITOR.replace('description', {
+            height: 300,
+            toolbar: [
+                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
+                { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'] },
+                { name: 'links', items: ['Link', 'Unlink'] },
+                { name: 'insert', items: ['Table'] },
+                { name: 'styles', items: ['Format'] },
+                { name: 'tools', items: ['Maximize'] }            ],
+            on: {
+                instanceReady: function(evt) {
+                    editor = evt.editor;
+                },
+                change: function() {
+                    // Optional: Add any change handlers here
+                }
+            }
+        });
+
+        // Form validation
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            const opdSelect = document.getElementById('opd_id');
+            const tahunSelect = document.getElementById('tahun');
+            
+            if (!opdSelect.value) {
+                e.preventDefault();
+                notyf.error('Silakan pilih Perangkat Daerah');
+                opdSelect.focus();
+                return;
+            }
+            
+            if (!tahunSelect.value) {
+                e.preventDefault();
+                notyf.error('Silakan pilih Tahun');
+                tahunSelect.focus();
+                return;
+            }
+            
+            if (editor) {
+                const description = editor.getData().replace(/<[^>]*>/g, '').trim();
+                
+                if (description.length < 10) {
+                    e.preventDefault();
+                    notyf.error('Deskripsi program kerja minimal 10 karakter');
+                    editor.focus();
+                    return;
+                }
+                
+                if (description.length > 2000) {
+                    e.preventDefault();                    notyf.error('Deskripsi program kerja minimal 10 karakter');
+                    editor.focus();
+                    return;
+                }
+            }
+        });
+
+        // Show success/error messages
+        @if(session('success'))
+            notyf.success("{{ session('success') }}");
+        @endif
+
+        @if(session('error'))
+            notyf.error("{{ session('error') }}");
+        @endif
+    </script>
+    @endpush
+</x-app-layout>

@@ -8,38 +8,33 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class ProfilController extends Controller
-{
-    public function program(Request $request)
+{    public function program(Request $request)
     {
-        $tahun = $request->tahun;
-        $opd_id = $request->opd_id ?? null;
-        $search = $request->search ?? null;
+        $tahun = $request->get('tahun');
+        $opd_id = $request->get('opd_id');
+        $search = $request->get('search');
 
         $query = ProgramKerja::with('opd');
         
-        if ($tahun) {
+        // Filter by tahun
+        if (!empty($tahun)) {
             $query->where('tahun', $tahun);
         }
         
-        if ($opd_id) {
+        // Filter by OPD
+        if (!empty($opd_id)) {
             $query->where('opd_id', $opd_id);
         }
-        
-        if ($search && strlen(trim($search)) >= 2) {
-            if (config('database.default') === 'mysql') {
-                $query->whereRaw("LOWER(description) LIKE ?", ['%' . strtolower($search) . '%']);
-            } elseif (config('database.default') === 'pgsql') {
-                $query->whereRaw("description ILIKE ?", ['%' . $search . '%']);
-            } elseif (config('database.default') === 'sqlite') {
-                $query->whereRaw("description LIKE ? COLLATE NOCASE", ['%' . $search . '%']);
-            } else {
-                $query->whereRaw("LOWER(description) LIKE ?", ['%' . strtolower($search) . '%']);
-            }
+          // Filter by search
+        if (!empty($search) && strlen(trim($search)) >= 2) {
+            $searchTerm = trim($search);
+            $query->whereRaw('LOWER(description) LIKE ?', ['%' . strtolower($searchTerm) . '%']);
         }
         
-        $programKerjas = $query->latest()->paginate(3);
+        $programKerjas = $query->orderBy('created_at', 'desc')->paginate(3);
+        $programKerjas->appends($request->all());
             
-        $opds = Opd::all();
+        $opds = Opd::orderBy('name')->get();
         
         $tahunList = ProgramKerja::select('tahun')
             ->distinct()
@@ -52,8 +47,14 @@ class ProfilController extends Controller
         }
         
         if ($request->ajax()) {
-            $apiUrl = route('api.program.index', $request->all());
-            return redirect()->to($apiUrl);
+            $html = '';
+            $html .= '<div id="program-container" class="space-y-6 mt-6">';
+            $html .= view('profil.partials.program-cards', compact('programKerjas'))->render();
+            $html .= '</div>';
+            $html .= '<div id="pagination-container" class="mt-6">';
+            $html .= view('profil.partials.pagination', compact('programKerjas'))->render();
+            $html .= '</div>';
+            return $html;
         }
         
         return view('profil.program', compact('programKerjas', 'opds', 'tahun', 'tahunList', 'opd_id', 'search'));

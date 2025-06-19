@@ -17,7 +17,7 @@ use App\Http\Controllers\API\DataDukungController;
 use App\Http\Controllers\API\KlasterController;
 use App\Http\Controllers\API\IndikatorController;
 use App\Http\Controllers\API\OpdController;
-use App\Http\Controllers\Api\ProgramKerjaController;
+use App\Http\Controllers\API\ProgramKerjaController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -31,8 +31,6 @@ Route::post('/statistic/update-activity', [StatisticController::class, 'updateAc
 Route::get('contact', [ContactController::class, 'index']);
 Route::post('contact', [ContactController::class, 'store']);
 Route::get('/program-kerja', [ProgramKerjaController::class, 'index'])->name('api.program.index');
-Route::put('/program-kerja/{id}', [ProgramKerjaController::class, 'update'])->name('api.program.update');
-Route::delete('/program-kerja/{id}', [ProgramKerjaController::class, 'destroy'])->name('api.program.destroy');
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

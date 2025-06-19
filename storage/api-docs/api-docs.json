@@ -2419,7 +2419,7 @@
                     {
                         "name": "search",
                         "in": "query",
-                        "description": "Kata kunci pencarian pada deskripsi atau nama OPD",
+                        "description": "Kata kunci pencarian pada deskripsi program kerja (minimal 2 karakter)",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -2428,7 +2428,7 @@
                     {
                         "name": "page",
                         "in": "query",
-                        "description": "Halaman yang diminta (contoh=1,2,3,dst)",
+                        "description": "Halaman yang diminta",
                         "required": false,
                         "schema": {
                             "type": "integer",
@@ -2438,11 +2438,11 @@
                     {
                         "name": "per_page",
                         "in": "query",
-                        "description": "Jumlah item per halaman (contoh=10)",
+                        "description": "Jumlah item per halaman",
                         "required": false,
                         "schema": {
                             "type": "integer",
-                            "default": 3
+                            "default": 10
                         }
                     }
                 ],
@@ -2453,13 +2453,9 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "html": {
-                                            "description": "Rendered HTML untuk program kerja",
-                                            "type": "string"
-                                        },
-                                        "pagination": {
-                                            "description": "Rendered HTML untuk pagination",
-                                            "type": "string"
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
                                         },
                                         "total": {
                                             "description": "Total data program kerja",
@@ -2485,12 +2481,8 @@
                                             "description": "Indeks data terakhir pada halaman ini",
                                             "type": "integer"
                                         },
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
                                         "data": {
-                                            "description": "Data program kerja dalam format terstruktur",
+                                            "description": "Data program kerja",
                                             "type": "array",
                                             "items": {
                                                 "properties": {
@@ -2499,9 +2491,6 @@
                                                     },
                                                     "opd_id": {
                                                         "type": "integer"
-                                                    },
-                                                    "opd_name": {
-                                                        "type": "string"
                                                     },
                                                     "description": {
                                                         "type": "string"
@@ -2516,6 +2505,28 @@
                                                     "updated_at": {
                                                         "type": "string",
                                                         "format": "date-time"
+                                                    },
+                                                    "opd": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "code": {
+                                                                "type": "string"
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string",
+                                                                "format": "date-time"
+                                                            },
+                                                            "updated_at": {
+                                                                "type": "string",
+                                                                "format": "date-time"
+                                                            }
+                                                        },
+                                                        "type": "object"
                                                     }
                                                 },
                                                 "type": "object"
@@ -2538,218 +2549,7 @@
                                             "example": false
                                         },
                                         "message": {
-                                            "type": "string",
-                                            "example": "Terjadi kesalahan saat memproses data"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/program-kerja/{id}": {
-            "put": {
-                "tags": [
-                    "Program Kerja"
-                ],
-                "summary": "Memperbarui program kerja",
-                "description": "Memperbarui data program kerja yang sudah ada",
-                "operationId": "updateProgramKerja",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID program kerja yang akan diperbarui",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "opd_id",
-                                    "description",
-                                    "tahun"
-                                ],
-                                "properties": {
-                                    "opd_id": {
-                                        "description": "ID OPD (Perangkat Daerah)",
-                                        "type": "integer"
-                                    },
-                                    "description": {
-                                        "description": "Deskripsi program kerja",
-                                        "type": "string"
-                                    },
-                                    "tahun": {
-                                        "description": "Tahun program kerja",
-                                        "type": "integer",
-                                        "minimum": 2000
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Program kerja berhasil diperbarui",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Program Kerja berhasil diperbarui"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer"
-                                                },
-                                                "opd_id": {
-                                                    "type": "integer"
-                                                },
-                                                "description": {
-                                                    "type": "string"
-                                                },
-                                                "tahun": {
-                                                    "type": "integer"
-                                                },
-                                                "created_at": {
-                                                    "type": "string",
-                                                    "format": "date-time"
-                                                },
-                                                "updated_at": {
-                                                    "type": "string",
-                                                    "format": "date-time"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Program kerja tidak ditemukan",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "No query results for model [App\\\\Models\\\\ProgramKerja]."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validasi gagal",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The given data was invalid."
-                                        },
-                                        "errors": {
-                                            "properties": {
-                                                "opd_id": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "description": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "tahun": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Program Kerja"
-                ],
-                "summary": "Menghapus program kerja",
-                "description": "Menghapus data program kerja",
-                "operationId": "deleteProgramKerja",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID program kerja yang akan dihapus",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Program kerja berhasil dihapus",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Program Kerja berhasil dihapus"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Program kerja tidak ditemukan",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "No query results for model [App\\\\Models\\\\ProgramKerja]."
+                                            "type": "string"
                                         }
                                     },
                                     "type": "object"

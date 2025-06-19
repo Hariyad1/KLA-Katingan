@@ -188,6 +188,7 @@
             const paginationContainer = document.getElementById('pagination-container');
             const searchLoader = document.getElementById('searchLoader');
             
+            let searchTimeout;
             const baseUrl = window.location.origin;
             
             function fetchData(url) {
@@ -198,7 +199,7 @@
                 fetch(url, {
                     method: 'GET',
                     headers: {
-                        'Accept': 'application/json',
+                        'Accept': 'text/html',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
                     cache: 'no-store'
@@ -207,24 +208,30 @@
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-                    return response.json();
+                    return response.text();
                 })
-                .then(data => {
-                    updateUI(data);
+                .then(html => {
+                    // Update both containers with new content
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
                     
-                    if (!url.includes('/api/')) {
-                        const browserUrl = new URL(url);
-                        window.history.pushState({}, '', browserUrl.toString());
-                    } else {
-                        const browserUrl = new URL(window.location.pathname, window.location.origin);
-                        const apiUrl = new URL(url, window.location.origin);
-                        
-                        apiUrl.searchParams.forEach((value, key) => {
-                            browserUrl.searchParams.set(key, value);
-                        });
-                        
-                        window.history.pushState({}, '', browserUrl.toString());
+                    const newProgramContainer = tempDiv.querySelector('#program-container');
+                    const newPaginationContainer = tempDiv.querySelector('#pagination-container');
+                    
+                    if (newProgramContainer && programContainer) {
+                        programContainer.innerHTML = newProgramContainer.innerHTML;
                     }
+                    
+                    if (newPaginationContainer && paginationContainer) {
+                        paginationContainer.innerHTML = newPaginationContainer.innerHTML;
+                    }
+                    
+                    // Re-initialize event handlers for new content
+                    initializeEventHandlers();
+                    
+                    // Update URL without page reload
+                    const browserUrl = new URL(url);
+                    window.history.pushState({}, '', browserUrl.toString());
                 })
                 .catch(error => {
                     console.error('Fetch error:', error);
@@ -286,75 +293,16 @@
                 
                 if (tahunSelect.value) params.append('tahun', tahunSelect.value);
                 if (opdSelect.value) params.append('opd_id', opdSelect.value);
-                if (searchInput.value.trim()) params.append('search', searchInput.value.trim());
+                if (searchInput.value.trim() && searchInput.value.trim().length >= 2) {
+                    params.append('search', searchInput.value.trim());
+                }
                 
-                return `${baseUrl}/api/program-kerja?${params.toString()}`;
+                return `${baseUrl}/profil/program-kerja?${params.toString()}`;
             }
             
             function initializeEventHandlers() {
-                document.querySelectorAll('.delete-program').forEach(button => {
-                    button.addEventListener('click', handleDelete);
-                });
-                
                 document.querySelectorAll('.pagination-link').forEach(link => {
                     link.addEventListener('click', handlePaginationClick);
-                });
-            }
-            
-            function handleDelete(e) {
-                const programId = this.getAttribute('data-id');
-                
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Program kerja/kegiatan ini akan dihapus secara permanen!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Ya, hapus!',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        searchLoader.classList.remove('hidden');
-                        
-                        fetch(`${baseUrl}/api/program-kerja/${programId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(response => {
-                            if (!response.ok) throw new Error('Network response was not ok');
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                showSuccessMessage('Program Kerja/Kegiatan berhasil dihapus.');
-                                fetchData(buildApiUrl());
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error!',
-                                    text: 'Gagal menghapus program kerja/kegiatan',
-                                    confirmButtonColor: '#9333ea'
-                                });
-                                searchLoader.classList.add('hidden');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Delete error:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: 'Gagal menghapus program kerja/kegiatan. Silakan coba lagi.',
-                                confirmButtonColor: '#9333ea'
-                            });
-                            searchLoader.classList.add('hidden');
-                        });
-                    }
                 });
             }
             
@@ -379,10 +327,13 @@
                         url.searchParams.set('opd_id', opdSelect.value);
                     }
                     
-                    const apiUrl = `${baseUrl}/api/program-kerja${url.search}`;
-                    console.log('Pagination URL:', apiUrl);
+                    const controllerUrl = `${baseUrl}/profil/program-kerja${url.search}`;
+                    console.log('Pagination URL:', controllerUrl);
                     
-                    fetchData(apiUrl);
+                    fetchData(controllerUrl);
+                    
+                    // Re-initialize event handlers for new content
+                    initializeEventHandlers();
                     
                     programContainer.scrollIntoView({ behavior: 'smooth' });
                 } catch (error) {
@@ -412,6 +363,14 @@
                 fetchData(buildApiUrl());
             });
             
+            // Add search input event listener
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    fetchData(buildApiUrl());
+                }, 500); // Delay 500ms after user stops typing
+            });
+            
             tahunSelect.addEventListener('change', () => fetchData(buildApiUrl()));
             opdSelect.addEventListener('change', () => fetchData(buildApiUrl()));
             
@@ -428,12 +387,6 @@
                         <div class="mb-8 bg-gray-50 p-6 rounded-lg">
                             <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 px-4">
                                 <h3 class="text-xl font-bold text-gray-800">Filter Program Kerja/Kegiatan</h3>
-                                <a href="{{ route('profil.program.create') }}" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors flex items-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                    Tambah Program Kerja/Kegiatan
-                                </a>
                             </div>
                             <form action="{{ route('profil.program') }}" method="GET" id="filterForm" class="flex flex-wrap items-end gap-4">
                                 <div class="grid grid-cols-10 gap-4 w-full">
@@ -486,9 +439,11 @@
                             </div>
                             
                             <div id="program-container" class="space-y-6 mt-6">
-                                <div id="searchLoader" class="search-loader-container hidden py-10 flex justify-center items-center">
-                                    <div class="search-loader"></div>
-                                    <span class="ml-2 text-gray-600">Memuat data...</span>
+                                <div id="searchLoader" class="search-loader-container py-10 hidden">
+                                    <div class="flex justify-center items-center">
+                                        <div class="search-loader"></div>
+                                        <span class="ml-2 text-gray-600">Memuat data...</span>
+                                    </div>
                                 </div>
                                 @include('profil.partials.program-cards', ['programKerjas' => $programKerjas])
                             </div>

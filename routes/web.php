@@ -220,17 +220,10 @@ Route::prefix('profil')->group(function () {
         return view('profil.visi-misi');
     })->name('profil.visi-misi');
     
-    Route::get('/program-kerja', function () {
-        return view('profil.program');
-    })->name('profil.program');
+    Route::get('/program-kerja', [App\Http\Controllers\ProfilController::class, 'program'])->name('profil.program');
 });
 
-Route::get('/profil/program-kerja', [App\Http\Controllers\ProfilController::class, 'program'])->name('profil.program');
-Route::get('/profil/program-kerja/tambah', [App\Http\Controllers\ProfilController::class, 'create'])->name('profil.program.create');
-Route::post('/profil/program-kerja', [App\Http\Controllers\ProfilController::class, 'store'])->name('profil.program.store');
-Route::get('/profil/program-kerja/{id}/edit', [App\Http\Controllers\ProfilController::class, 'edit'])->name('profil.program.edit');
-Route::put('/profil/program-kerja/{id}', [App\Http\Controllers\ProfilController::class, 'update'])->name('profil.program.update');
-Route::delete('/profil/program-kerja/{id}', [App\Http\Controllers\ProfilController::class, 'destroy'])->name('profil.program.destroy');
+// Remove CRUD routes for public - only viewing is allowed for guests
 
 Route::prefix('pemenuhan-hak-anak')->group(function () {
     // Route::get('/', function () {
@@ -508,7 +501,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin/data-dukung')->name('admin.d
     Route::delete('/file/{file}', [AdminDataDukungController::class, 'destroyFile'])->name('destroy-file');
 });
 
-Route::middleware(['auth', 'admin'])->prefix('manage/program-kerja')->name('admin.program-kerja.')->group(function () {
+Route::middleware(['auth'])->prefix('manage/program-kerja')->name('admin.program-kerja.')->group(function () {
     Route::get('/', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'index'])->name('index');
     Route::get('/create', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'create'])->name('create');
     Route::post('/', [App\Http\Controllers\Admin\ProgramKerjaController::class, 'store'])->name('store');
