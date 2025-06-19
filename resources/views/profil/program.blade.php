@@ -194,7 +194,7 @@
             function fetchData(url) {
                 searchLoader.classList.remove('hidden');
                 
-                console.log('Fetching data from:', url);
+                //console.log('Fetching data from:', url);
                 
                 fetch(url, {
                     method: 'GET',
@@ -328,7 +328,7 @@
                     }
                     
                     const controllerUrl = `${baseUrl}/profil/program-kerja${url.search}`;
-                    console.log('Pagination URL:', controllerUrl);
+                    //console.log('Pagination URL:', controllerUrl);
                     
                     fetchData(controllerUrl);
                     
