@@ -93,49 +93,42 @@
                 y: 'top',
             }
         });
-
-        // Initialize CKEditor
         let editor;
         CKEDITOR.replace('description', {
-            height: 300,
-            toolbar: [
-                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
-                { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'] },
-                { name: 'links', items: ['Link', 'Unlink'] },
-                { name: 'insert', items: ['Table'] },
-                { name: 'styles', items: ['Format'] },
-                { name: 'tools', items: ['Maximize'] }
-            ],
+            height: 400,
+            filebrowserUploadUrl: "{{ route('upload.image', ['_token' => csrf_token()]) }}",
+            filebrowserUploadMethod: 'form',
+                toolbar: [
+                    { name: 'document', items: [ 'Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates' ] },
+                    { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', '-', 'Undo', 'Redo' ] },
+                    { name: 'editing', items: [ 'Find', 'Replace', '-', 'SelectAll', '-', 'Scayt' ] },
+                    { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'CopyFormatting', 'RemoveFormat' ] },
+                    '/',
+                    { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl' ] },
+                    { name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
+                    { name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'SpecialChar' ] },
+                    '/',
+                    { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+                    { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
+                    { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
+                ],
+            removeButtons: 'Underline,Subscript,Superscript',
+            format_tags: 'p;h1;h2;h3;pre',
+            removeDialogTabs: 'image:advanced;link:advanced',
+            stylesSet: 'default',
+            contentsCss: ['https://cdn.ckeditor.com/4.22.1/standard-all/contents.css'],
+            bodyClass: 'document-editor',
+            allowedContent: true,
+            extraAllowedContent: '*(*);*{*}',
             on: {
                 instanceReady: function(evt) {
                     editor = evt.editor;
-                    updateCharCount();
                 },
                 change: function() {
-                    updateCharCount();
+                    // Optional: Add any change handlers here
                 }
             }
-        });
-
-        // Character count for description
-        const charCount = document.getElementById('charCount');
-          function updateCharCount() {
-            if (editor) {
-                const text = editor.getData().replace(/<[^>]*>/g, ''); // Remove HTML tags
-                const count = text.length;
-                charCount.textContent = count;
-                
-                if (count < 10) {
-                    charCount.parentElement.classList.add('text-red-500');
-                    charCount.parentElement.classList.remove('text-gray-400');
-                } else {
-                    charCount.parentElement.classList.add('text-gray-400');
-                    charCount.parentElement.classList.remove('text-red-500');
-                }
-            }
-        }
-
-        // Form validation
+        });        // Form validation
         document.getElementById('createForm').addEventListener('submit', function(e) {
             const opdSelect = document.getElementById('opd_id');
             const tahunSelect = document.getElementById('tahun');
@@ -160,12 +153,6 @@
                 if (description.length < 10) {
                     e.preventDefault();
                     notyf.error('Deskripsi program kerja minimal 10 karakter');
-                    editor.focus();
-                    return;
-                }
-                  if (description.length > 2000) {
-                    e.preventDefault();
-                    notyf.error('Deskripsi program kerja maksimal 2000 karakter');
                     editor.focus();
                     return;
                 }
