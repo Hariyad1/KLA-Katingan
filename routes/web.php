@@ -212,9 +212,6 @@ Route::prefix('profil')->group(function () {
         return view('profil.index');
     })->name('profil');
     
-    // Route::get('/struktur-organisasi', function () {
-    //     return view('profil.struktur');
-    // })->name('profil.struktur');
     
     Route::get('/visi-misi', function () {
         return view('profil.visi-misi');
@@ -223,12 +220,8 @@ Route::prefix('profil')->group(function () {
     Route::get('/program-kerja', [App\Http\Controllers\ProfilController::class, 'program'])->name('profil.program');
 });
 
-// Remove CRUD routes for public - only viewing is allowed for guests
 
 Route::prefix('pemenuhan-hak-anak')->group(function () {
-    // Route::get('/', function () {
-    //     return view('pemenuhan-hak-anak.index');
-    // })->name('pemenuhan-hak-anak');
     
     Route::get('/klaster-1', [KlasterController::class, 'klaster1'])->name('pemenuhan-hak-anak.klaster1');
     
@@ -348,7 +341,7 @@ Route::get('/berita/halaman/{page}', function ($page) {
     return view('beranda.berita', compact('news', 'categories'));
 })->name('berita.page');
 
-Route::get('/berita/baca/{title}', [NewsController::class, 'show'])->name('news.show');
+Route::get('/berita/baca/{title}', [NewsController::class, 'show'])->name('berita.detail');
 
 Route::middleware(['auth', 'admin'])->prefix('manage')->name('admin.')->group(function () {
     Route::prefix('users')->group(function () {
@@ -422,27 +415,6 @@ Route::prefix('galeri')->group(function () {
     })->name('gallery.show')->where('id', '[0-9]+');
 });
 
-Route::get('/berita/{kategori?}', function ($kategori = null) {
-    $query = News::with(['kategori', 'creator'])
-                ->where('status', 1)
-                ->latest();
-    
-    if ($kategori) {
-        $query->whereHas('kategori', function($q) use ($kategori) {
-            $q->where('name', 'like', str_replace('-', ' ', $kategori));
-        });
-    }
-    
-    $news = $query->paginate(3);
-    if ($kategori) {
-        $news->appends(['kategori' => $kategori]);
-    }
-    
-    $categories = Kategori::withCount('news')->get();
-    
-    return view('beranda.berita', compact('news', 'categories', 'kategori'));
-})->name('berita');
-
 Route::post('/upload-image', [App\Http\Controllers\ImageUploadController::class, 'upload'])->name('upload.image');
 
 Route::middleware(['auth'])->delete('/admin/news/{id}', [NewsController::class, 'destroy'])->name('admin.news.destroy');
@@ -468,7 +440,7 @@ Route::middleware(['auth', 'admin'])->prefix('manage/opd')->name('admin.opd.')->
     Route::delete('/{opd}', [App\Http\Controllers\Admin\OpdController::class, 'destroy'])->name('destroy');
 });
 
-Route::middleware(['auth', 'admin'])->prefix('manage/data-dukung')->name('admin.data-dukung.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('manage/data-dukung')->name('admin.manage-data-dukung.')->group(function () {
     Route::get('/', [App\Http\Controllers\Admin\DataDukungController::class, 'index'])->name('index');
     Route::get('/create', [App\Http\Controllers\Admin\DataDukungController::class, 'create'])->name('create');
     Route::post('/', [App\Http\Controllers\Admin\DataDukungController::class, 'store'])->name('store');
@@ -476,6 +448,17 @@ Route::middleware(['auth', 'admin'])->prefix('manage/data-dukung')->name('admin.
     Route::put('/{dataDukung}', [App\Http\Controllers\Admin\DataDukungController::class, 'update'])->name('update');
     Route::delete('/{dataDukung}', [App\Http\Controllers\Admin\DataDukungController::class, 'destroy'])->name('destroy');
     Route::delete('/file/{file}', [App\Http\Controllers\Admin\DataDukungController::class, 'destroyFile'])->name('destroy-file');
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin/data-dukung')->name('admin.data-dukung.')->group(function () {
+    Route::get('/', [AdminDataDukungController::class, 'index'])->name('index');
+    Route::get('/all', [AdminDataDukungController::class, 'all'])->name('all');
+    Route::get('/create', [AdminDataDukungController::class, 'create'])->name('create');
+    Route::post('/', [AdminDataDukungController::class, 'store'])->name('store');
+    Route::get('/{dataDukung}/edit', [AdminDataDukungController::class, 'edit'])->name('edit');
+    Route::put('/{dataDukung}', [AdminDataDukungController::class, 'update'])->name('update');
+    Route::delete('/{dataDukung}', [AdminDataDukungController::class, 'destroy'])->name('destroy');
+    Route::delete('/file/{file}', [AdminDataDukungController::class, 'destroyFile'])->name('destroy-file');
 });
 
 Route::middleware(['auth'])->prefix('user/data-dukung')->name('user.data-dukung.')->group(function () {
@@ -488,17 +471,6 @@ Route::middleware(['auth'])->prefix('user/data-dukung')->name('user.data-dukung.
     Route::delete('/{dataDukung}', [DataDukungController::class, 'destroy'])->name('destroy');
     Route::delete('/file/{file}', [DataDukungController::class, 'destroyFile'])->name('destroy-file');
     Route::get('/list', [DataDukungController::class, 'list'])->name('list');
-});
-
-Route::middleware(['auth', 'admin'])->prefix('admin/data-dukung')->name('admin.data-dukung.')->group(function () {
-    Route::get('/', [AdminDataDukungController::class, 'index'])->name('index');
-    Route::get('/all', [AdminDataDukungController::class, 'all'])->name('all');
-    Route::get('/create', [AdminDataDukungController::class, 'create'])->name('create');
-    Route::post('/', [AdminDataDukungController::class, 'store'])->name('store');
-    Route::get('/{dataDukung}/edit', [AdminDataDukungController::class, 'edit'])->name('edit');
-    Route::put('/{dataDukung}', [AdminDataDukungController::class, 'update'])->name('update');
-    Route::delete('/{dataDukung}', [AdminDataDukungController::class, 'destroy'])->name('destroy');
-    Route::delete('/file/{file}', [AdminDataDukungController::class, 'destroyFile'])->name('destroy-file');
 });
 
 Route::middleware(['auth'])->prefix('manage/program-kerja')->name('admin.program-kerja.')->group(function () {

@@ -88,7 +88,7 @@
                             @endif
                             
                             <h3 class="mt-3 text-xl font-semibold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors">
-                                <a href="{{ route('news.show', ['title' => Str::slug($item->title)]) }}">
+                                <a href="{{ route('berita.detail', ['title' => Str::slug($item->title)]) }}">
                                     {{ $item->title }}
                                 </a>
                             </h3>

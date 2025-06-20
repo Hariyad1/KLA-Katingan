@@ -28,7 +28,7 @@
                     </div>
                     <div class="w-full md:w-2/3">
                         <h3 class="text-xl font-semibold text-indigo-700 hover:text-indigo-900">
-                            <a href="{{ route('news.show', ['title' => Str::slug($item->title)]) }}">
+                            <a href="{{ route('berita.detail', ['title' => Str::slug($item->title)]) }}">
                                 {{ $item->title }}
                             </a>
                         </h3>
@@ -38,7 +38,7 @@
                         <p class="text-gray-600 mt-2 line-clamp-3">
                             {{ Str::limit(strip_tags($item->content), 150) }}
                         </p>
-                        <a href="{{ route('news.show', ['title' => Str::slug($item->title)]) }}" 
+                        <a href="{{ route('berita.detail', ['title' => Str::slug($item->title)]) }}" 
                             class="inline-flex items-center mt-3 text-indigo-600 hover:text-indigo-800 transition-colors">
                             ... selengkapnya
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

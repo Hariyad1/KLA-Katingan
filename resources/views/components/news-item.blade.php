@@ -10,11 +10,11 @@
         </div>
         <div class="w-2/3">
             <h3 class="text-xl font-semibold text-blue-600 hover:text-blue-800">
-                <a href="{{ route('news.show', [$item->id, Str::slug($item->title)]) }}">{{ $item->title }}</a>
+                <a href="{{ route('berita.detail', [$item->id, Str::slug($item->title)]) }}">{{ $item->title }}</a>
             </h3>
             <p class="text-gray-600 text-sm mt-2">{{ \Carbon\Carbon::parse($item->created_at)->format('d F Y') }}</p>
             <p class="text-gray-700 mt-2 line-clamp-3">{{ Str::limit(strip_tags($item->content), 150) }}</p>
-            <a href="{{ route('news.show', $item->id) }}" class="text-blue-600 hover:text-blue-800 mt-2 inline-block">... selengkapnya</a>
+            <a href="{{ route('berita.detail', $item->id) }}" class="text-blue-600 hover:text-blue-800 mt-2 inline-block">... selengkapnya</a>
         </div>
     </div>
     @endforeach
